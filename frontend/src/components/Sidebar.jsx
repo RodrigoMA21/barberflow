@@ -1,16 +1,26 @@
+import { Link } from "react-router-dom";
+
 function Sidebar() {
   return (
     <aside className="w-64 bg-black text-white p-6">
       <h2 className="text-2xl font-bold mb-10">BarberFlow</h2>
 
       <nav className="flex flex-col gap-4">
-        <button className="text-left hover:text-gray-400">Dashboard</button>
+        <Link to="/" className="hover:text-gray-400">
+          Dashboard
+        </Link>
 
-        <button className="text-left hover:text-gray-400">Clientes</button>
+        <Link to="/clientes" className="hover:text-gray-400">
+          Clientes
+        </Link>
 
-        <button className="text-left hover:text-gray-400">Serviços</button>
+        <Link to="/servicos" className="hover:text-gray-400">
+          Serviços
+        </Link>
 
-        <button className="text-left hover:text-gray-400">Agendamentos</button>
+        <Link to="/agendamentos" className="hover:text-gray-400">
+          Agendamentos
+        </Link>
       </nav>
     </aside>
   );
