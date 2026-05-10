@@ -11,16 +11,15 @@ router.get("/", async (req, res) => {
     const faturamentoResult = await pool.query(
       `
       SELECT
-        COALESCE(SUM(servicos.preco), 0) AS faturamento,
-        COUNT(agendamentos.id) AS total_agendamentos
+        COALESCE(SUM(s.preco), 0) AS faturamento,
+        COUNT(DISTINCT a.id) AS total_agendamentos
 
-      FROM agendamentos
+      FROM agendamentos a
+      LEFT JOIN agendamento_servicos ags ON a.id = ags.agendamento_id
+      LEFT JOIN servicos s ON ags.servico_id = s.id
 
-      INNER JOIN servicos
-        ON agendamentos.servico_id = servicos.id
-
-      WHERE EXTRACT(MONTH FROM agendamentos.data) = $1
-      AND EXTRACT(YEAR FROM agendamentos.data) = $2
+      WHERE EXTRACT(MONTH FROM a.data) = $1
+      AND EXTRACT(YEAR FROM a.data) = $2
       `,
       [mes, ano],
     );
@@ -28,18 +27,19 @@ router.get("/", async (req, res) => {
     const servicosResult = await pool.query(
       `
       SELECT
-        servicos.nome,
+        s.nome,
         COUNT(*) AS quantidade
 
-      FROM agendamentos
+      FROM agendamento_servicos ags
+      INNER JOIN servicos s
+        ON ags.servico_id = s.id
+      INNER JOIN agendamentos a
+        ON ags.agendamento_id = a.id
 
-      INNER JOIN servicos
-        ON agendamentos.servico_id = servicos.id
+      WHERE EXTRACT(MONTH FROM a.data) = $1
+      AND EXTRACT(YEAR FROM a.data) = $2
 
-      WHERE EXTRACT(MONTH FROM agendamentos.data) = $1
-      AND EXTRACT(YEAR FROM agendamentos.data) = $2
-
-      GROUP BY servicos.nome
+      GROUP BY s.nome
 
       ORDER BY quantidade DESC
       `,

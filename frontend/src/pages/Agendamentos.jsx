@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
 
+function formatDateBR(dateStr) {
+  if (!dateStr) return "";
+  const raw = dateStr.includes("T") ? dateStr.split("T")[0] : dateStr;
+  const [year, month, day] = raw.split("-");
+  return `${day}/${month}/${year}`;
+}
+
 function Agendamentos() {
   const [agendamentos, setAgendamentos] = useState([]);
 
@@ -7,7 +14,9 @@ function Agendamentos() {
   const [servicos, setServicos] = useState([]);
 
   const [clienteId, setClienteId] = useState("");
-  const [servicoId, setServicoId] = useState("");
+  const [servicoIds, setServicoIds] = useState([]);
+
+  const [editingId, setEditingId] = useState(null);
 
   const [data, setData] = useState("");
   const [horario, setHorario] = useState("");
@@ -47,23 +56,39 @@ function Agendamentos() {
 
     const novoAgendamento = {
       cliente_id: clienteId,
-      servico_id: servicoId,
+      servico_ids: servicoIds,
       data,
       horario,
     };
 
-    await fetch("http://localhost:3000/agendamentos", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(novoAgendamento),
-    });
+    let response;
 
+    if (editingId) {
+      response = await fetch(`http://localhost:3000/agendamentos/${editingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(novoAgendamento),
+      });
+    } else {
+      response = await fetch("http://localhost:3000/agendamentos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(novoAgendamento),
+      });
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      alert(errorData.error || "Erro ao salvar agendamento");
+      return;
+    }
+
+    // reset
     setClienteId("");
-    setServicoId("");
+    setServicoIds([]);
     setData("");
     setHorario("");
+    setEditingId(null);
 
     carregarAgendamentos();
   }
@@ -107,15 +132,19 @@ function Agendamentos() {
         </div>
 
         <div className="mb-4">
-          <label className="block mb-1">Serviço</label>
+          <label className="block mb-1">Serviços (segure Ctrl/Cmd para múltipla seleção)</label>
 
           <select
-            value={servicoId}
-            onChange={(e) => setServicoId(e.target.value)}
-            className="w-full border p-2 rounded"
+            multiple
+            value={servicoIds}
+            onChange={(e) => {
+              const options = Array.from(e.target.selectedOptions).map(
+                (o) => o.value,
+              );
+              setServicoIds(options);
+            }}
+            className="w-full border p-2 rounded h-40"
           >
-            <option value="">Selecione um serviço</option>
-
             {servicos.map((servico) => (
               <option key={servico.id} value={servico.id}>
                 {servico.nome} - R$ {Number(servico.preco).toFixed(2)}
@@ -146,9 +175,26 @@ function Agendamentos() {
           />
         </div>
 
-        <button type="submit" className="bg-black text-white px-4 py-2 rounded">
-          Agendar
-        </button>
+        <div className="flex items-center gap-2">
+          <button type="submit" className="bg-black text-white px-4 py-2 rounded">
+            {editingId ? "Salvar" : "Agendar"}
+          </button>
+          {editingId && (
+            <button
+              type="button"
+              onClick={() => {
+                setEditingId(null);
+                setClienteId("");
+                setServicoIds([]);
+                setData("");
+                setHorario("");
+              }}
+              className="bg-gray-300 text-black px-4 py-2 rounded"
+            >
+              Cancelar
+            </button>
+          )}
+        </div>
       </form>
 
       <div className="space-y-4">
@@ -156,20 +202,43 @@ function Agendamentos() {
           <div key={agendamento.id} className="bg-white p-4 rounded shadow">
             <h2 className="text-xl font-semibold">{agendamento.cliente}</h2>
 
-            <p>Serviço: {agendamento.servico}</p>
+            <p>
+              Serviços:{' '}
+              {agendamento.servicos && agendamento.servicos.length > 0
+                ? agendamento.servicos.map((s) => s.nome).join(', ')
+                : '—'}
+            </p>
 
-            <p>Valor: R$ {Number(agendamento.preco).toFixed(2)}</p>
+            <p>Valor: R$ {Number(agendamento.total).toFixed(2)}</p>
 
-            <p>Data: {agendamento.data}</p>
+            <p>Data: {formatDateBR(agendamento.data)}</p>
 
-            <p>Horário: {agendamento.horario}</p>
+            <p>Horário: {String(agendamento.horario).slice(0, 5)}</p>
 
-            <button
-              onClick={() => deletarAgendamento(agendamento.id)}
-              className="mt-3 bg-red-500 text-white px-4 py-2 rounded"
-            >
-              Deletar
-            </button>
+            <div className="mt-3 space-x-2">
+              <button
+                onClick={() => {
+                  // iniciar edição
+                  setEditingId(agendamento.id);
+                  setClienteId(agendamento.cliente_id ? String(agendamento.cliente_id) : '');
+                  setData(agendamento.data ? agendamento.data.split('T')[0] : '');
+                  setHorario(agendamento.horario || '');
+                  setServicoIds(
+                    agendamento.servicos ? agendamento.servicos.map((s) => String(s.id)) : [],
+                  );
+                }}
+                className="bg-yellow-500 text-white px-4 py-2 rounded"
+              >
+                Editar
+              </button>
+
+              <button
+                onClick={() => deletarAgendamento(agendamento.id)}
+                className="bg-red-500 text-white px-4 py-2 rounded"
+              >
+                Deletar
+              </button>
+            </div>
           </div>
         ))}
       </div>
