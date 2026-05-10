@@ -135,27 +135,30 @@ function Agendamentos() {
         </div>
 
         <div className="mb-4">
-          <label className="block mb-1">
-            Serviços (segure Ctrl/Cmd para múltipla seleção)
-          </label>
+          <label className="block mb-1">Serviços</label>
 
-          <select
-            multiple
-            value={servicoIds}
-            onChange={(e) => {
-              const options = Array.from(e.target.selectedOptions).map(
-                (o) => o.value,
-              );
-              setServicoIds(options);
-            }}
-            className="w-full border p-2 rounded h-40"
-          >
+          <div className="border p-3 rounded space-y-2">
             {servicos.map((servico) => (
-              <option key={servico.id} value={servico.id}>
-                {servico.nome} - R$ {Number(servico.preco).toFixed(2)}
-              </option>
+              <label key={servico.id} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={servicoIds.includes(String(servico.id))}
+                  onChange={(e) => {
+                    const id = String(servico.id);
+                    setServicoIds(
+                      e.target.checked
+                        ? [...servicoIds, id]
+                        : servicoIds.filter((s) => s !== id),
+                    );
+                  }}
+                  className="w-4 h-4"
+                />
+                <span>
+                  {servico.nome} - R$ {Number(servico.preco).toFixed(2)}
+                </span>
+              </label>
             ))}
-          </select>
+          </div>
         </div>
 
         <div className="mb-4">
