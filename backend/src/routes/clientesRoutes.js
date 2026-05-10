@@ -2,18 +2,7 @@ const express = require("express");
 
 const router = express.Router();
 
-let clientes = [
-  {
-    id: 1,
-    nome: "Rodrigo",
-    telefone: "(54) 98447-9052",
-  },
-  {
-    id: 2,
-    nome: "Marcelo",
-    telefone: "(54) 99322-9696",
-  },
-];
+let clientes = [];
 
 router.get("/", (req, res) => {
   res.json(clientes);
