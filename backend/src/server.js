@@ -19,3 +19,6 @@ app.get("/", (req, res) => {
 app.listen(3000, () => {
   console.log("Servidor rodando na porta 3000");
 });
+
+const servicosRoutes = require("./routes/servicosRoutes");
+app.use("/servicos", servicosRoutes);
