@@ -92,8 +92,6 @@ function Servicos() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">Serviços</h1>
-
       <form
         onSubmit={editandoId ? salvarEdicao : cadastrarServico}
         className="bg-white p-6 rounded shadow mb-6"
