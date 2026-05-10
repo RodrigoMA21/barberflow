@@ -22,3 +22,6 @@ app.listen(3000, () => {
 
 const servicosRoutes = require("./routes/servicosRoutes");
 app.use("/servicos", servicosRoutes);
+
+const agendamentosRoutes = require("./routes/agendamentosRoutes");
+app.use("/agendamentos", agendamentosRoutes);
