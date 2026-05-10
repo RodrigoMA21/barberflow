@@ -23,10 +23,12 @@ router.get("/", async (req, res) => {
       ORDER BY a.data ASC
     `);
 
-    res.json(result.rows.map((r) => ({
-      ...r,
-      total: Number(r.total) || 0,
-    })));
+    res.json(
+      result.rows.map((r) => ({
+        ...r,
+        total: Number(r.total) || 0,
+      })),
+    );
   } catch (error) {
     console.error("GET /agendamentos failed:", error.message);
 
@@ -52,7 +54,9 @@ router.post("/", async (req, res) => {
     );
 
     if (horarioExistente.rows.length > 0) {
-      return res.status(400).json({ error: "Já existe um agendamento neste horário" });
+      return res
+        .status(400)
+        .json({ error: "Já existe um agendamento neste horário" });
     }
 
     await client.query("BEGIN");
@@ -94,7 +98,9 @@ router.post("/", async (req, res) => {
       [agendamentoId],
     );
 
-    res.status(201).json({ ...created.rows[0], total: Number(created.rows[0].total) || 0 });
+    res
+      .status(201)
+      .json({ ...created.rows[0], total: Number(created.rows[0].total) || 0 });
   } catch (error) {
     await client.query("ROLLBACK").catch(() => {});
     console.error("POST /agendamentos failed:", error.message);
@@ -122,7 +128,9 @@ router.put("/:id", async (req, res) => {
     );
 
     if (horarioExistente.rows.length > 0) {
-      return res.status(400).json({ error: "Já existe um agendamento neste horário" });
+      return res
+        .status(400)
+        .json({ error: "Já existe um agendamento neste horário" });
     }
 
     await client.query("BEGIN");
@@ -133,7 +141,10 @@ router.put("/:id", async (req, res) => {
     );
 
     // Substitui serviços do agendamento
-    await client.query(`DELETE FROM agendamento_servicos WHERE agendamento_id = $1`, [id]);
+    await client.query(
+      `DELETE FROM agendamento_servicos WHERE agendamento_id = $1`,
+      [id],
+    );
 
     for (const servicoId of servico_ids) {
       await client.query(

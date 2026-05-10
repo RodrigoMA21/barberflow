@@ -64,11 +64,14 @@ function Agendamentos() {
     let response;
 
     if (editingId) {
-      response = await fetch(`http://localhost:3000/agendamentos/${editingId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(novoAgendamento),
-      });
+      response = await fetch(
+        `http://localhost:3000/agendamentos/${editingId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(novoAgendamento),
+        },
+      );
     } else {
       response = await fetch("http://localhost:3000/agendamentos", {
         method: "POST",
@@ -132,7 +135,9 @@ function Agendamentos() {
         </div>
 
         <div className="mb-4">
-          <label className="block mb-1">Serviços (segure Ctrl/Cmd para múltipla seleção)</label>
+          <label className="block mb-1">
+            Serviços (segure Ctrl/Cmd para múltipla seleção)
+          </label>
 
           <select
             multiple
@@ -176,7 +181,10 @@ function Agendamentos() {
         </div>
 
         <div className="flex items-center gap-2">
-          <button type="submit" className="bg-black text-white px-4 py-2 rounded">
+          <button
+            type="submit"
+            className="bg-black text-white px-4 py-2 rounded"
+          >
             {editingId ? "Salvar" : "Agendar"}
           </button>
           {editingId && (
@@ -203,10 +211,10 @@ function Agendamentos() {
             <h2 className="text-xl font-semibold">{agendamento.cliente}</h2>
 
             <p>
-              Serviços:{' '}
+              Serviços:{" "}
               {agendamento.servicos && agendamento.servicos.length > 0
-                ? agendamento.servicos.map((s) => s.nome).join(', ')
-                : '—'}
+                ? agendamento.servicos.map((s) => s.nome).join(", ")
+                : "—"}
             </p>
 
             <p>Valor: R$ {Number(agendamento.total).toFixed(2)}</p>
@@ -220,11 +228,19 @@ function Agendamentos() {
                 onClick={() => {
                   // iniciar edição
                   setEditingId(agendamento.id);
-                  setClienteId(agendamento.cliente_id ? String(agendamento.cliente_id) : '');
-                  setData(agendamento.data ? agendamento.data.split('T')[0] : '');
-                  setHorario(agendamento.horario || '');
+                  setClienteId(
+                    agendamento.cliente_id
+                      ? String(agendamento.cliente_id)
+                      : "",
+                  );
+                  setData(
+                    agendamento.data ? agendamento.data.split("T")[0] : "",
+                  );
+                  setHorario(agendamento.horario || "");
                   setServicoIds(
-                    agendamento.servicos ? agendamento.servicos.map((s) => String(s.id)) : [],
+                    agendamento.servicos
+                      ? agendamento.servicos.map((s) => String(s.id))
+                      : [],
                   );
                 }}
                 className="bg-yellow-500 text-white px-4 py-2 rounded"
