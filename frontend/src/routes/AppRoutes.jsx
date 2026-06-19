@@ -6,7 +6,11 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import Dashboard from "../pages/Dashboard";
 import Clientes from "../pages/Clientes";
 import Servicos from "../pages/Servicos";
+import Barbeiros from "../pages/Barbeiros";
 import Agendamentos from "../pages/Agendamentos";
+import Agenda from "../pages/Agenda";
+import Historico from "../pages/Historico";
+// import Agenda from "../pages/Agenda";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 
@@ -27,7 +31,10 @@ function AppRoutes() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/clientes" element={<Clientes />} />
           <Route path="/servicos" element={<Servicos />} />
+          <Route path="/barbeiros" element={<Barbeiros />} />
+          <Route path="/agenda" element={<Agenda />} />
           <Route path="/agendamentos" element={<Agendamentos />} />
+          <Route path="/historico" element={<Historico />} />
         </Route>
       </Routes>
     </BrowserRouter>

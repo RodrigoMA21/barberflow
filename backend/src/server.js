@@ -8,6 +8,7 @@ const authRoutes = require("./routes/authRoutes");
 const servicosRoutes = require("./routes/servicosRoutes");
 const agendamentosRoutes = require("./routes/agendamentosRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const barbeirosRoutes = require("./routes/barbeirosRoutes");
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(cors());
 app.use("/clientes", clientesRoutes);
 app.use("/auth", authRoutes);
 app.use("/servicos", servicosRoutes);
+app.use("/barbeiros", barbeirosRoutes);
 app.use("/agendamentos", agendamentosRoutes);
 app.use("/dashboard", dashboardRoutes);
 

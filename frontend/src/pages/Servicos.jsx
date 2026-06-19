@@ -5,6 +5,7 @@ function Servicos() {
 
   const [nome, setNome] = useState("");
   const [preco, setPreco] = useState("");
+  const [duracaoMinutos, setDuracaoMinutos] = useState(30);
 
   const [editandoId, setEditandoId] = useState(null);
 
@@ -26,6 +27,7 @@ function Servicos() {
     const novoServico = {
       nome,
       preco,
+      duracao_minutos: duracaoMinutos,
     };
 
     await fetch("http://localhost:3000/servicos", {
@@ -38,6 +40,7 @@ function Servicos() {
 
     setNome("");
     setPreco("");
+    setDuracaoMinutos(30);
 
     carregarServicos();
   }
@@ -64,6 +67,7 @@ function Servicos() {
     setNome(servico.nome);
 
     setPreco(servico.preco);
+    setDuracaoMinutos(servico.duracao_minutos || 30);
   }
 
   async function salvarEdicao(e) {
@@ -72,6 +76,7 @@ function Servicos() {
     const servicoAtualizado = {
       nome,
       preco,
+      duracao_minutos: duracaoMinutos,
     };
 
     await fetch(`http://localhost:3000/servicos/${editandoId}`, {
@@ -86,6 +91,7 @@ function Servicos() {
 
     setNome("");
     setPreco("");
+    setDuracaoMinutos(30);
 
     carregarServicos();
   }
@@ -119,6 +125,18 @@ function Servicos() {
           />
         </div>
 
+        <div className="mb-4">
+          <label className="block mb-1">Duração (minutos)</label>
+
+          <input
+            type="number"
+            min="1"
+            value={duracaoMinutos}
+            onChange={(e) => setDuracaoMinutos(Number(e.target.value))}
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
         <button type="submit" className="bg-black text-white px-4 py-2 rounded">
           {editandoId ? "Salvar Edição" : "Cadastrar"}
         </button>
@@ -129,7 +147,9 @@ function Servicos() {
           <div key={servico.id} className="bg-white p-4 rounded shadow">
             <h2 className="text-xl font-semibold">{servico.nome}</h2>
 
-            <p>R$ {servico.preco}</p>
+            <p>
+              R$ {Number(servico.preco).toFixed(2)} · {servico.duracao_minutos || 30} min
+            </p>
 
             <div className="flex gap-2 mt-3">
               <button

@@ -5,7 +5,17 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM servicos ORDER BY id ASC");
+    const result = await pool.query(
+      `
+      SELECT
+        id,
+        nome,
+        preco,
+        COALESCE(duracao_minutos, 30) AS duracao_minutos
+      FROM servicos
+      ORDER BY id ASC
+      `,
+    );
 
     res.json(result.rows);
   } catch (error) {
@@ -19,11 +29,15 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { nome, preco } = req.body;
+    const { nome, preco, duracao_minutos = 30 } = req.body;
 
     const result = await pool.query(
-      "INSERT INTO servicos (nome, preco) VALUES ($1, $2) RETURNING *",
-      [nome, preco],
+      `
+      INSERT INTO servicos (nome, preco, duracao_minutos)
+      VALUES ($1, $2, $3)
+      RETURNING id, nome, preco, COALESCE(duracao_minutos, 30) AS duracao_minutos
+      `,
+      [nome, preco, duracao_minutos],
     );
 
     res.status(201).json(result.rows[0]);
@@ -40,14 +54,14 @@ router.put("/:id", async (req, res) => {
   try {
     const id = req.params.id;
 
-    const { nome, preco } = req.body;
+    const { nome, preco, duracao_minutos = 30 } = req.body;
 
     const result = await pool.query(
       `UPDATE servicos
-       SET nome = $1, preco = $2
+       SET nome = $1, preco = $2, duracao_minutos = $3
        WHERE id = $3
-       RETURNING *`,
-      [nome, preco, id],
+       RETURNING id, nome, preco, COALESCE(duracao_minutos, 30) AS duracao_minutos`,
+      [nome, preco, duracao_minutos, id],
     );
 
     res.json(result.rows[0]);
