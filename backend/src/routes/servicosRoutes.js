@@ -59,7 +59,7 @@ router.put("/:id", async (req, res) => {
     const result = await pool.query(
       `UPDATE servicos
        SET nome = $1, preco = $2, duracao_minutos = $3
-       WHERE id = $3
+       WHERE id = $4
        RETURNING id, nome, preco, COALESCE(duracao_minutos, 30) AS duracao_minutos`,
       [nome, preco, duracao_minutos, id],
     );

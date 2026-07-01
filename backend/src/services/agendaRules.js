@@ -1,5 +1,4 @@
-const BUSINESS_WINDOWS = {
-  0: [],
+const DEFAULT_WINDOWS = {
   1: [
     [8 * 60, 12 * 60],
     [13 * 60 + 30, 19 * 60],
@@ -71,40 +70,76 @@ function formatMinutesAsTime(minutes) {
   return `${hours}:${mins}`;
 }
 
-function getBusinessWindows(date) {
-  return BUSINESS_WINDOWS[date.getDay()] || [];
+function timeStringToMinutes(value) {
+  if (!value) return null;
+
+  const [hours, minutes] = String(value).slice(0, 5).split(":").map(Number);
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+
+  return hours * 60 + minutes;
 }
 
-function validateBusinessHours(startDateTime, endDateTime) {
-  const windows = getBusinessWindows(startDateTime);
+function normalizeDayList(diasAtendimento) {
+  if (!Array.isArray(diasAtendimento)) return [];
+  return diasAtendimento.map((dia) => Number(dia)).filter((dia) => Number.isInteger(dia));
+}
 
-  if (!windows.length) {
-    return {
-      ok: false,
-      error: "A barbearia está fechada no dia selecionado",
-    };
+function getBusinessWindows(date, barbeiro = null) {
+  const days = normalizeDayList(barbeiro?.dias_atendimento);
+
+  if (days.length > 0 && !days.includes(date.getDay())) {
+    return [];
   }
 
-  const startMinutes = minutesFromDate(startDateTime);
-  const endMinutes = minutesFromDate(endDateTime);
+  const startMinutes = timeStringToMinutes(barbeiro?.horario_inicio);
+  const endMinutes = timeStringToMinutes(barbeiro?.horario_fim);
 
-  if (endMinutes <= startMinutes) {
+  if (startMinutes === null || endMinutes === null) {
+    return DEFAULT_WINDOWS[date.getDay()] || [];
+  }
+
+  const windows = [[startMinutes, endMinutes]];
+  const breakStart = timeStringToMinutes(barbeiro?.horario_intervalo_inicio);
+  const breakEnd = timeStringToMinutes(barbeiro?.horario_intervalo_fim);
+
+  if (breakStart !== null && breakEnd !== null && breakEnd > breakStart) {
+    return [
+      [startMinutes, breakStart],
+      [breakEnd, endMinutes],
+    ].filter(([open, close]) => close > open);
+  }
+
+  return windows;
+}
+
+function validateBusinessHours(startDateTime, endDateTime, barbeiro = null) {
+  if (endDateTime <= startDateTime) {
     return {
       ok: false,
       error: "O horário final precisa ser maior que o horário inicial",
     };
   }
 
+  const windows = getBusinessWindows(startDateTime, barbeiro);
+
+  if (!windows.length) {
+    return {
+      ok: false,
+      error: "O barbeiro não atende no dia selecionado",
+    };
+  }
+
+  const startMinutes = minutesFromDate(startDateTime);
+  const endMinutes = minutesFromDate(endDateTime);
+
   const fitsWindow = windows.some(
-    ([openMinutes, closeMinutes]) =>
-      startMinutes >= openMinutes && endMinutes <= closeMinutes,
+    ([openMinutes, closeMinutes]) => startMinutes >= openMinutes && endMinutes <= closeMinutes,
   );
 
   if (!fitsWindow) {
     return {
       ok: false,
-      error:
-        "O horário do atendimento precisa respeitar o expediente da barbearia",
+      error: "O horário do atendimento precisa respeitar o atendimento configurado para este barbeiro",
     };
   }
 
@@ -123,5 +158,6 @@ module.exports = {
   getBusinessWindows,
   overlaps,
   parseLocalDateTime,
+  timeStringToMinutes,
   validateBusinessHours,
 };

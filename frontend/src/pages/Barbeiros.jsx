@@ -1,5 +1,15 @@
 import { useEffect, useState } from "react";
 
+const DIAS = [
+  { value: 1, label: "Segunda" },
+  { value: 2, label: "Terça" },
+  { value: 3, label: "Quarta" },
+  { value: 4, label: "Quinta" },
+  { value: 5, label: "Sexta" },
+  { value: 6, label: "Sábado" },
+  { value: 0, label: "Domingo" },
+];
+
 function Barbeiros() {
   const [barbeiros, setBarbeiros] = useState([]);
 
@@ -8,18 +18,27 @@ function Barbeiros() {
   const [especialidade, setEspecialidade] = useState("");
   const [foto, setFoto] = useState("");
   const [ativo, setAtivo] = useState(true);
+  const [diasAtendimento, setDiasAtendimento] = useState([]);
+  const [horarioInicio, setHorarioInicio] = useState("");
+  const [horarioFim, setHorarioFim] = useState("");
+  const [horarioIntervaloInicio, setHorarioIntervaloInicio] = useState("");
+  const [horarioIntervaloFim, setHorarioIntervaloFim] = useState("");
   const [barbeiroEditando, setBarbeiroEditando] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [barbeiroParaDeletar, setBarbeiroParaDeletar] = useState(null);
 
-  async function carregarBarbeiros() {
+  async function recarregarBarbeiros() {
     const response = await fetch("http://localhost:3000/barbeiros");
     const data = await response.json();
-    setBarbeiros(data);
+    setBarbeiros(Array.isArray(data) ? data : []);
   }
 
   useEffect(() => {
-    carregarBarbeiros();
+    void (async () => {
+      const response = await fetch("http://localhost:3000/barbeiros");
+      const data = await response.json();
+      setBarbeiros(Array.isArray(data) ? data : []);
+    })();
   }, []);
 
   async function cadastrarBarbeiro(e) {
@@ -31,6 +50,11 @@ function Barbeiros() {
       especialidade,
       foto,
       ativo,
+      dias_atendimento: diasAtendimento,
+      horario_inicio: horarioInicio || null,
+      horario_fim: horarioFim || null,
+      horario_intervalo_inicio: horarioIntervaloInicio || null,
+      horario_intervalo_fim: horarioIntervaloFim || null,
     };
 
     if (barbeiroEditando) {
@@ -58,8 +82,13 @@ function Barbeiros() {
     setEspecialidade("");
     setFoto("");
     setAtivo(true);
+    setDiasAtendimento([]);
+    setHorarioInicio("");
+    setHorarioFim("");
+    setHorarioIntervaloInicio("");
+    setHorarioIntervaloFim("");
 
-    carregarBarbeiros();
+    recarregarBarbeiros();
   }
 
   async function deletarBarbeiro(id) {
@@ -67,7 +96,7 @@ function Barbeiros() {
       method: "DELETE",
     });
 
-    carregarBarbeiros();
+    recarregarBarbeiros();
   }
 
   function pedirConfirmacaoDeletar(barbeiro) {
@@ -96,6 +125,25 @@ function Barbeiros() {
     setEspecialidade(barbeiro.especialidade || "");
     setFoto(barbeiro.foto || "");
     setAtivo(Boolean(barbeiro.ativo));
+    setDiasAtendimento(Array.isArray(barbeiro.dias_atendimento) ? barbeiro.dias_atendimento.map(String) : []);
+    setHorarioInicio(barbeiro.horario_inicio || "");
+    setHorarioFim(barbeiro.horario_fim || "");
+    setHorarioIntervaloInicio(barbeiro.horario_intervalo_inicio || "");
+    setHorarioIntervaloFim(barbeiro.horario_intervalo_fim || "");
+  }
+
+  function limparFormulario() {
+    setBarbeiroEditando(null);
+    setNome("");
+    setTelefone("");
+    setEspecialidade("");
+    setFoto("");
+    setAtivo(true);
+    setDiasAtendimento([]);
+    setHorarioInicio("");
+    setHorarioFim("");
+    setHorarioIntervaloInicio("");
+    setHorarioIntervaloFim("");
   }
 
   return (
@@ -151,9 +199,61 @@ function Barbeiros() {
           <label>Ativo</label>
         </div>
 
-        <button type="submit" className="bg-black text-white px-4 py-2 rounded">
-          {barbeiroEditando ? "Atualizar" : "Cadastrar"}
-        </button>
+        <div className="mb-4 p-4 rounded border bg-gray-50">
+          <h3 className="font-semibold mb-3">Horários de atendimento</h3>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+            {DIAS.map((dia) => (
+              <label key={dia.value} className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={diasAtendimento.includes(String(dia.value))}
+                  onChange={(e) => {
+                    const value = String(dia.value);
+                    setDiasAtendimento((prev) =>
+                      e.target.checked ? [...prev, value] : prev.filter((item) => item !== value),
+                    );
+                  }}
+                />
+                {dia.label}
+              </label>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block mb-1">Início</label>
+              <input type="time" value={horarioInicio} onChange={(e) => setHorarioInicio(e.target.value)} className="w-full border p-2 rounded" />
+            </div>
+
+            <div>
+              <label className="block mb-1">Fim</label>
+              <input type="time" value={horarioFim} onChange={(e) => setHorarioFim(e.target.value)} className="w-full border p-2 rounded" />
+            </div>
+
+            <div>
+              <label className="block mb-1">Intervalo início</label>
+              <input type="time" value={horarioIntervaloInicio} onChange={(e) => setHorarioIntervaloInicio(e.target.value)} className="w-full border p-2 rounded" />
+            </div>
+
+            <div>
+              <label className="block mb-1">Intervalo fim</label>
+              <input type="time" value={horarioIntervaloFim} onChange={(e) => setHorarioIntervaloFim(e.target.value)} className="w-full border p-2 rounded" />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button type="submit" className="bg-black text-white px-4 py-2 rounded">
+            {barbeiroEditando ? "Atualizar" : "Cadastrar"}
+          </button>
+
+          {barbeiroEditando && (
+            <button type="button" onClick={limparFormulario} className="bg-gray-300 text-black px-4 py-2 rounded">
+              Cancelar
+            </button>
+          )}
+        </div>
       </form>
 
       <div className="space-y-4">

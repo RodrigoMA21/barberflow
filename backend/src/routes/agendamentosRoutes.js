@@ -29,9 +29,29 @@ function mapAgendamento(row) {
   return {
     ...row,
     total: Number(row.total) || 0,
+    total_bruto: Number(row.total_bruto) || 0,
+    desconto_valor: Number(row.desconto_valor) || 0,
+    valor_final: row.valor_final !== null && row.valor_final !== undefined ? Number(row.valor_final) : null,
     duracao_total_minutos: Number(row.duracao_total_minutos) || 0,
     barbeiro_id: row.barbeiro_id ? Number(row.barbeiro_id) : null,
   };
+}
+
+function parseMoney(value) {
+  if (value === undefined || value === null || value === "") {
+    return null;
+  }
+
+  const parsed = Number(String(value).replace(",", "."));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function calculateBillingValue(totalBruto, descontoValor, valorFinal) {
+  if (valorFinal !== null && valorFinal !== undefined) {
+    return Math.max(Number(valorFinal) || 0, 0);
+  }
+
+  return Math.max((Number(totalBruto) || 0) - (Number(descontoValor) || 0), 0);
 }
 
 async function buscarDetalhesServicos(client, servicoIds) {
@@ -81,6 +101,19 @@ async function buscarConflitos(client, { barbeiroId, data, ignoreId = null }) {
   return result.rows;
 }
 
+async function buscarBarbeiroPorId(client, id) {
+  const result = await client.query(
+    `
+    SELECT id, dias_atendimento, horario_inicio, horario_fim, horario_intervalo_inicio, horario_intervalo_fim
+    FROM barbeiros
+    WHERE id = $1
+    `,
+    [id],
+  );
+
+  return result.rows[0] || null;
+}
+
 function buildAgendamentoSelect(whereClause = "", orderClause = "ORDER BY a.data ASC, a.horario ASC") {
   return `
     SELECT
@@ -93,18 +126,27 @@ function buildAgendamentoSelect(whereClause = "", orderClause = "ORDER BY a.data
       a.data,
       a.horario,
       a.status,
+      COALESCE(a.desconto_valor, 0) AS desconto_valor,
+      a.valor_final,
       (a.data + a.horario) AS inicio_em,
       ((a.data + a.horario) + make_interval(mins => COALESCE(SUM(COALESCE(s.duracao_minutos, 30)), 0)::int)) AS termino_em,
+      COALESCE(SUM(COALESCE(s.preco, 0)), 0) AS total_bruto,
       COALESCE(SUM(COALESCE(s.duracao_minutos, 30)), 0)::int AS duracao_total_minutos,
       COALESCE(json_agg(json_build_object('id', s.id, 'nome', s.nome, 'preco', s.preco, 'duracao_minutos', COALESCE(s.duracao_minutos, 30))) FILTER (WHERE s.id IS NOT NULL), '[]') AS servicos,
-      COALESCE(SUM(s.preco), 0) AS total
+      COALESCE(
+        CASE
+          WHEN a.valor_final IS NOT NULL THEN a.valor_final
+          ELSE GREATEST(COALESCE(SUM(COALESCE(s.preco, 0)), 0) - COALESCE(a.desconto_valor, 0), 0)
+        END,
+        0
+      ) AS total
     FROM agendamentos a
     INNER JOIN clientes c ON a.cliente_id = c.id
     LEFT JOIN barbeiros b ON a.barbeiro_id = b.id
     LEFT JOIN agendamento_servicos ags ON a.id = ags.agendamento_id
     LEFT JOIN servicos s ON ags.servico_id = s.id
     ${whereClause}
-    GROUP BY a.id, a.cliente_id, c.nome, a.barbeiro_id, b.nome, b.especialidade, a.data, a.horario, a.status
+    GROUP BY a.id, a.cliente_id, c.nome, a.barbeiro_id, b.nome, b.especialidade, a.data, a.horario, a.status, a.desconto_valor, a.valor_final
     ${orderClause}
   `;
 }
@@ -230,6 +272,8 @@ router.post("/", async (req, res) => {
 
   try {
     const { cliente_id, barbeiro_id, servico_ids = [], data, horario, status = "agendado" } = req.body;
+    const descontoValor = parseMoney(req.body.desconto_valor) || 0;
+    const valorFinal = parseMoney(req.body.valor_final);
     const normalizedStatus = normalizeStatus(status);
 
     if (!cliente_id) {
@@ -264,8 +308,11 @@ router.post("/", async (req, res) => {
 
     const duracaoTotal = calculateTotalDuration(servicosDetalhados);
     const dataHoraFim = calculateAppointmentEnd(dataHoraInicio, duracaoTotal);
+    const totalBruto = servicosDetalhados.reduce((total, servico) => total + Number(servico.preco || 0), 0);
+    const valorCalculado = calculateBillingValue(totalBruto, descontoValor, valorFinal);
 
-    const businessValidation = validateBusinessHours(dataHoraInicio, dataHoraFim);
+    const barbeiro = await buscarBarbeiroPorId(client, Number(barbeiro_id));
+    const businessValidation = validateBusinessHours(dataHoraInicio, dataHoraFim, barbeiro);
 
     if (!businessValidation.ok) {
       await client.query("ROLLBACK");
@@ -304,11 +351,11 @@ router.post("/", async (req, res) => {
 
     const insertAg = await client.query(
       `
-      INSERT INTO agendamentos (cliente_id, barbeiro_id, data, horario, status)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO agendamentos (cliente_id, barbeiro_id, data, horario, status, desconto_valor, valor_final)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING id
       `,
-      [cliente_id, barbeiro_id, data, horario, normalizedStatus],
+      [cliente_id, barbeiro_id, data, horario, normalizedStatus, descontoValor, valorFinal !== null ? valorFinal : valorCalculado],
     );
 
     const agendamentoId = insertAg.rows[0].id;
@@ -343,6 +390,8 @@ router.put("/:id", async (req, res) => {
   try {
     const id = req.params.id;
     const { cliente_id, barbeiro_id, servico_ids = [], data, horario, status = "agendado" } = req.body;
+    const descontoValor = parseMoney(req.body.desconto_valor) || 0;
+    const valorFinal = parseMoney(req.body.valor_final);
     const normalizedStatus = normalizeStatus(status);
 
     if (!cliente_id) {
@@ -377,8 +426,11 @@ router.put("/:id", async (req, res) => {
 
     const duracaoTotal = calculateTotalDuration(servicosDetalhados);
     const dataHoraFim = calculateAppointmentEnd(dataHoraInicio, duracaoTotal);
+    const totalBruto = servicosDetalhados.reduce((total, servico) => total + Number(servico.preco || 0), 0);
+    const valorCalculado = calculateBillingValue(totalBruto, descontoValor, valorFinal);
 
-    const businessValidation = validateBusinessHours(dataHoraInicio, dataHoraFim);
+    const barbeiro = await buscarBarbeiroPorId(client, Number(barbeiro_id));
+    const businessValidation = validateBusinessHours(dataHoraInicio, dataHoraFim, barbeiro);
 
     if (!businessValidation.ok) {
       await client.query("ROLLBACK");
@@ -417,10 +469,10 @@ router.put("/:id", async (req, res) => {
     await client.query(
       `
       UPDATE agendamentos
-      SET cliente_id = $1, barbeiro_id = $2, data = $3, horario = $4, status = $5
-      WHERE id = $6
+      SET cliente_id = $1, barbeiro_id = $2, data = $3, horario = $4, status = $5, desconto_valor = $6, valor_final = $7
+      WHERE id = $8
       `,
-      [cliente_id, barbeiro_id, data, horario, normalizedStatus, id],
+      [cliente_id, barbeiro_id, data, horario, normalizedStatus, descontoValor, valorFinal !== null ? valorFinal : valorCalculado, id],
     );
 
     await client.query(
@@ -449,6 +501,42 @@ router.put("/:id", async (req, res) => {
     res.status(500).json({ error: error.message || "Erro ao atualizar agendamento" });
   } finally {
     client.release();
+  }
+});
+
+router.patch("/:id/status", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { status } = req.body;
+    const normalizedStatus = normalizeStatus(status);
+
+    if (!normalizedStatus) {
+      return res.status(400).json({ error: "Status inválido" });
+    }
+
+    const result = await pool.query(
+      `
+      UPDATE agendamentos
+      SET status = $1
+      WHERE id = $2
+      RETURNING id
+      `,
+      [normalizedStatus, id],
+    );
+
+    if (!result.rowCount) {
+      return res.status(404).json({ error: "Agendamento não encontrado" });
+    }
+
+    const updated = await pool.query(
+      `${buildAgendamentoSelect("WHERE a.id = $1", "")}`,
+      [id],
+    );
+
+    res.json(mapAgendamento(updated.rows[0]));
+  } catch (error) {
+    console.error("PATCH /agendamentos/:id/status failed:", error.message);
+    res.status(500).json({ error: error.message || "Erro ao atualizar status" });
   }
 });
 

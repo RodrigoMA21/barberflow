@@ -10,6 +10,11 @@ CREATE TABLE IF NOT EXISTS public.barbeiros (
   especialidade VARCHAR(255),
   foto TEXT,
   ativo BOOLEAN NOT NULL DEFAULT TRUE,
+  dias_atendimento JSONB NOT NULL DEFAULT '[]'::jsonb,
+  horario_inicio TIME,
+  horario_fim TIME,
+  horario_intervalo_inicio TIME,
+  horario_intervalo_fim TIME,
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 

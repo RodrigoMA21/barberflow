@@ -159,7 +159,7 @@ function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-gray-500 text-sm">Faturamento Total (Mês)</h2>
+          <h2 className="text-gray-500 text-sm">Faturamento Total (Mês, concluídos)</h2>
 
           <p className="text-3xl font-bold mt-2">
             R$ {Number(resumo.faturamento).toFixed(2)}
@@ -167,7 +167,7 @@ function Dashboard() {
         </div>
 
         <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-gray-500 text-sm">Faturamento (Hoje)</h2>
+          <h2 className="text-gray-500 text-sm">Faturamento (Hoje, concluídos)</h2>
 
           <p className="text-3xl font-bold mt-2">
             R$ {Number(resumo.faturamento_dia || 0).toFixed(2)}
@@ -175,7 +175,7 @@ function Dashboard() {
         </div>
 
         <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-gray-500 text-sm">Faturamento (Ano)</h2>
+          <h2 className="text-gray-500 text-sm">Faturamento (Ano, concluídos)</h2>
 
           <p className="text-3xl font-bold mt-2">
             R$ {Number(resumo.faturamento_ano || 0).toFixed(2)}

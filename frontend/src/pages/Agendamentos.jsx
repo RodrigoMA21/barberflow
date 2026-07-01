@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 function formatDateBR(dateStr) {
   if (!dateStr) return "";
@@ -50,6 +51,7 @@ function statusClass(status) {
 }
 
 function Agendamentos() {
+  const [searchParams] = useSearchParams();
   const [agendamentos, setAgendamentos] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [servicos, setServicos] = useState([]);
@@ -59,6 +61,8 @@ function Agendamentos() {
   const [barbeiroId, setBarbeiroId] = useState("");
   const [servicoIds, setServicoIds] = useState([]);
   const [status, setStatus] = useState("agendado");
+  const [descontoValor, setDescontoValor] = useState("");
+  const [valorFinal, setValorFinal] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [data, setData] = useState("");
   const [horario, setHorario] = useState("");
@@ -94,6 +98,34 @@ function Agendamentos() {
     carregarBarbeiros();
   }, []);
 
+  useEffect(() => {
+    if (agendamentos.length === 0) return;
+
+    const editId = searchParams.get("edit");
+    const dataParam = searchParams.get("data");
+    const horarioParam = searchParams.get("horario");
+    const barbeiroParam = searchParams.get("barbeiro_id");
+    const clienteParam = searchParams.get("cliente_id");
+
+    if (editId) {
+      const agendamento = agendamentos.find((item) => String(item.id) === editId);
+
+      if (agendamento && String(editingId || "") !== editId) {
+        iniciarEdicao(agendamento);
+      }
+
+      return;
+    }
+
+    if (!editingId && (dataParam || horarioParam || barbeiroParam || clienteParam)) {
+      if (dataParam) setData(dataParam);
+      if (horarioParam) setHorario(horarioParam);
+      if (barbeiroParam) setBarbeiroId(barbeiroParam);
+      if (clienteParam) setClienteId(clienteParam);
+      setStatus("agendado");
+    }
+  }, [agendamentos, editingId, searchParams]);
+
   const servicosSelecionados = useMemo(
     () => servicos.filter((servico) => servicoIds.includes(String(servico.id))),
     [servicos, servicoIds],
@@ -107,6 +139,23 @@ function Agendamentos() {
       ),
     [servicosSelecionados],
   );
+
+  const valorBruto = useMemo(
+    () =>
+      servicosSelecionados.reduce(
+        (total, servico) => total + Number(servico.preco || 0),
+        0,
+      ),
+    [servicosSelecionados],
+  );
+
+  const valorFinalCalculado = useMemo(() => {
+    if (valorFinal !== "") {
+      return Math.max(Number(valorFinal) || 0, 0);
+    }
+
+    return Math.max(valorBruto - (Number(descontoValor) || 0), 0);
+  }, [descontoValor, valorBruto, valorFinal]);
 
   const terminoPrevisto = useMemo(() => {
     if (!horario || !duracaoTotalMinutos) return "";
@@ -123,6 +172,8 @@ function Agendamentos() {
       data,
       horario,
       status,
+      desconto_valor: descontoValor === "" ? 0 : Number(descontoValor),
+      valor_final: valorFinal === "" ? null : Number(valorFinal),
     };
 
     const response = editingId
@@ -149,6 +200,8 @@ function Agendamentos() {
     setData("");
     setHorario("");
     setStatus("agendado");
+    setDescontoValor("");
+    setValorFinal("");
     setEditingId(null);
 
     carregarAgendamentos();
@@ -163,6 +216,66 @@ function Agendamentos() {
     carregarAgendamentos();
   }
 
+  async function atualizarStatusAgendamento(id, novoStatus) {
+    const response = await fetch(`http://localhost:3000/agendamentos/${id}/status`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status: novoStatus }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      alert(errorData.error || "Erro ao atualizar status");
+      return;
+    }
+
+    carregarAgendamentos();
+  }
+
+  async function registrarNoCartaoFidelidade(agendamento, observacao = "Atendimento concluído") {
+    if (!agendamento.cliente_id) return;
+
+    const response = await fetch(
+      `http://localhost:3000/clientes/${agendamento.cliente_id}/cartao-fidelidade`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          data_atendimento: agendamento.data ? agendamento.data.split("T")[0] : new Date().toISOString().split("T")[0],
+          observacao,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      alert(errorData.error || "Erro ao registrar no cartão fidelidade");
+    }
+  }
+
+  async function concluirAgendamento(agendamento) {
+    const response = await fetch(`http://localhost:3000/agendamentos/${agendamento.id}/status`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status: "concluido" }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      alert(errorData.error || "Erro ao concluir agendamento");
+      return;
+    }
+
+    await registrarNoCartaoFidelidade(agendamento);
+    carregarAgendamentos();
+  }
+
   function iniciarEdicao(agendamento) {
     setEditingId(agendamento.id);
     setClienteId(agendamento.cliente_id ? String(agendamento.cliente_id) : "");
@@ -173,6 +286,8 @@ function Agendamentos() {
       agendamento.servicos ? agendamento.servicos.map((servico) => String(servico.id)) : [],
     );
     setStatus(agendamento.status || "agendado");
+    setDescontoValor(agendamento.desconto_valor ?? "");
+    setValorFinal(agendamento.valor_final ?? "");
   }
 
   function limparFormulario() {
@@ -183,6 +298,8 @@ function Agendamentos() {
     setData("");
     setHorario("");
     setStatus("agendado");
+    setDescontoValor("");
+    setValorFinal("");
   }
 
   const agora = new Date();
@@ -191,14 +308,7 @@ function Agendamentos() {
     const inicio = agendamento.inicio_em
       ? new Date(agendamento.inicio_em)
       : new Date(`${agendamento.data}T${agendamento.horario || "00:00"}`);
-    return inicio >= agora && agendamento.status !== "cancelado";
-  });
-
-  const historico = agendamentos.filter((agendamento) => {
-    const inicio = agendamento.inicio_em
-      ? new Date(agendamento.inicio_em)
-      : new Date(`${agendamento.data}T${agendamento.horario || "00:00"}`);
-    return inicio < agora || ["concluido", "cancelado", "nao_compareceu"].includes(agendamento.status);
+    return inicio >= agora && ["agendado", "confirmado"].includes(agendamento.status);
   });
 
   return (
@@ -249,6 +359,30 @@ function Agendamentos() {
               <option value="nao_compareceu">Não compareceu</option>
             </select>
           </div>
+
+          <div>
+            <label className="block mb-1">Desconto (R$)</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={descontoValor}
+              onChange={(e) => setDescontoValor(e.target.value)}
+              className="w-full border p-2 rounded"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1">Valor final (R$)</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={valorFinal}
+              onChange={(e) => setValorFinal(e.target.value)}
+              className="w-full border p-2 rounded"
+            />
+          </div>
         </div>
 
         <div className="mb-4 mt-4">
@@ -292,6 +426,11 @@ function Agendamentos() {
             <span className="block text-gray-500">Tempo total do atendimento</span>
             <strong>{duracaoTotalMinutos ? `${duracaoTotalMinutos} min` : "0 min"}</strong>
           </div>
+
+          <div>
+            <span className="block text-gray-500">Valor a faturar</span>
+            <strong>R$ {valorFinalCalculado.toFixed(2)}</strong>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
@@ -309,7 +448,13 @@ function Agendamentos() {
 
       <div className="space-y-6">
         <section>
-          <h3 className="text-2xl font-semibold mb-3">Próximos agendamentos</h3>
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <h3 className="text-2xl font-semibold">Próximos agendamentos</h3>
+
+            <p className="text-sm text-gray-500">
+              Para histórico e edição de meses anteriores, use a aba Histórico.
+            </p>
+          </div>
 
           <div className="space-y-4">
             {proximos.map((agendamento) => (
@@ -329,9 +474,29 @@ function Agendamentos() {
                 <p>Duração: {agendamento.duracao_total_minutos || 0} min</p>
                 <p>Início: {formatDateBR(agendamento.data)} {formatTime(agendamento.horario)}</p>
                 <p>Término: {formatDateBR(agendamento.data)} {formatTime(agendamento.termino_em || addMinutesToTime(agendamento.horario, agendamento.duracao_total_minutos))}</p>
-                <p>Valor: R$ {Number(agendamento.total).toFixed(2)}</p>
+                <p>Valor bruto: R$ {Number(agendamento.total_bruto || 0).toFixed(2)}</p>
+                <p>Desconto: R$ {Number(agendamento.desconto_valor || 0).toFixed(2)}</p>
+                <p>Valor final: R$ {Number(agendamento.total || 0).toFixed(2)}</p>
 
                 <div className="mt-3 flex gap-2 flex-wrap">
+                  {agendamento.status === "agendado" && (
+                    <button
+                      onClick={() => atualizarStatusAgendamento(agendamento.id, "confirmado")}
+                      className="bg-emerald-600 text-white px-4 py-2 rounded"
+                    >
+                      Confirmar
+                    </button>
+                  )}
+
+                  {agendamento.status === "confirmado" && (
+                    <button
+                      onClick={() => concluirAgendamento(agendamento)}
+                      className="bg-green-600 text-white px-4 py-2 rounded"
+                    >
+                      Concluir
+                    </button>
+                  )}
+
                   <button onClick={() => iniciarEdicao(agendamento)} className="bg-yellow-500 text-white px-4 py-2 rounded">Editar</button>
                   <button onClick={() => deletarAgendamento(agendamento.id)} className="bg-red-500 text-white px-4 py-2 rounded">Deletar</button>
                 </div>
@@ -340,32 +505,6 @@ function Agendamentos() {
           </div>
         </section>
 
-        <section>
-          <h3 className="text-2xl font-semibold mb-3">Histórico</h3>
-
-          <div className="space-y-4">
-            {historico.map((agendamento) => (
-              <div key={agendamento.id} className="bg-white p-4 rounded shadow">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h2 className="text-xl font-semibold">{agendamento.cliente}</h2>
-                    <p className="text-sm text-gray-500">{agendamento.barbeiro || "Sem barbeiro"}</p>
-                  </div>
-
-                  <span className={`text-xs px-2 py-1 rounded-full ${statusClass(agendamento.status)}`}>
-                    {statusLabel(agendamento.status)}
-                  </span>
-                </div>
-
-                <p>Serviços: {agendamento.servicos && agendamento.servicos.length > 0 ? agendamento.servicos.map((s) => s.nome).join(", ") : "—"}</p>
-                <p>Início: {formatDateBR(agendamento.data)} {formatTime(agendamento.horario)}</p>
-                <p>Término: {formatDateBR(agendamento.data)} {formatTime(agendamento.termino_em || addMinutesToTime(agendamento.horario, agendamento.duracao_total_minutos))}</p>
-                <p>Duração: {agendamento.duracao_total_minutos || 0} min</p>
-                <p>Valor: R$ {Number(agendamento.total).toFixed(2)}</p>
-              </div>
-            ))}
-          </div>
-        </section>
       </div>
     </div>
   );

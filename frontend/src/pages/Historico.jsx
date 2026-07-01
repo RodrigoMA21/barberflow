@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import AgendamentoModal from "../components/AgendamentoModal";
 
 function formatDateTime(data, horario) {
   if (!data) return "";
@@ -70,21 +71,12 @@ function Historico() {
   const [year, setYear] = useState("");
   const [clienteId, setClienteId] = useState("");
   const [page, setPage] = useState(1);
+  const [modalAberto, setModalAberto] = useState(false);
+  const [agendamentoInicial, setAgendamentoInicial] = useState(null);
 
   const limit = 6;
 
-  useEffect(() => {
-    carregarClientes();
-    carregarHistorico(1);
-  }, []);
-
-  async function carregarClientes() {
-    const res = await fetch("http://localhost:3000/clientes");
-    const data = await res.json();
-    setClientes(data);
-  }
-
-  async function carregarHistorico(pageAtual = page) {
+  const carregarHistorico = useCallback(async (pageAtual = page) => {
     const params = new URLSearchParams();
     params.append("page", String(pageAtual));
     params.append("limit", String(limit));
@@ -99,6 +91,54 @@ function Historico() {
     const data = await res.json();
     setHistorico(data.data || []);
     setMeta(data.meta || { page: pageAtual, limit, total: 0 });
+  }, [clienteId, limit, month, page, year]);
+
+  useEffect(() => {
+    void (async () => {
+      const resClientes = await fetch("http://localhost:3000/clientes");
+      const clientesData = await resClientes.json();
+      setClientes(clientesData);
+
+      const params = new URLSearchParams();
+      params.append("page", "1");
+      params.append("limit", String(limit));
+
+      if (month) params.append("month", month);
+      if (year) params.append("year", year);
+      if (clienteId) params.append("cliente_id", clienteId);
+
+      const resHistorico = await fetch(
+        `http://localhost:3000/agendamentos/historico?${params.toString()}`,
+      );
+
+      const historicoData = await resHistorico.json();
+      setHistorico(historicoData.data || []);
+      setMeta(historicoData.meta || { page: 1, limit, total: 0 });
+    })();
+  }, [clienteId, limit, month, year]);
+
+  async function excluirAgendamento(id) {
+    const confirmar = window.confirm("Tem certeza que deseja excluir este agendamento?");
+
+    if (!confirmar) return;
+
+    const response = await fetch(`http://localhost:3000/agendamentos/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      alert(errorData.error || "Erro ao excluir agendamento");
+      return;
+    }
+
+    carregarHistorico(page);
+  }
+
+  function editarAgendamento(id) {
+    const agendamento = historico.find((item) => String(item.id) === String(id));
+    setAgendamentoInicial(agendamento || { id });
+    setModalAberto(true);
   }
 
   function aplicarFiltros() {
@@ -227,7 +267,27 @@ function Historico() {
                 : "—"}
             </p>
 
-            <p>Valor: R$ {Number(h.total).toFixed(2)}</p>
+            <p>Valor bruto: R$ {Number(h.total_bruto || 0).toFixed(2)}</p>
+            <p>Desconto: R$ {Number(h.desconto_valor || 0).toFixed(2)}</p>
+            <p>Valor final: R$ {Number(h.total || 0).toFixed(2)}</p>
+
+            <div className="mt-3 flex gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={() => editarAgendamento(h.id)}
+                className="bg-yellow-500 text-white px-4 py-2 rounded"
+              >
+                Editar
+              </button>
+
+              <button
+                type="button"
+                onClick={() => excluirAgendamento(h.id)}
+                className="bg-red-500 text-white px-4 py-2 rounded"
+              >
+                Excluir
+              </button>
+            </div>
           </div>
         ))}
 
@@ -259,6 +319,17 @@ function Historico() {
           Próxima
         </button>
       </div>
+
+      <AgendamentoModal
+        key={`${modalAberto ? "open" : "closed"}-${agendamentoInicial?.id || "new"}-${agendamentoInicial?.data || ""}-${agendamentoInicial?.horario || ""}`}
+        open={modalAberto}
+        initialData={agendamentoInicial}
+        onClose={() => {
+          setModalAberto(false);
+          setAgendamentoInicial(null);
+        }}
+        onSaved={() => carregarHistorico(page)}
+      />
     </div>
   );
 }
