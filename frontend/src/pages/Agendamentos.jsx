@@ -387,27 +387,47 @@ function Agendamentos() {
 
         <div className="mb-4 mt-4">
           <label className="block mb-1">Serviços</label>
-          <div className="border p-3 rounded space-y-2">
-            {servicos.map((servico) => (
-              <label key={servico.id} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={servicoIds.includes(String(servico.id))}
-                  onChange={(e) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {servicos.map((servico) => {
+              const selected = servicoIds.includes(String(servico.id));
+
+              return (
+                <button
+                  type="button"
+                  key={servico.id}
+                  onClick={() => {
                     const id = String(servico.id);
                     setServicoIds(
-                      e.target.checked
-                        ? [...servicoIds, id]
-                        : servicoIds.filter((s) => s !== id),
+                      selected
+                        ? servicoIds.filter((s) => s !== id)
+                        : [...servicoIds, id],
                     );
                   }}
-                  className="w-4 h-4"
-                />
-                <span>
-                  {servico.nome} - R$ {Number(servico.preco).toFixed(2)} · {servico.duracao_minutos || 30} min
-                </span>
-              </label>
-            ))}
+                  className={`text-left rounded-lg border-2 p-4 transition-all cursor-pointer ${
+                    selected
+                      ? "border-black bg-gray-100 shadow-sm"
+                      : "border-gray-200 bg-white hover:border-gray-400"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="font-semibold text-sm">{servico.nome}</span>
+                    {selected && (
+                      <span className="text-black text-lg leading-none shrink-0">✓</span>
+                    )}
+                  </div>
+
+                  <div className="mt-2 text-sm text-gray-500 space-y-0.5">
+                    <div>
+                      R$ {Number(servico.preco).toFixed(2)}
+                    </div>
+
+                    <div>
+                      {servico.duracao_minutos || 30} min
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
