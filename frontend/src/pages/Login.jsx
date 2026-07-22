@@ -1,34 +1,28 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { api } from "../api";
+import { useNotify } from "../components/Notification";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
   const navigate = useNavigate();
+  const notify = useNotify();
 
   async function fazerLogin(e) {
     e.preventDefault();
 
     try {
-      const response = await fetch(
-        "http://localhost:3000/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            senha,
-          }),
-        }
-      );
+      const response = await api("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, senha }),
+      });
 
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.error);
+        notify(data.error || "Erro ao fazer login");
 
         return;
       }
@@ -47,7 +41,7 @@ function Login() {
     } catch (error) {
       console.error(error);
 
-      alert("Erro ao fazer login");
+      notify("Erro ao fazer login");
     }
   }
 

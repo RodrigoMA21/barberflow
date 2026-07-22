@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { api } from "../api";
+import { useNotify } from "../components/Notification";
 
 const DIAS = [
   { value: 1, label: "Segunda" },
@@ -28,14 +30,14 @@ function Barbeiros() {
   const [barbeiroParaDeletar, setBarbeiroParaDeletar] = useState(null);
 
   async function recarregarBarbeiros() {
-    const response = await fetch("http://localhost:3000/barbeiros");
+    const response = await api("/barbeiros");
     const data = await response.json();
     setBarbeiros(Array.isArray(data) ? data : []);
   }
 
   useEffect(() => {
     void (async () => {
-      const response = await fetch("http://localhost:3000/barbeiros");
+      const response = await api("/barbeiros");
       const data = await response.json();
       setBarbeiros(Array.isArray(data) ? data : []);
     })();
@@ -58,7 +60,7 @@ function Barbeiros() {
     };
 
     if (barbeiroEditando) {
-      await fetch(`http://localhost:3000/barbeiros/${barbeiroEditando.id}`, {
+      await api(`/barbeiros/${barbeiroEditando.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -68,7 +70,7 @@ function Barbeiros() {
 
       setBarbeiroEditando(null);
     } else {
-      await fetch("http://localhost:3000/barbeiros", {
+      await api("/barbeiros", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -92,7 +94,7 @@ function Barbeiros() {
   }
 
   async function deletarBarbeiro(id) {
-    await fetch(`http://localhost:3000/barbeiros/${id}`, {
+    await api(`/barbeiros/${id}`, {
       method: "DELETE",
     });
 
@@ -203,22 +205,38 @@ function Barbeiros() {
           <h3 className="font-semibold mb-3">Horários de atendimento</h3>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
-            {DIAS.map((dia) => (
-              <label key={dia.value} className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={diasAtendimento.includes(String(dia.value))}
-                  onChange={(e) => {
-                    const value = String(dia.value);
+            {DIAS.map((dia) => {
+              const selected = diasAtendimento.includes(String(dia.value));
+
+              return (
+                <button
+                  type="button"
+                  key={dia.value}
+                  onClick={() => {
                     setDiasAtendimento((prev) =>
-                      e.target.checked ? [...prev, value] : prev.filter((item) => item !== value),
+                      selected
+                        ? prev.filter((item) => item !== String(dia.value))
+                        : [...prev, String(dia.value)],
                     );
                   }}
-                />
-                {dia.label}
-              </label>
-            ))}
+                  className={`text-left rounded-lg border-2 p-3 transition-all cursor-pointer ${
+                    selected
+                      ? "border-black bg-gray-100 shadow-sm"
+                      : "border-gray-200 bg-white hover:border-gray-400"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="font-semibold text-sm">{dia.label}</span>
+                    {selected && (
+                      <span className="text-black text-lg leading-none shrink-0">✓</span>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
           </div>
+
+          <p className="text-xs text-gray-400 mb-4">Nenhum marcado = disponível todos os dias</p>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>

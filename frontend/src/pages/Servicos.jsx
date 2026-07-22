@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { api } from "../api";
 
 function Servicos() {
   const [servicos, setServicos] = useState([]);
@@ -10,7 +11,7 @@ function Servicos() {
   const [editandoId, setEditandoId] = useState(null);
 
   async function carregarServicos() {
-    const response = await fetch("http://localhost:3000/servicos");
+    const response = await api("/servicos");
 
     const data = await response.json();
 
@@ -30,7 +31,7 @@ function Servicos() {
       duracao_minutos: duracaoMinutos,
     };
 
-    await fetch("http://localhost:3000/servicos", {
+    await api("/servicos", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -54,7 +55,7 @@ function Servicos() {
       return;
     }
 
-    await fetch(`http://localhost:3000/servicos/${id}`, {
+    await api(`/servicos/${id}`, {
       method: "DELETE",
     });
 
@@ -79,7 +80,7 @@ function Servicos() {
       duracao_minutos: duracaoMinutos,
     };
 
-    await fetch(`http://localhost:3000/servicos/${editandoId}`, {
+    await api(`/servicos/${editandoId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

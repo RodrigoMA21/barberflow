@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
+import { api } from "../api";
+import { useNotify } from "../components/Notification";
 import AgendamentoModal from "../components/AgendamentoModal";
 
 function formatDateTime(data, horario) {
@@ -66,6 +68,7 @@ function Historico() {
   const [historico, setHistorico] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [meta, setMeta] = useState({ page: 1, limit: 10, total: 0 });
+  const notify = useNotify();
 
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
@@ -84,8 +87,8 @@ function Historico() {
     if (year) params.append("year", year);
     if (clienteId) params.append("cliente_id", clienteId);
 
-    const res = await fetch(
-      `http://localhost:3000/agendamentos/historico?${params.toString()}`,
+    const res = await api(
+      `/agendamentos/historico?${params.toString()}`,
     );
 
     const data = await res.json();
@@ -95,7 +98,7 @@ function Historico() {
 
   useEffect(() => {
     void (async () => {
-      const resClientes = await fetch("http://localhost:3000/clientes");
+      const resClientes = await api("/clientes");
       const clientesData = await resClientes.json();
       setClientes(clientesData);
 
@@ -107,8 +110,8 @@ function Historico() {
       if (year) params.append("year", year);
       if (clienteId) params.append("cliente_id", clienteId);
 
-      const resHistorico = await fetch(
-        `http://localhost:3000/agendamentos/historico?${params.toString()}`,
+      const resHistorico = await api(
+        `/agendamentos/historico?${params.toString()}`,
       );
 
       const historicoData = await resHistorico.json();
@@ -122,13 +125,13 @@ function Historico() {
 
     if (!confirmar) return;
 
-    const response = await fetch(`http://localhost:3000/agendamentos/${id}`, {
+    const response = await api(`/agendamentos/${id}`, {
       method: "DELETE",
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      alert(errorData.error || "Erro ao excluir agendamento");
+      notify(errorData.error || "Erro ao excluir agendamento");
       return;
     }
 

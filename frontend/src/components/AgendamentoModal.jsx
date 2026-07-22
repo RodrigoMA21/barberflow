@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { api } from "../api";
+import { useNotify } from "../components/Notification";
 
 function formatDateBR(dateStr) {
   if (!dateStr) return "";
@@ -29,6 +31,7 @@ export default function AgendamentoModal({ open, initialData, onClose, onSaved }
   const [clientes, setClientes] = useState([]);
   const [servicos, setServicos] = useState([]);
   const [barbeiros, setBarbeiros] = useState([]);
+  const notify = useNotify();
 
   const editingId = initialData?.id || null;
   const [clienteId, setClienteId] = useState(() => (initialData?.cliente_id ? String(initialData.cliente_id) : ""));
@@ -47,9 +50,9 @@ export default function AgendamentoModal({ open, initialData, onClose, onSaved }
 
     async function carregarDados() {
       const [clientesRes, servicosRes, barbeirosRes] = await Promise.all([
-        fetch("http://localhost:3000/clientes"),
-        fetch("http://localhost:3000/servicos"),
-        fetch("http://localhost:3000/barbeiros"),
+        api("/clientes"),
+        api("/servicos"),
+        api("/barbeiros"),
       ]);
 
       const [clientesData, servicosData, barbeirosData] = await Promise.all([
@@ -91,7 +94,7 @@ export default function AgendamentoModal({ open, initialData, onClose, onSaved }
 
     const payload = {
       cliente_id: clienteId,
-      barbeiro_id: barbeiroId,
+      barbeiro_id: barbeiroId || null,
       servico_ids: servicoIds,
       data,
       horario,
@@ -101,12 +104,12 @@ export default function AgendamentoModal({ open, initialData, onClose, onSaved }
     };
 
     const response = editingId
-      ? await fetch(`http://localhost:3000/agendamentos/${editingId}`, {
+      ? await api(`/agendamentos/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         })
-      : await fetch("http://localhost:3000/agendamentos", {
+      : await api("/agendamentos", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -114,7 +117,7 @@ export default function AgendamentoModal({ open, initialData, onClose, onSaved }
 
     if (!response.ok) {
       const errorData = await response.json();
-      alert(errorData.error || "Erro ao salvar agendamento");
+      notify(errorData.error || "Erro ao salvar agendamento");
       return;
     }
 
@@ -198,24 +201,42 @@ export default function AgendamentoModal({ open, initialData, onClose, onSaved }
 
           <div>
             <label className="block mb-1">Serviços</label>
-            <div className="border p-3 rounded space-y-2 max-h-56 overflow-auto">
-              {servicos.map((servico) => (
-                <label key={servico.id} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={servicoIds.includes(String(servico.id))}
-                    onChange={(e) => {
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {servicos.map((servico) => {
+                const selected = servicoIds.includes(String(servico.id));
+
+                return (
+                  <button
+                    type="button"
+                    key={servico.id}
+                    onClick={() => {
                       const id = String(servico.id);
                       setServicoIds(
-                        e.target.checked ? [...servicoIds, id] : servicoIds.filter((s) => s !== id),
+                        selected
+                          ? servicoIds.filter((s) => s !== id)
+                          : [...servicoIds, id],
                       );
                     }}
-                  />
-                  <span>
-                    {servico.nome} - R$ {Number(servico.preco).toFixed(2)} · {servico.duracao_minutos || 30} min
-                  </span>
-                </label>
-              ))}
+                    className={`text-left rounded-lg border-2 p-3 transition-all cursor-pointer ${
+                      selected
+                        ? "border-black bg-gray-100 shadow-sm"
+                        : "border-gray-200 bg-white hover:border-gray-400"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="font-semibold text-sm">{servico.nome}</span>
+                      {selected && (
+                        <span className="text-black text-lg leading-none shrink-0">✓</span>
+                      )}
+                    </div>
+
+                    <div className="mt-1 text-sm text-gray-500 space-y-0.5">
+                      <div>R$ {Number(servico.preco).toFixed(2)}</div>
+                      <div>{servico.duracao_minutos || 30} min</div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 

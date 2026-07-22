@@ -1,15 +1,20 @@
 import { useLocation, useNavigate } from "react-router-dom";
 
+const HEADER_TITLES = {
+  "/": "Dashboard",
+  "/clientes": "Clientes",
+  "/servicos": "Serviços",
+  "/agendamentos": "Agendamentos",
+  "/agenda": "Agenda",
+  "/barbeiros": "Barbeiros",
+  "/historico": "Histórico",
+};
+
 function Header() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const titles = {
-    "/": "Dashboard",
-    "/clientes": "Clientes",
-    "/servicos": "Serviços",
-    "/agendamentos": "Agendamentos",
-  };
+  const title = HEADER_TITLES[location.pathname] || "BarberFlow";
 
   const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
 
@@ -21,7 +26,7 @@ function Header() {
 
   return (
     <header className="bg-white shadow p-4 flex justify-between items-center">
-      <h1 className="text-2xl font-bold">{titles[location.pathname]}</h1>
+      <h1 className="text-2xl font-bold">{title}</h1>
 
       <div className="flex items-center gap-4">
         <span className="font-medium">

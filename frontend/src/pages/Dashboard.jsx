@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { api } from "../api";
 
 function Dashboard() {
   const [resumo, setResumo] = useState({
@@ -15,8 +16,8 @@ function Dashboard() {
   const [ano, setAno] = useState(new Date().getFullYear());
 
   async function carregarDashboard() {
-    const response = await fetch(
-      `http://localhost:3000/dashboard?mes=${mes}&ano=${ano}`,
+    const response = await api(
+      `/dashboard?mes=${mes}&ano=${ano}`,
     );
 
     const data = await response.json();

@@ -398,10 +398,6 @@ router.put("/:id", async (req, res) => {
       return res.status(400).json({ error: "Selecione um cliente" });
     }
 
-    if (!barbeiro_id) {
-      return res.status(400).json({ error: "Selecione um barbeiro" });
-    }
-
     if (!Array.isArray(servico_ids) || servico_ids.length === 0) {
       return res.status(400).json({ error: "Selecione pelo menos um serviço" });
     }
@@ -416,6 +412,24 @@ router.put("/:id", async (req, res) => {
       return res.status(400).json({ error: "Data ou horário inválido" });
     }
 
+    const existingAppt = await client.query(
+      `SELECT data, horario FROM agendamentos WHERE id = $1`,
+      [id],
+    );
+
+    if (existingAppt.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ error: "Agendamento não encontrado" });
+    }
+
+    const existingDate = existingAppt.rows[0].data;
+    const existingDateStr = existingDate instanceof Date
+      ? `${existingDate.getFullYear()}-${String(existingDate.getMonth() + 1).padStart(2, "0")}-${String(existingDate.getDate()).padStart(2, "0")}`
+      : String(existingDate).slice(0, 10);
+    const dataChanged = existingDateStr !== String(data).slice(0, 10);
+
+    const horarioChanged = String(existingAppt.rows[0].horario).slice(0, 5) !== String(horario).slice(0, 5);
+
     await client.query("BEGIN");
 
     const servicosDetalhados = await buscarDetalhesServicos(client, servico_ids.map((item) => Number(item)));
@@ -429,40 +443,42 @@ router.put("/:id", async (req, res) => {
     const totalBruto = servicosDetalhados.reduce((total, servico) => total + Number(servico.preco || 0), 0);
     const valorCalculado = calculateBillingValue(totalBruto, descontoValor, valorFinal);
 
-    const barbeiro = await buscarBarbeiroPorId(client, Number(barbeiro_id));
-    const businessValidation = validateBusinessHours(dataHoraInicio, dataHoraFim, barbeiro);
+    const barbeiroIdNum = barbeiro_id ? Number(barbeiro_id) : null;
 
-    if (!businessValidation.ok) {
-      await client.query("ROLLBACK");
-      return res.status(400).json({ error: businessValidation.error });
-    }
+    if (barbeiroIdNum && (dataChanged || horarioChanged)) {
+      const barbeiro = await buscarBarbeiroPorId(client, barbeiroIdNum);
+      const businessValidation = validateBusinessHours(dataHoraInicio, dataHoraFim, barbeiro);
 
-    const conflitos = await buscarConflitos(client, {
-      barbeiroId: Number(barbeiro_id),
-      data,
-      ignoreId: id,
-    });
-
-    for (const conflito of conflitos) {
-      const conflitoInicio = parseLocalDateTime(conflito.data, conflito.horario);
-      if (!conflitoInicio) {
-        continue;
+      if (!businessValidation.ok) {
+        await client.query("ROLLBACK");
+        return res.status(400).json({ error: businessValidation.error });
       }
 
-      const conflitoFim = calculateAppointmentEnd(
-        conflitoInicio,
-        Number(conflito.duracao_total_minutos) || 0,
-      );
+      const conflitos = await buscarConflitos(client, {
+        barbeiroId: barbeiroIdNum,
+        data,
+        ignoreId: id,
+      });
 
-      if (
-        conflitoInicio &&
-        conflitoFim &&
-        overlaps(dataHoraInicio, dataHoraFim, conflitoInicio, conflitoFim)
-      ) {
-        await client.query("ROLLBACK");
-        return res.status(400).json({
-          error: "Conflito de horário para o barbeiro selecionado",
-        });
+      for (const conflito of conflitos) {
+        const conflitoInicio = parseLocalDateTime(conflito.data, conflito.horario);
+        if (!conflitoInicio) continue;
+
+        const conflitoFim = calculateAppointmentEnd(
+          conflitoInicio,
+          Number(conflito.duracao_total_minutos) || 0,
+        );
+
+        if (
+          conflitoInicio &&
+          conflitoFim &&
+          overlaps(dataHoraInicio, dataHoraFim, conflitoInicio, conflitoFim)
+        ) {
+          await client.query("ROLLBACK");
+          return res.status(400).json({
+            error: "Conflito de horário para o barbeiro selecionado",
+          });
+        }
       }
     }
 
@@ -472,7 +488,7 @@ router.put("/:id", async (req, res) => {
       SET cliente_id = $1, barbeiro_id = $2, data = $3, horario = $4, status = $5, desconto_valor = $6, valor_final = $7
       WHERE id = $8
       `,
-      [cliente_id, barbeiro_id, data, horario, normalizedStatus, descontoValor, valorFinal !== null ? valorFinal : valorCalculado, id],
+      [cliente_id, barbeiroIdNum, data, horario, normalizedStatus, descontoValor, valorFinal !== null ? valorFinal : valorCalculado, id],
     );
 
     await client.query(

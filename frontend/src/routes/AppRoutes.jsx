@@ -10,7 +10,6 @@ import Barbeiros from "../pages/Barbeiros";
 import Agendamentos from "../pages/Agendamentos";
 import Agenda from "../pages/Agenda";
 import Historico from "../pages/Historico";
-// import Agenda from "../pages/Agenda";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 

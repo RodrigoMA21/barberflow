@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { api } from "../api";
+import { useNotify } from "../components/Notification";
 import AgendamentoModal from "../components/AgendamentoModal";
 
 function formatTime(value) {
@@ -104,10 +106,11 @@ function Agenda() {
   const [agenda, setAgenda] = useState([]);
   const [modalAberto, setModalAberto] = useState(false);
   const [agendamentoInicial, setAgendamentoInicial] = useState(null);
+  const notify = useNotify();
 
   useEffect(() => {
     void (async () => {
-      const response = await fetch("http://localhost:3000/barbeiros");
+      const response = await api("/barbeiros");
       const responseData = await response.json();
       setBarbeiros(responseData.filter((barbeiro) => barbeiro.ativo));
     })();
@@ -119,8 +122,8 @@ function Agenda() {
 
       if (barbeiroId) params.append("barbeiro_id", barbeiroId);
 
-      const response = await fetch(
-        `http://localhost:3000/agendamentos/agenda?${params.toString()}`,
+      const response = await api(
+        `/agendamentos/agenda?${params.toString()}`,
       );
       const responseData = await response.json();
       setAgenda(Array.isArray(responseData) ? responseData : []);
@@ -132,7 +135,7 @@ function Agenda() {
 
     if (barbeiroId) params.append("barbeiro_id", barbeiroId);
 
-    const response = await fetch(`http://localhost:3000/agendamentos/agenda?${params.toString()}`);
+    const response = await api(`/agendamentos/agenda?${params.toString()}`);
     const responseData = await response.json();
     setAgenda(Array.isArray(responseData) ? responseData : []);
   }
@@ -166,7 +169,7 @@ function Agenda() {
   }
 
   async function atualizarStatusAgendamento(id, novoStatus) {
-    const response = await fetch(`http://localhost:3000/agendamentos/${id}/status`, {
+    const response = await api(`/agendamentos/${id}/status`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -176,7 +179,7 @@ function Agenda() {
 
     if (!response.ok) {
       const errorData = await response.json();
-      alert(errorData.error || "Erro ao atualizar status");
+      notify(errorData.error || "Erro ao atualizar status");
       return;
     }
 
@@ -188,7 +191,7 @@ function Agenda() {
 
     if (!confirmar) return;
 
-    await fetch(`http://localhost:3000/agendamentos/${id}`, { method: "DELETE" });
+    await api(`/agendamentos/${id}`, { method: "DELETE" });
     recarregarAgenda();
   }
 
@@ -251,123 +254,195 @@ function Agenda() {
         <div className="ml-auto text-sm text-gray-500">{getDayName(data)}</div>
       </div>
 
-      {barbersToShow.length === 0 ? (
-        <div className="bg-white p-6 rounded shadow">
-          Nenhum barbeiro ativo cadastrado. Cadastre barbeiros para visualizar a agenda.
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {barbersToShow.map((barbeiro) => {
-            const items = agendaPorBarbeiro.get(String(barbeiro.id)) || [];
-            const slots = getBusinessSlots(data, barbeiro);
+      <div className="space-y-4">
+        {barbersToShow.length === 0 && !barbeiroId && (
+          <div className="bg-white p-6 rounded shadow">
+            Nenhum barbeiro ativo cadastrado. Cadastre barbeiros para visualizar a agenda.
+          </div>
+        )}
 
-            return (
-              <div key={barbeiro.id} className="bg-white p-4 rounded shadow">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <h2 className="text-xl font-semibold">{barbeiro.nome}</h2>
-                    <p className="text-sm text-gray-500">{barbeiro.especialidade || "Sem especialidade"}</p>
-                    <p className="text-xs text-gray-500 mt-1">{formatScheduleSummary(barbeiro)}</p>
-                  </div>
+        {barbersToShow.map((barbeiro) => {
+          const items = agendaPorBarbeiro.get(String(barbeiro.id)) || [];
+          const slots = getBusinessSlots(data, barbeiro);
 
-                  <span className="text-sm text-gray-500">{items.length} agendamentos</span>
+          return (
+            <div key={barbeiro.id} className="bg-white p-4 rounded shadow">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h2 className="text-xl font-semibold">{barbeiro.nome}</h2>
+                  <p className="text-sm text-gray-500">{barbeiro.especialidade || "Sem especialidade"}</p>
+                  <p className="text-xs text-gray-500 mt-1">{formatScheduleSummary(barbeiro)}</p>
                 </div>
 
-                {slots.length === 0 ? (
-                  <p className="text-sm text-gray-500">Este barbeiro não atende no dia selecionado.</p>
-                ) : (
-                  <div className="grid grid-cols-1 gap-2">
-                    {slots.map((slotMinutes) => {
-                      const ocupados = items.filter((item) => slotEstaOcupado(item, slotMinutes));
-                      const ocupado = ocupados.length > 0;
-                      const itemPrincipal = ocupados[0];
+                <span className="text-sm text-gray-500">{items.length} agendamentos</span>
+              </div>
 
-                      return (
-                        <div
-                          key={`${barbeiro.id}-${slotMinutes}`}
-                          className={`rounded-lg border p-3 flex items-center justify-between ${ocupado ? "bg-black text-white border-black" : "bg-emerald-50 border-emerald-100"}`}
-                        >
-                          <div>
-                            <div className="font-semibold">{minutesToLabel(slotMinutes)}</div>
-                            <div className={`text-sm ${ocupado ? "text-gray-200" : "text-gray-600"}`}>
-                              {ocupado ? itemPrincipal.cliente : "Livre"}
-                            </div>
-                            {ocupado && (
-                              <div className={`text-xs mt-1 ${ocupado ? "text-gray-300" : "text-gray-500"}`}>
-                                {itemPrincipal.servicos?.map((s) => s.nome).join(", ") || "Serviço"}
-                              </div>
-                            )}
+              {slots.length === 0 ? (
+                <p className="text-sm text-gray-500">Este barbeiro não atende no dia selecionado.</p>
+              ) : (
+                <div className="grid grid-cols-1 gap-2">
+                  {slots.map((slotMinutes) => {
+                    const ocupados = items.filter((item) => slotEstaOcupado(item, slotMinutes));
+                    const ocupado = ocupados.length > 0;
+                    const itemPrincipal = ocupados[0];
+
+                    return (
+                      <div
+                        key={`${barbeiro.id}-${slotMinutes}`}
+                        className={`rounded-lg border p-3 flex items-center justify-between ${ocupado ? "bg-black text-white border-black" : "bg-emerald-50 border-emerald-100"}`}
+                      >
+                        <div>
+                          <div className="font-semibold">{minutesToLabel(slotMinutes)}</div>
+                          <div className={`text-sm ${ocupado ? "text-gray-200" : "text-gray-600"}`}>
+                            {ocupado ? itemPrincipal.cliente : "Livre"}
                           </div>
+                          {ocupado && (
+                            <div className={`text-xs mt-1 ${ocupado ? "text-gray-300" : "text-gray-500"}`}>
+                              {itemPrincipal.servicos?.map((s) => s.nome).join(", ") || "Serviço"}
+                            </div>
+                          )}
+                        </div>
 
-                          <div className="text-right text-sm flex flex-col items-end gap-2">
-                            {ocupado ? (
-                              <>
-                                <div>
-                                  {formatTime(itemPrincipal.horario)} - {formatTime(itemPrincipal.termino_em)}
-                                </div>
+                        <div className="text-right text-sm flex flex-col items-end gap-2">
+                          {ocupado ? (
+                            <>
+                              <div>
+                                {formatTime(itemPrincipal.horario)} - {formatTime(itemPrincipal.termino_em)}
+                              </div>
 
-                                <div className="flex flex-wrap gap-2 justify-end">
-                                  {itemPrincipal.status === "agendado" && (
-                                    <button
-                                      type="button"
-                                      onClick={() => atualizarStatusAgendamento(itemPrincipal.id, "confirmado")}
-                                      className="bg-amber-500 text-white px-3 py-1 rounded text-xs"
-                                    >
-                                      Confirmar
-                                    </button>
-                                  )}
-
-                                  {itemPrincipal.status === "confirmado" && (
-                                    <button
-                                      type="button"
-                                      onClick={() => atualizarStatusAgendamento(itemPrincipal.id, "concluido")}
-                                      className="bg-green-600 text-white px-3 py-1 rounded text-xs"
-                                    >
-                                      Concluir
-                                    </button>
-                                  )}
-
+                              <div className="flex flex-wrap gap-2 justify-end">
+                                {itemPrincipal.status === "agendado" && (
                                   <button
                                     type="button"
-                                    onClick={() => editarAgendamento(itemPrincipal)}
-                                    className="bg-blue-600 text-white px-3 py-1 rounded text-xs"
+                                    onClick={() => atualizarStatusAgendamento(itemPrincipal.id, "confirmado")}
+                                    className="bg-amber-500 text-white px-3 py-1 rounded text-xs"
                                   >
-                                    Editar
+                                    Confirmar
                                   </button>
+                                )}
 
+                                {itemPrincipal.status === "confirmado" && (
                                   <button
                                     type="button"
-                                    onClick={() => deletarAgendamento(itemPrincipal.id)}
-                                    className="bg-red-600 text-white px-3 py-1 rounded text-xs"
+                                    onClick={() => atualizarStatusAgendamento(itemPrincipal.id, "concluido")}
+                                    className="bg-green-600 text-white px-3 py-1 rounded text-xs"
                                   >
-                                    Excluir
+                                    Concluir
                                   </button>
-                                </div>
-                              </>
-                            ) : (
-                              <>
-                                <div>Disponível</div>
+                                )}
 
                                 <button
                                   type="button"
-                                  onClick={() => agendarHorarioLivre(barbeiro, slotMinutes)}
-                                  className="bg-black text-white px-3 py-1 rounded text-xs"
+                                  onClick={() => editarAgendamento(itemPrincipal)}
+                                  className="bg-blue-600 text-white px-3 py-1 rounded text-xs"
                                 >
-                                  Agendar aqui
+                                  Editar
                                 </button>
-                              </>
-                            )}
-                          </div>
+
+                                <button
+                                  type="button"
+                                  onClick={() => deletarAgendamento(itemPrincipal.id)}
+                                  className="bg-red-600 text-white px-3 py-1 rounded text-xs"
+                                >
+                                  Excluir
+                                </button>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div>Disponível</div>
+
+                              <button
+                                type="button"
+                                onClick={() => agendarHorarioLivre(barbeiro, slotMinutes)}
+                                className="bg-black text-white px-3 py-1 rounded text-xs"
+                              >
+                                Agendar aqui
+                              </button>
+                            </>
+                          )}
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {!barbeiroId && (agendaPorBarbeiro.get("") || []).length > 0 && (
+          <div className="bg-white p-4 rounded shadow">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h2 className="text-xl font-semibold">Sem barbeiro</h2>
+                <p className="text-sm text-gray-500">Agendamentos sem barbeiro atribuído</p>
               </div>
-            );
-          })}
-        </div>
-      )}
+
+              <span className="text-sm text-gray-500">
+                {(agendaPorBarbeiro.get("") || []).length} agendamentos
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 gap-2">
+              {(agendaPorBarbeiro.get("") || []).map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-lg border border-gray-200 bg-gray-50 p-3 flex items-center justify-between"
+                >
+                  <div>
+                    <div className="font-semibold">{formatTime(item.horario)}</div>
+                    <div className="text-sm text-gray-700">{item.cliente}</div>
+                    {item.servicos?.length > 0 && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        {item.servicos.map((s) => s.nome).join(", ")}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="text-right text-sm flex flex-wrap gap-2 justify-end">
+                    {item.status === "agendado" && (
+                      <button
+                        type="button"
+                        onClick={() => atualizarStatusAgendamento(item.id, "confirmado")}
+                        className="bg-amber-500 text-white px-3 py-1 rounded text-xs"
+                      >
+                        Confirmar
+                      </button>
+                    )}
+
+                    {item.status === "confirmado" && (
+                      <button
+                        type="button"
+                        onClick={() => atualizarStatusAgendamento(item.id, "concluido")}
+                        className="bg-green-600 text-white px-3 py-1 rounded text-xs"
+                      >
+                        Concluir
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => editarAgendamento(item)}
+                      className="bg-blue-600 text-white px-3 py-1 rounded text-xs"
+                    >
+                      Editar
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => deletarAgendamento(item.id)}
+                      className="bg-red-600 text-white px-3 py-1 rounded text-xs"
+                    >
+                      Excluir
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
       <AgendamentoModal
         key={`${modalAberto ? "open" : "closed"}-${agendamentoInicial?.id || "new"}-${agendamentoInicial?.data || ""}-${agendamentoInicial?.horario || ""}`}

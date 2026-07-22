@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
+import { api } from "../api";
+import { useNotify } from "../components/Notification";
 
 function Clientes() {
   const [clientes, setClientes] = useState([]);
   const [cartoesPorCliente, setCartoesPorCliente] = useState({});
   const [historicoPorCliente, setHistoricoPorCliente] = useState({});
   const [clienteAbertoId, setClienteAbertoId] = useState(null);
+  const notify = useNotify();
 
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -19,7 +22,7 @@ function Clientes() {
   const [cartaoDrafts, setCartaoDrafts] = useState({});
 
   async function carregarClientes() {
-    const response = await fetch("http://localhost:3000/clientes");
+    const response = await api("/clientes");
 
     const data = await response.json();
 
@@ -27,7 +30,7 @@ function Clientes() {
   }
 
   async function carregarCartaoFidelidade(clienteId) {
-    const response = await fetch(`http://localhost:3000/clientes/${clienteId}/cartao-fidelidade`);
+    const response = await api(`/clientes/${clienteId}/cartao-fidelidade`);
     const data = await response.json();
 
     setCartoesPorCliente((prev) => ({
@@ -37,8 +40,8 @@ function Clientes() {
   }
 
   async function carregarHistoricoCliente(clienteId) {
-    const response = await fetch(
-      `http://localhost:3000/agendamentos/historico?cliente_id=${clienteId}&page=1&limit=20`,
+    const response = await api(
+      `/agendamentos/historico?cliente_id=${clienteId}&page=1&limit=20`,
     );
     const data = await response.json();
 
@@ -66,7 +69,7 @@ function Clientes() {
     };
 
     if (clienteEditando) {
-      await fetch(`http://localhost:3000/clientes/${clienteEditando.id}`, {
+      await api(`/clientes/${clienteEditando.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -76,7 +79,7 @@ function Clientes() {
 
       setClienteEditando(null);
     } else {
-      await fetch("http://localhost:3000/clientes", {
+      await api("/clientes", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -97,7 +100,7 @@ function Clientes() {
   }
 
   async function deletarCliente(id) {
-    await fetch(`http://localhost:3000/clientes/${id}`, {
+    await api(`/clientes/${id}`, {
       method: "DELETE",
     });
 
@@ -150,11 +153,11 @@ function Clientes() {
     const draft = cartaoDrafts[clienteId] || {};
 
     if (!draft.dataAtendimento) {
-      alert("Informe a data do atendimento");
+      notify("Informe a data do atendimento");
       return;
     }
 
-    const response = await fetch(`http://localhost:3000/clientes/${clienteId}/cartao-fidelidade`, {
+    const response = await api(`/clientes/${clienteId}/cartao-fidelidade`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -167,7 +170,7 @@ function Clientes() {
 
     if (!response.ok) {
       const errorData = await response.json();
-      alert(errorData.error || "Erro ao adicionar atendimento");
+      notify(errorData.error || "Erro ao adicionar atendimento");
       return;
     }
 
@@ -184,13 +187,13 @@ function Clientes() {
 
     if (!confirmar) return;
 
-    const response = await fetch(`http://localhost:3000/clientes/${clienteId}/cartao-fidelidade`, {
+    const response = await api(`/clientes/${clienteId}/cartao-fidelidade`, {
       method: "DELETE",
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      alert(errorData.error || "Erro ao limpar cartão fidelidade");
+      notify(errorData.error || "Erro ao limpar cartão fidelidade");
       return;
     }
 

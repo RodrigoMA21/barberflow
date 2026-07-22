@@ -6,7 +6,7 @@ const pool = require("../database/db");
 
 const router = express.Router();
 
-const JWT_SECRET = "barberflow_secret_key";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 router.post("/login", async (req, res) => {
   try {

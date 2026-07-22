@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { api } from "../api";
+import { useNotify } from "../components/Notification";
 
 function Register() {
   const [nome, setNome] = useState("");
@@ -7,30 +9,21 @@ function Register() {
   const [senha, setSenha] = useState("");
 
   const navigate = useNavigate();
+  const notify = useNotify();
 
   async function fazerCadastro(e) {
     e.preventDefault();
 
     try {
-      const response = await fetch(
-        "http://localhost:3000/auth/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            nome,
-            email,
-            senha,
-          }),
-        }
-      );
+      const response = await api("/auth/register", {
+        method: "POST",
+        body: JSON.stringify({ nome, email, senha }),
+      });
 
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.error);
+        notify(data.error || "Erro ao criar conta");
 
         return;
       }
@@ -44,7 +37,7 @@ function Register() {
       navigate("/");
     } catch (error) {
       console.error(error);
-      alert("Erro ao criar conta");
+      notify("Erro ao criar conta");
     }
   }
 

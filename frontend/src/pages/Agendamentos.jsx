@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { api } from "../api";
+import { useNotify } from "../components/Notification";
 
 function formatDateBR(dateStr) {
   if (!dateStr) return "";
@@ -56,6 +58,7 @@ function Agendamentos() {
   const [clientes, setClientes] = useState([]);
   const [servicos, setServicos] = useState([]);
   const [barbeiros, setBarbeiros] = useState([]);
+  const notify = useNotify();
 
   const [clienteId, setClienteId] = useState("");
   const [barbeiroId, setBarbeiroId] = useState("");
@@ -68,25 +71,25 @@ function Agendamentos() {
   const [horario, setHorario] = useState("");
 
   async function carregarAgendamentos() {
-    const response = await fetch("http://localhost:3000/agendamentos");
+    const response = await api("/agendamentos");
     const responseData = await response.json();
     setAgendamentos(responseData);
   }
 
   async function carregarClientes() {
-    const response = await fetch("http://localhost:3000/clientes");
+    const response = await api("/clientes");
     const responseData = await response.json();
     setClientes(responseData);
   }
 
   async function carregarServicos() {
-    const response = await fetch("http://localhost:3000/servicos");
+    const response = await api("/servicos");
     const responseData = await response.json();
     setServicos(responseData);
   }
 
   async function carregarBarbeiros() {
-    const response = await fetch("http://localhost:3000/barbeiros");
+    const response = await api("/barbeiros");
     const responseData = await response.json();
     setBarbeiros(responseData.filter((barbeiro) => barbeiro.ativo));
   }
@@ -177,12 +180,12 @@ function Agendamentos() {
     };
 
     const response = editingId
-      ? await fetch(`http://localhost:3000/agendamentos/${editingId}`, {
+      ? await api(`/agendamentos/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(novoAgendamento),
         })
-      : await fetch("http://localhost:3000/agendamentos", {
+      : await api("/agendamentos", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(novoAgendamento),
@@ -190,7 +193,7 @@ function Agendamentos() {
 
     if (!response.ok) {
       const errorData = await response.json();
-      alert(errorData.error || "Erro ao salvar agendamento");
+      notify(errorData.error || "Erro ao salvar agendamento");
       return;
     }
 
@@ -212,12 +215,12 @@ function Agendamentos() {
 
     if (!confirmar) return;
 
-    await fetch(`http://localhost:3000/agendamentos/${id}`, { method: "DELETE" });
+    await api(`/agendamentos/${id}`, { method: "DELETE" });
     carregarAgendamentos();
   }
 
   async function atualizarStatusAgendamento(id, novoStatus) {
-    const response = await fetch(`http://localhost:3000/agendamentos/${id}/status`, {
+    const response = await api(`/agendamentos/${id}/status`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -227,7 +230,7 @@ function Agendamentos() {
 
     if (!response.ok) {
       const errorData = await response.json();
-      alert(errorData.error || "Erro ao atualizar status");
+      notify(errorData.error || "Erro ao atualizar status");
       return;
     }
 
@@ -237,8 +240,8 @@ function Agendamentos() {
   async function registrarNoCartaoFidelidade(agendamento, observacao = "Atendimento concluído") {
     if (!agendamento.cliente_id) return;
 
-    const response = await fetch(
-      `http://localhost:3000/clientes/${agendamento.cliente_id}/cartao-fidelidade`,
+    const response = await api(
+      `/clientes/${agendamento.cliente_id}/cartao-fidelidade`,
       {
         method: "POST",
         headers: {
@@ -253,12 +256,12 @@ function Agendamentos() {
 
     if (!response.ok) {
       const errorData = await response.json();
-      alert(errorData.error || "Erro ao registrar no cartão fidelidade");
+      notify(errorData.error || "Erro ao registrar no cartão fidelidade");
     }
   }
 
   async function concluirAgendamento(agendamento) {
-    const response = await fetch(`http://localhost:3000/agendamentos/${agendamento.id}/status`, {
+    const response = await api(`/agendamentos/${agendamento.id}/status`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -268,7 +271,7 @@ function Agendamentos() {
 
     if (!response.ok) {
       const errorData = await response.json();
-      alert(errorData.error || "Erro ao concluir agendamento");
+      notify(errorData.error || "Erro ao concluir agendamento");
       return;
     }
 
