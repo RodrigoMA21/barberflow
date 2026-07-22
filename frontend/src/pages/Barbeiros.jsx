@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { api } from "../api";
 import { useNotify } from "../components/Notification";
 
+const DIAS_LABEL = { 0: "Domingo", 1: "Segunda", 2: "Terça", 3: "Quarta", 4: "Quinta", 5: "Sexta", 6: "Sábado" };
+
 const DIAS = [
   { value: 1, label: "Segunda" },
   { value: 2, label: "Terça" },
@@ -28,6 +30,8 @@ function Barbeiros() {
   const [barbeiroEditando, setBarbeiroEditando] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [barbeiroParaDeletar, setBarbeiroParaDeletar] = useState(null);
+  const [barbeiroStats, setBarbeiroStats] = useState(null);
+  const [statsAberto, setStatsAberto] = useState(null);
 
   async function recarregarBarbeiros() {
     const response = await api("/barbeiros");
@@ -118,6 +122,26 @@ function Barbeiros() {
   function cancelarDeletar() {
     setShowConfirm(false);
     setBarbeiroParaDeletar(null);
+  }
+
+  async function toggleStats(barbeiro) {
+    if (statsAberto === barbeiro.id) {
+      setStatsAberto(null);
+      setBarbeiroStats(null);
+      return;
+    }
+
+    setStatsAberto(barbeiro.id);
+    setBarbeiroStats(null);
+
+    try {
+      const response = await api(`/barbeiros/${barbeiro.id}/stats`);
+      const data = await response.json();
+      setBarbeiroStats(data);
+    } catch {
+      notify("Erro ao carregar estatísticas");
+      setBarbeiroStats(null);
+    }
   }
 
   function editarBarbeiro(barbeiro) {
@@ -306,6 +330,13 @@ function Barbeiros() {
 
                 <div className="flex gap-2 flex-wrap justify-end">
                   <button
+                    onClick={() => toggleStats(barbeiro)}
+                    className="bg-gray-200 text-black px-4 py-2 rounded"
+                  >
+                    {statsAberto === barbeiro.id ? "Fechar" : "Ver resumo"}
+                  </button>
+
+                  <button
                     onClick={() => editarBarbeiro(barbeiro)}
                     className="bg-blue-500 text-white px-4 py-2 rounded"
                   >
@@ -320,6 +351,62 @@ function Barbeiros() {
                   </button>
                 </div>
               </div>
+
+              {statsAberto === barbeiro.id && (
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  {!barbeiroStats ? (
+                    <p className="text-sm text-gray-500">Carregando...</p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <h4 className="font-semibold text-sm mb-2">Clientes mais atendidos</h4>
+                        {barbeiroStats.clientes.length === 0 ? (
+                          <p className="text-xs text-gray-400">Nenhum atendimento concluído</p>
+                        ) : (
+                          <ul className="space-y-1">
+                            {barbeiroStats.clientes.map((c, i) => (
+                              <li key={i} className="text-sm flex justify-between">
+                                <span>{c.nome}</span>
+                                <span className="text-gray-500">{c.total}x</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+
+                      <div>
+                        <h4 className="font-semibold text-sm mb-2">Dias que mais atende</h4>
+                        {barbeiroStats.dias.length === 0 ? (
+                          <p className="text-xs text-gray-400">Nenhum dado disponível</p>
+                        ) : (
+                          <ul className="space-y-1">
+                            {barbeiroStats.dias.map((d, i) => (
+                              <li key={i} className="text-sm flex justify-between">
+                                <span>{d.dia}</span>
+                                <span className="text-gray-500">{d.total}x</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+
+                      <div>
+                        <h4 className="font-semibold text-sm mb-2">Totais</h4>
+                        <ul className="space-y-1">
+                          <li className="text-sm flex justify-between">
+                            <span>Atendimentos concluídos</span>
+                            <span className="font-semibold">{barbeiroStats.totais.concluidos}</span>
+                          </li>
+                          <li className="text-sm flex justify-between">
+                            <span>Total de agendamentos</span>
+                            <span className="font-semibold">{barbeiroStats.totais.total}</span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         ))}

@@ -138,6 +138,67 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+router.get("/:id/stats", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const numericId = Number(id);
+
+    if (!numericId) {
+      return res.status(400).json({ error: "ID inválido" });
+    }
+
+    const clientesResult = await pool.query(
+      `
+      SELECT c.nome, COUNT(*) AS total
+      FROM agendamentos a
+      INNER JOIN clientes c ON a.cliente_id = c.id
+      WHERE a.barbeiro_id = $1 AND a.status = 'concluido'
+      GROUP BY c.nome
+      ORDER BY total DESC
+      LIMIT 5
+      `,
+      [numericId],
+    );
+
+    const diasResult = await pool.query(
+      `
+      SELECT EXTRACT(DOW FROM a.data)::int AS dia_semana, COUNT(*) AS total
+      FROM agendamentos a
+      WHERE a.barbeiro_id = $1 AND a.status = 'concluido'
+      GROUP BY dia_semana
+      ORDER BY total DESC
+      `,
+      [numericId],
+    );
+
+    const totaisResult = await pool.query(
+      `
+      SELECT
+        COUNT(*) FILTER (WHERE status = 'concluido')::int AS total_concluidos,
+        COUNT(*)::int AS total_agendamentos
+      FROM agendamentos
+      WHERE barbeiro_id = $1
+      `,
+      [numericId],
+    );
+
+    const diasMap = { 0: "Domingo", 1: "Segunda", 2: "Terça", 3: "Quarta", 4: "Quinta", 5: "Sexta", 6: "Sábado" };
+    const dias = diasResult.rows.map((r) => ({ dia: diasMap[r.dia_semana] || "Desconhecido", total: Number(r.total) }));
+
+    res.json({
+      clientes: clientesResult.rows.map((r) => ({ nome: r.nome, total: Number(r.total) })),
+      dias,
+      totais: {
+        concluidos: Number(totaisResult.rows[0].total_concluidos),
+        total: Number(totaisResult.rows[0].total_agendamentos),
+      },
+    });
+  } catch (error) {
+    console.error("GET /barbeiros/:id/stats failed:", error.message);
+    res.status(500).json({ error: "Erro ao carregar estatísticas do barbeiro" });
+  }
+});
+
 router.delete("/:id", async (req, res) => {
   try {
     const id = req.params.id;
