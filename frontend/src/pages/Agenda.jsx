@@ -407,7 +407,7 @@ function Agenda() {
               <button
                 key={i}
                 onClick={() => setMobileTab(Math.min(i, allColumns.length - 1))}
-                className={`shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${mobileTab === i ? "bg-primary text-surface border-primary" : "bg-surface text-text-secondary border-border"}`}
+                className={`shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${mobileTab === i ? "bg-primary text-white border-primary" : "bg-surface text-text-secondary border-border"}`}
               >
                 {col.type === "barber" ? col.barbeiro.nome : t("agenda.noService")}
               </button>

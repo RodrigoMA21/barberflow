@@ -241,20 +241,37 @@ router.post("/:id/cartao-fidelidade/usar", async (req, res) => {
   try {
     const id = req.params.id;
 
+    const atual = await pool.query(
+      `SELECT cartao_fidelidade_carimbos, cartao_fidelidade_meta FROM clientes WHERE id = $1`,
+      [id],
+    );
+
+    const carimbos = Number(atual.rows[0]?.cartao_fidelidade_carimbos) || 0;
+    const meta = Number(atual.rows[0]?.cartao_fidelidade_meta) || 10;
+    const saldo = Math.max(0, carimbos - meta);
+
     const result = await pool.query(
       `UPDATE clientes
-       SET cartao_fidelidade_carimbos = 0,
+       SET cartao_fidelidade_carimbos = $1,
            cartao_fidelidade_usados = COALESCE(cartao_fidelidade_usados, 0) + 1
-       WHERE id = $1
+       WHERE id = $2
        RETURNING
          id,
          cartao_fidelidade_carimbos,
          cartao_fidelidade_meta,
          cartao_fidelidade_usados`,
-      [id],
+      [saldo, id],
     );
 
     await pool.query("DELETE FROM cartao_fidelidade_registros WHERE cliente_id = $1", [id]);
+
+    if (saldo > 0) {
+      const dataHoje = new Date().toISOString().split("T")[0];
+      await pool.query(
+        `INSERT INTO cartao_fidelidade_registros (cliente_id, data_atendimento, observacao) VALUES ($1, $2, $3)`,
+        [id, dataHoje, "Saldo do cartão anterior"],
+      );
+    }
 
     res.json(result.rows[0]);
   } catch (error) {

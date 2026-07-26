@@ -208,7 +208,7 @@ function Clientes() {
 
   return (
     <div>
-      <button onClick={() => setShowCriarModal(true)} className="bg-primary text-surface px-4 py-2 rounded mb-6">
+      <button onClick={() => setShowCriarModal(true)} className="bg-primary text-white px-4 py-2 rounded mb-6">
         {t("clientes.new")}
       </button>
 
@@ -276,7 +276,7 @@ function Clientes() {
                 <button type="button" onClick={() => setShowCriarModal(false)} className="btn-ghost px-4 py-2 rounded">
                   {t("common.cancel")}
                 </button>
-                <button type="submit" className="bg-primary text-surface px-4 py-2 rounded">
+                <button type="submit" className="bg-primary text-white px-4 py-2 rounded">
                   {t("common.create")}
                 </button>
               </div>
@@ -302,10 +302,10 @@ function Clientes() {
               )}
             </div>
             <div className="mt-3 flex gap-2 flex-wrap">
-              <button onClick={() => pedirConfirmacaoDeletar(cliente)} className="bg-error text-surface px-4 py-2 rounded text-sm">
+              <button onClick={() => pedirConfirmacaoDeletar(cliente)} className="bg-error text-white px-4 py-2 rounded text-sm">
                 {t("common.delete")}
               </button>
-              <button onClick={() => abrirEdicao(cliente)} className="bg-primary text-surface px-4 py-2 rounded text-sm">
+              <button onClick={() => abrirEdicao(cliente)} className="bg-primary text-white px-4 py-2 rounded text-sm">
                 {t("common.edit")}
               </button>
               <button onClick={() => abrirFidelidadeModal(cliente)} className="btn-ghost px-4 py-2 rounded text-sm">
@@ -342,7 +342,7 @@ function Clientes() {
                       <button type="button" onClick={() => carregarCartaoFidelidade(cliente.id)} className="btn-ghost px-3 py-2 rounded text-sm">
                         {t("clientes.refresh")}
                       </button>
-                      <button type="button" onClick={() => limparCartaoFidelidade(cliente.id)} className="bg-error text-surface px-3 py-2 rounded text-sm">
+                      <button type="button" onClick={() => limparCartaoFidelidade(cliente.id)} className="bg-error text-white px-3 py-2 rounded text-sm">
                         {t("clientes.clearCard")}
                       </button>
                     </div>
@@ -364,7 +364,7 @@ function Clientes() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
                     <input type="date" value={cartaoDrafts[cliente.id]?.dataAtendimento || ""} onChange={(e) => setCartaoDrafts((prev) => ({ ...prev, [cliente.id]: { ...(prev[cliente.id] || {}), dataAtendimento: e.target.value } }))} className="input" />
                     <input type="text" value={cartaoDrafts[cliente.id]?.observacao || ""} onChange={(e) => setCartaoDrafts((prev) => ({ ...prev, [cliente.id]: { ...(prev[cliente.id] || {}), observacao: e.target.value } }))} placeholder={t("clientes.notes")} className="input md:col-span-1" />
-                    <button type="button" onClick={() => adicionarAtendimentoNoCartao(cliente.id)} className="bg-primary text-surface px-4 py-2 rounded">
+                    <button type="button" onClick={() => adicionarAtendimentoNoCartao(cliente.id)} className="bg-primary text-white px-4 py-2 rounded">
                       {t("clientes.addDate")}
                     </button>
                   </div>
@@ -471,7 +471,7 @@ function Clientes() {
                 <button type="button" onClick={() => setClienteEditandoModal(null)} className="btn-ghost px-4 py-2 rounded">
                   {t("common.cancel")}
                 </button>
-                <button type="submit" className="bg-primary text-surface px-4 py-2 rounded">
+                <button type="submit" className="bg-primary text-white px-4 py-2 rounded">
                   {t("common.save")}
                 </button>
               </div>
@@ -487,7 +487,7 @@ function Clientes() {
             <p className="mb-4">{t("confirmDialog.message")}</p>
             <div className="flex justify-end space-x-3">
               <button onClick={cancelarDeletar} className="px-4 py-2 rounded border-border btn-ghost">{t("common.cancel")}</button>
-              <button onClick={confirmarDeletar} className="px-4 py-2 rounded bg-error text-surface">{t("common.delete")}</button>
+              <button onClick={confirmarDeletar} className="px-4 py-2 rounded bg-error text-white">{t("common.delete")}</button>
             </div>
           </div>
         </div>
@@ -522,7 +522,7 @@ function Clientes() {
                 cartoesPorCliente[clienteFidelidadeModal.id].map((registro) => (
                   <div key={registro.id} className="flex items-center justify-between bg-surface-secondary rounded-lg px-4 py-3 text-sm">
                     <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-full bg-primary text-surface flex items-center justify-center text-xs font-bold">✓</span>
+                      <span className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">✓</span>
                       <span className="font-medium">{formatDateBR(registro.data_atendimento)}</span>
                     </div>
                     <span className="text-text-tertiary text-xs">{registro.observacao || t("clientes.noObservation")}</span>

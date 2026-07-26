@@ -2,7 +2,7 @@ import { forwardRef } from "react";
 
 const variants = {
   primary:
-    "bg-primary text-surface shadow-button hover:bg-primary-hover hover:translate-y-[-1px] hover:shadow-card-hover active:translate-y-0 active:shadow-button",
+    "bg-primary text-white shadow-button hover:bg-primary-hover hover:translate-y-[-1px] hover:shadow-card-hover active:translate-y-0 active:shadow-button",
   secondary:
     "bg-surface text-text border border-border shadow-button hover:bg-surface-hover hover:border-border-hover hover:translate-y-[-1px] active:translate-y-0",
   outline:
@@ -10,11 +10,11 @@ const variants = {
   ghost:
     "bg-transparent text-text-secondary hover:bg-surface-tertiary hover:text-text active:bg-border",
   success:
-    "bg-success text-surface shadow-button hover:bg-success-hover hover:translate-y-[-1px] active:translate-y-0",
+    "bg-success text-white shadow-button hover:bg-success-hover hover:translate-y-[-1px] active:translate-y-0",
   warning:
-    "bg-warning text-surface shadow-button hover:bg-warning-hover hover:translate-y-[-1px] active:translate-y-0",
+    "bg-warning text-white shadow-button hover:bg-warning-hover hover:translate-y-[-1px] active:translate-y-0",
   danger:
-    "bg-error text-surface shadow-button hover:bg-error-hover hover:translate-y-[-1px] active:translate-y-0",
+    "bg-error text-white shadow-button hover:bg-error-hover hover:translate-y-[-1px] active:translate-y-0",
 };
 
 const sizes = {

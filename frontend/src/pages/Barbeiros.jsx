@@ -255,7 +255,7 @@ function Barbeiros() {
                   <button onClick={() => editarBarbeiro(barbeiro)} className="btn-ghost px-3 py-2 rounded-lg text-sm">
                     {t("common.edit")}
                   </button>
-                  <button onClick={() => pedirConfirmacaoDeletar(barbeiro)} className="bg-error text-surface px-3 py-2 rounded-lg text-sm">
+                  <button onClick={() => pedirConfirmacaoDeletar(barbeiro)} className="bg-error text-white px-3 py-2 rounded-lg text-sm">
                     {t("common.delete")}
                   </button>
                 </div>
@@ -326,7 +326,7 @@ function Barbeiros() {
             <p className="mb-4 text-text-secondary">{t("common.confirmDeleteMessage")}</p>
             <div className="flex justify-end gap-3">
               <button onClick={cancelarDeletar} className="btn-ghost px-4 py-2 rounded-lg text-sm">{t("common.cancel")}</button>
-              <button onClick={confirmarDeletar} className="bg-error text-surface px-4 py-2 rounded-lg text-sm">{t("common.delete")}</button>
+              <button onClick={confirmarDeletar} className="bg-error text-white px-4 py-2 rounded-lg text-sm">{t("common.delete")}</button>
             </div>
           </div>
         </div>

@@ -82,7 +82,7 @@ function Servicos() {
               <button onClick={() => iniciarEdicao(servico)} className="btn-ghost px-4 py-2 rounded-lg text-sm">
                 {t("common.edit")}
               </button>
-              <button onClick={() => deletarServico(servico.id)} className="bg-error text-surface px-4 py-2 rounded-lg text-sm">
+              <button onClick={() => deletarServico(servico.id)} className="bg-error text-white px-4 py-2 rounded-lg text-sm">
                 {t("common.delete")}
               </button>
             </div>

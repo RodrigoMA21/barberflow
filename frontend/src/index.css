@@ -179,7 +179,7 @@
   }
   .btn-primary {
     background: var(--color-primary);
-    color: var(--color-surface);
+    color: white;
     border-radius: var(--radius-md);
     font-weight: 500;
     font-size: 0.875rem;
