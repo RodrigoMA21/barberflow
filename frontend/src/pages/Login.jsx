@@ -33,42 +33,38 @@ function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form onSubmit={fazerLogin} className="bg-white p-8 rounded shadow w-full max-w-md">
-        <h1 className="text-3xl font-bold mb-6 text-center">{t("app.name")}</h1>
-
-        <div className="mb-4">
-          <label className="block mb-1">{t("auth.email")}</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border p-2 rounded"
-          />
+    <div className="min-h-screen flex items-center justify-center bg-surface-secondary p-4">
+      <div className="card-static p-8 w-full max-w-md animate-fade-in-up">
+        <div className="text-center mb-8">
+          <div className="w-12 h-12 rounded-xl bg-primary-light flex items-center justify-center mx-auto mb-4">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+              <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-text">{t("app.name")}</h1>
+          <p className="text-sm text-text-secondary mt-1">{t("auth.loginTitle")}</p>
         </div>
 
-        <div className="mb-6">
-          <label className="block mb-1">{t("auth.password")}</label>
-          <input
-            type="password"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            className="w-full border p-2 rounded"
-          />
-        </div>
+        <form onSubmit={fazerLogin} className="space-y-4">
+          <div>
+            <label className="input-label">{t("auth.email")}</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input" placeholder="seu@email.com" />
+          </div>
 
-        <button type="submit" className="w-full bg-black text-white py-2 rounded">
-          {t("auth.login")}
-        </button>
+          <div>
+            <label className="input-label">{t("auth.password")}</label>
+            <input type="password" value={senha} onChange={(e) => setSenha(e.target.value)} className="input" placeholder="••••••••" />
+          </div>
 
-        <button
-          type="button"
-          onClick={() => navigate("/cadastro")}
-          className="w-full mt-3 text-sm text-gray-600 hover:text-black"
-        >
+          <button type="submit" className="btn-primary w-full py-2.5">
+            {t("auth.login")}
+          </button>
+        </form>
+
+        <button type="button" onClick={() => navigate("/cadastro")} className="w-full mt-4 text-sm text-text-secondary hover:text-text transition-colors">
           {t("auth.noAccount")}
         </button>
-      </form>
+      </div>
     </div>
   );
 }

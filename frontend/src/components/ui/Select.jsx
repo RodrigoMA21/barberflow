@@ -34,11 +34,11 @@ const Select = forwardRef(function Select(
       </div>
 
       {error && (
-        <p className="text-xs text-error mt-1" role="alert">{error}</p>
+        <p className="input-error-text" role="alert">{error}</p>
       )}
 
       {hint && !error && (
-        <p className="text-xs text-text-tertiary mt-1">{hint}</p>
+        <p className="input-hint">{hint}</p>
       )}
     </div>
   );

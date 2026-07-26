@@ -25,13 +25,13 @@ const Input = forwardRef(function Input(
       />
 
       {error && (
-        <p id={`${inputId}-error`} className="text-xs text-error mt-1" role="alert">
+        <p id={`${inputId}-error`} className="input-error-text" role="alert">
           {error}
         </p>
       )}
 
       {hint && !error && (
-        <p className="text-xs text-text-tertiary mt-1">{hint}</p>
+        <p className="input-hint">{hint}</p>
       )}
     </div>
   );

@@ -20,21 +20,22 @@ function formatDateTime(data, horario) {
   return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
-function statusLabel(status) {
+function statusLabel(status, t) {
   const map = {
-    agendado: "Agendado", confirmado: "Confirmado", concluido: "Concluído",
-    cancelado: "Cancelado", nao_compareceu: "Não compareceu",
+    agendado: t("agendamentos.scheduled"), confirmado: t("agendamentos.confirmed"),
+    concluido: t("agendamentos.completed"), cancelado: t("agendamentos.cancelled"),
+    nao_compareceu: t("agendamentos.noShow"),
   };
-  return map[status] || status || "Agendado";
+  return map[status] || status || t("agendamentos.scheduled");
 }
 
 function statusClass(status) {
   const map = {
-    agendado: "bg-blue-100 text-blue-700", confirmado: "bg-amber-100 text-amber-700",
-    concluido: "bg-green-100 text-green-700", cancelado: "bg-red-100 text-red-700",
-    nao_compareceu: "bg-gray-200 text-gray-700",
+    agendado: "badge-info", confirmado: "badge-warning",
+    concluido: "badge-success", cancelado: "badge-error",
+    nao_compareceu: "badge-neutral",
   };
-  return map[status] || "bg-gray-200 text-gray-700";
+  return map[status] || "badge-neutral";
 }
 
 function Historico() {
@@ -122,13 +123,13 @@ function Historico() {
   const totalPages = Math.max(1, Math.ceil((meta.total || 0) / meta.limit));
 
   return (
-    <div>
-      <div className="bg-white p-4 rounded shadow mb-6">
-        <h2 className="text-xl font-semibold mb-3">{t("historico.filters")}</h2>
-        <div className="grid grid-cols-3 gap-4">
+    <div className="space-y-6 animate-fade-in">
+      <div className="card-static p-5">
+        <h2 className="text-base font-semibold mb-4 text-text">{t("historico.filters")}</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="block mb-1">{t("historico.month")}</label>
-            <select value={month} onChange={(e) => setMonth(e.target.value)} className="w-full border p-2 rounded">
+            <label className="input-label">{t("historico.month")}</label>
+            <select value={month} onChange={(e) => setMonth(e.target.value)} className="select">
               <option value="">{t("common.all")}</option>
               <option value="1">{t("common.month_jan")}</option>
               <option value="2">{t("common.month_feb")}</option>
@@ -145,12 +146,12 @@ function Historico() {
             </select>
           </div>
           <div>
-            <label className="block mb-1">{t("historico.year")}</label>
-            <input type="number" value={year} onChange={(e) => setYear(e.target.value)} placeholder={t("common.all")} className="w-full border p-2 rounded" />
+            <label className="input-label">{t("historico.year")}</label>
+            <input type="number" value={year} onChange={(e) => setYear(e.target.value)} placeholder={t("common.all")} className="input" />
           </div>
           <div>
-            <label className="block mb-1">{t("historico.client")}</label>
-            <select value={clienteId} onChange={(e) => setClienteId(e.target.value)} className="w-full border p-2 rounded">
+            <label className="input-label">{t("historico.client")}</label>
+            <select value={clienteId} onChange={(e) => setClienteId(e.target.value)} className="select">
               <option value="">{t("common.all")}</option>
               {clientes.map((c) => (
                 <option key={c.id} value={c.id}>{c.nome}</option>
@@ -159,47 +160,57 @@ function Historico() {
           </div>
         </div>
         <div className="mt-4 flex gap-2">
-          <button onClick={aplicarFiltros} className="bg-black text-white px-4 py-2 rounded">{t("historico.apply")}</button>
-          <button onClick={limparFiltros} className="bg-gray-300 text-black px-4 py-2 rounded">{t("historico.clear")}</button>
+          <button onClick={aplicarFiltros} className="btn-primary">{t("historico.apply")}</button>
+          <button onClick={limparFiltros} className="btn-ghost px-4 py-2 rounded-lg text-sm">{t("historico.clear")}</button>
         </div>
       </div>
 
       <div className="space-y-4">
         {historico.map((h) => (
-          <div key={h.id} className="bg-white p-4 rounded shadow">
+          <div key={h.id} className="card-static p-4 animate-fade-in-up">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-xl font-semibold">{h.cliente}</h2>
-                <p className="text-sm text-gray-500">{h.barbeiro || t("historico.noAppointments")}</p>
+                <h2 className="text-xl font-semibold text-text">{h.cliente}</h2>
+                <p className="text-sm text-text-tertiary">{h.barbeiro || "—"}</p>
               </div>
-              <span className={`text-xs px-2 py-1 rounded-full ${statusClass(h.status)}`}>{statusLabel(h.status)}</span>
+              <span className={`text-xs px-2 py-1 rounded-full font-medium ${statusClass(h.status)}`}>{statusLabel(h.status, t)}</span>
             </div>
-            <p>{t("historico.dateTimeLabel")} {formatDateTime(h.data, h.horario)}</p>
-            <p>{t("historico.servicesLabel")} {h.servicos && h.servicos.length > 0 ? h.servicos.map((s) => s.nome).join(", ") : "—"}</p>
-            <p>{t("historico.grossValueLabel")} R$ {Number(h.total_bruto || 0).toFixed(2)}</p>
-            <p>{t("historico.discountLabel")} R$ {Number(h.desconto_valor || 0).toFixed(2)}</p>
-            <p>{t("historico.finalValueLabel")} R$ {Number(h.total || 0).toFixed(2)}</p>
+            <div className="mt-2 space-y-1 text-sm text-text-secondary">
+              <p><span className="text-text-tertiary">{t("historico.dateTimeLabel")}</span> {formatDateTime(h.data, h.horario)}</p>
+              <p><span className="text-text-tertiary">{t("historico.servicesLabel")}</span> {h.servicos && h.servicos.length > 0 ? h.servicos.map((s) => s.nome).join(", ") : "—"}</p>
+              <p><span className="text-text-tertiary">{t("historico.grossValueLabel")}</span> R$ {Number(h.total_bruto || 0).toFixed(2)}</p>
+              <p><span className="text-text-tertiary">{t("historico.discountLabel")}</span> R$ {Number(h.desconto_valor || 0).toFixed(2)}</p>
+              <p><span className="text-text-tertiary">{t("historico.finalValueLabel")}</span> R$ {Number(h.total || 0).toFixed(2)}</p>
+            </div>
             <div className="mt-3 flex gap-2 flex-wrap">
-              <button type="button" onClick={() => editarAgendamento(h.id)} className="bg-yellow-500 text-white px-4 py-2 rounded">
+              <button type="button" onClick={() => editarAgendamento(h.id)} className="btn-ghost px-4 py-2 rounded-lg text-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="inline mr-1">
+                  <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
                 {t("historico.edit")}
               </button>
-              <button type="button" onClick={() => excluirAgendamento(h.id)} className="bg-red-500 text-white px-4 py-2 rounded">
+              <button type="button" onClick={() => excluirAgendamento(h.id)} className="bg-error text-white px-4 py-2 rounded-lg text-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="inline mr-1">
+                  <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
                 {t("historico.delete")}
               </button>
             </div>
           </div>
         ))}
         {historico.length === 0 && (
-          <div className="bg-white p-4 rounded shadow">{t("historico.noHistoryMessage")}</div>
+          <div className="card-static p-8 text-center">
+            <p className="text-text-tertiary">{t("historico.noHistoryMessage")}</p>
+          </div>
         )}
       </div>
 
-      <div className="mt-6 flex items-center justify-between bg-white p-4 rounded shadow">
-        <button onClick={() => irParaPagina(page - 1)} disabled={page <= 1} className="bg-gray-300 text-black px-4 py-2 rounded disabled:opacity-50">
+      <div className="flex items-center justify-between card-static px-4 py-3">
+        <button onClick={() => irParaPagina(page - 1)} disabled={page <= 1} className="btn-ghost px-3 py-2 rounded-lg text-sm disabled:opacity-40">
           {t("common.previous")}
         </button>
-        <span>{t("historico.pageInfo", { page: meta.page || page, total: totalPages })}</span>
-        <button onClick={() => irParaPagina(page + 1)} disabled={page >= totalPages} className="bg-black text-white px-4 py-2 rounded disabled:opacity-50">
+        <span className="text-sm text-text-secondary">{t("historico.pageInfo", { page: meta.page || page, total: totalPages })}</span>
+        <button onClick={() => irParaPagina(page + 1)} disabled={page >= totalPages} className="btn-primary disabled:opacity-40">
           {t("common.next")}
         </button>
       </div>

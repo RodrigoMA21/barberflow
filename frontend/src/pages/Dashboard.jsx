@@ -1,225 +1,232 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../api";
+import ComparisonChart from "../components/charts/ComparisonChart";
+import RevenueChart from "../components/charts/RevenueChart";
+import ServicesPieChart from "../components/charts/ServicesPieChart";
+
+function formatCurrency(value) {
+  return Number(value || 0).toFixed(2);
+}
+
+function TrendBadge({ value, suffix = "%" }) {
+  if (value === null || value === undefined) return null;
+  const isUp = value >= 0;
+  return (
+    <span className={`inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 rounded-full ${isUp ? "trend-up bg-success-light" : "trend-down bg-error-light"}`}>
+      <span className="text-[10px]">{isUp ? "↑" : "↓"}</span>
+      {Math.abs(value).toFixed(1)}{suffix}
+    </span>
+  );
+}
+
+function KpiCard({ label, value, prefix = "R$", trend, icon, accent }) {
+  return (
+    <div className="card p-5 animate-fade-in-up">
+      <div className="flex items-start justify-between mb-3">
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${accent || "bg-primary-light text-primary"}`}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d={icon} />
+          </svg>
+        </div>
+        {trend !== undefined && <TrendBadge value={trend} />}
+      </div>
+      <p className="text-sm text-text-secondary mb-1">{label}</p>
+      <p className="text-2xl font-bold text-text tracking-tight">
+        {prefix === "R$" ? `R$ ${formatCurrency(value)}` : value}
+      </p>
+    </div>
+  );
+}
+
+const kpiIcons = {
+  revenue: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z",
+  appointments: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4",
+  clients: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z",
+  barbers: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
+  service: "M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4",
+  ticket: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+};
 
 function Dashboard() {
-  const [resumo, setResumo] = useState({ faturamento: 0, total_agendamentos: 0 });
-  const [servicos, setServicos] = useState([]);
-  const [seriesMensal, setSeriesMensal] = useState([]);
-  const [indicadores, setIndicadores] = useState({});
+  const [data, setData] = useState(null);
   const [mes, setMes] = useState(new Date().getMonth() + 1);
   const [ano, setAno] = useState(new Date().getFullYear());
   const { t } = useTranslation();
 
   async function carregarDashboard() {
     const response = await api(`/dashboard?mes=${mes}&ano=${ano}`);
-    const data = await response.json();
-    setResumo(data.resumo);
-    setServicos(data.servicos);
-    setSeriesMensal(data.series_mensal || []);
-    setIndicadores(data.indicadores || {});
+    const d = await response.json();
+    setData(d);
   }
 
   useEffect(() => {
     carregarDashboard();
   }, [mes, ano]);
 
-  function formatCurrency(value) {
-    return Number(value || 0).toFixed(2);
-  }
+  const resumo = data?.resumo || {};
+  const servicos = data?.servicos || [];
+  const seriesMensal = data?.series_mensal || [];
+  const indicadores = data?.indicadores || {};
 
-  const resumoFinanceiro = [
-    { label: t("dashboard.monthRevenue"), value: Number(resumo.faturamento || 0), accent: "bg-black" },
-    { label: t("dashboard.todayRevenue"), value: Number(resumo.faturamento_dia || 0), accent: "bg-gray-700" },
-    { label: t("dashboard.yearRevenue"), value: Number(resumo.faturamento_ano || 0), accent: "bg-emerald-600" },
-  ];
-
-  const maiorValorFinanceiro = Math.max(...resumoFinanceiro.map((item) => item.value), 0);
+  const trendData = useMemo(() => {
+    if (!seriesMensal.length) return { monthTrend: null, yearTrend: null };
+    const currentMonth = seriesMensal.find((s) => Number(s.mes) === mes);
+    const prevMonth = seriesMensal.find((s) => Number(s.mes) === mes - 1);
+    const currentValue = Number(currentMonth?.faturamento || 0);
+    const prevValue = Number(prevMonth?.faturamento || 0);
+    const monthTrend = prevValue > 0 ? ((currentValue - prevValue) / prevValue) * 100 : null;
+    return { monthTrend, currentValue, prevValue };
+  }, [seriesMensal, mes]);
 
   const mesesLabels = [
-    t("common.month_jan_short"), t("common.month_feb_short"), t("common.month_mar_short"),
-    t("common.month_apr_short"), t("common.month_may_short"), t("common.month_jun_short"),
-    t("common.month_jul_short"), t("common.month_aug_short"), t("common.month_sep_short"),
-    t("common.month_oct_short"), t("common.month_nov_short"), t("common.month_dec_short"),
+    t("common.month_jan"), t("common.month_feb"), t("common.month_mar"),
+    t("common.month_apr"), t("common.month_may"), t("common.month_jun"),
+    t("common.month_jul"), t("common.month_aug"), t("common.month_sep"),
+    t("common.month_oct"), t("common.month_nov"), t("common.month_dec"),
   ];
-
-  const maiorFaturamentoMensal = Math.max(...seriesMensal.map((item) => Number(item.faturamento || 0)), 0);
-
-  const serieMensalComVariacao = seriesMensal.map((item, index) => {
-    const faturamento = Number(item.faturamento || 0);
-    const anterior = index > 0 ? Number(seriesMensal[index - 1]?.faturamento || 0) : 0;
-    const variacao = anterior > 0 ? ((faturamento - anterior) / anterior) * 100 : null;
-    return { ...item, faturamento, variacao };
-  });
 
   function exportarCsv() {
     const linhas = [
       ["Tipo", "Campo", "Valor"],
       ["Resumo", "Mês", String(mes)],
       ["Resumo", "Ano", String(ano)],
-      ["Resumo", "Faturamento Total", formatCurrency(resumo.faturamento)],
+      ["Resumo", "Faturamento", formatCurrency(resumo.faturamento)],
       ["Resumo", t("dashboard.todayRevenue"), formatCurrency(resumo.faturamento_dia)],
       ["Resumo", t("dashboard.yearRevenue"), formatCurrency(resumo.faturamento_ano)],
       ["Resumo", t("dashboard.totalAppointments"), String(resumo.total_agendamentos || 0)],
       ["", "", ""],
       ["Tipo", "Nome", "Quantidade"],
-      ...servicos.map((servico) => ["Serviço", servico.nome, String(servico.quantidade)]),
+      ...servicos.map((s) => ["Serviço", s.nome, String(s.quantidade)]),
     ];
-    const csv = linhas.map((linha) => linha.map((item) => `"${String(item).replaceAll('"', '""')}"`).join(",")).join("\n");
+    const csv = linhas.map((l) => l.map((v) => `"${String(v).replaceAll('"', '""')}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `dashboard-${ano}-${String(mes).padStart(2, "0")}.csv`;
-    link.click();
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `dashboard-${ano}-${String(mes).padStart(2, "0")}.csv`;
+    a.click();
     URL.revokeObjectURL(url);
   }
 
   return (
-    <div>
-      <div className="flex gap-4 mb-6">
-        <select value={mes} onChange={(e) => setMes(Number(e.target.value))} className="border p-2 rounded">
-          <option value="1">{t("common.month_jan")}</option>
-          <option value="2">{t("common.month_feb")}</option>
-          <option value="3">{t("common.month_mar")}</option>
-          <option value="4">{t("common.month_apr")}</option>
-          <option value="5">{t("common.month_may")}</option>
-          <option value="6">{t("common.month_jun")}</option>
-          <option value="7">{t("common.month_jul")}</option>
-          <option value="8">{t("common.month_aug")}</option>
-          <option value="9">{t("common.month_sep")}</option>
-          <option value="10">{t("common.month_oct")}</option>
-          <option value="11">{t("common.month_nov")}</option>
-          <option value="12">{t("common.month_dec")}</option>
-        </select>
-        <input type="number" value={ano} onChange={(e) => setAno(Number(e.target.value))} className="border p-2 rounded w-32" />
-        <button type="button" onClick={exportarCsv} className="bg-black text-white px-4 py-2 rounded">{t("dashboard.exportCsv")}</button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-gray-500 text-sm">{t("dashboard.monthRevenue")} ({t("dashboard.completedLabel")})</h2>
-          <p className="text-3xl font-bold mt-2">R$ {Number(resumo.faturamento).toFixed(2)}</p>
-        </div>
-        <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-gray-500 text-sm">{t("dashboard.todayRevenue")} ({t("dashboard.completedLabel")})</h2>
-          <p className="text-3xl font-bold mt-2">R$ {Number(resumo.faturamento_dia || 0).toFixed(2)}</p>
-        </div>
-        <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-gray-500 text-sm">{t("dashboard.yearRevenue")} ({t("dashboard.completedLabel")})</h2>
-          <p className="text-3xl font-bold mt-2">R$ {Number(resumo.faturamento_ano || 0).toFixed(2)}</p>
-        </div>
-        <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-gray-500 text-sm">{t("dashboard.totalAppointments")}</h2>
-          <p className="text-3xl font-bold mt-2">{resumo.total_agendamentos}</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
-        <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-gray-500 text-sm">{t("dashboard.topService")}</h2>
-          <p className="text-2xl font-bold mt-2">{indicadores.servico_mais_vendido || "—"}</p>
-        </div>
-        <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-gray-500 text-sm">{t("dashboard.topClient")}</h2>
-          <p className="text-2xl font-bold mt-2">{indicadores.cliente_que_mais_agendou || "—"}</p>
-        </div>
-        <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-gray-500 text-sm">{t("dashboard.averageTicket")}</h2>
-          <p className="text-2xl font-bold mt-2">R$ {Number(indicadores.ticket_medio || 0).toFixed(2)}</p>
-        </div>
-        <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-gray-500 text-sm">{t("dashboard.totalClients")}</h2>
-          <p className="text-2xl font-bold mt-2">{indicadores.total_clientes || 0}</p>
-        </div>
-        <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-gray-500 text-sm">{t("dashboard.activeBarbers")}</h2>
-          <p className="text-2xl font-bold mt-2">{indicadores.total_barbeiros_ativos || 0}</p>
-        </div>
-        <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-gray-500 text-sm">{t("dashboard.completedServices")}</h2>
-          <p className="text-2xl font-bold mt-2">{indicadores.total_atendimentos_concluidos || 0}</p>
-        </div>
-      </div>
-
-      <div className="bg-white p-6 rounded shadow mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold">{t("dashboard.revenueComparison")}</h2>
-          <span className="text-sm text-gray-500">{t("dashboard.monthYear")}</span>
-        </div>
-        <div className="space-y-4">
-          {resumoFinanceiro.map((item) => {
-            const largura = maiorValorFinanceiro > 0 ? (item.value / maiorValorFinanceiro) * 100 : 0;
-            return (
-              <div key={item.label}>
-                <div className="flex items-center justify-between mb-2 text-sm">
-                  <span className="font-medium">{item.label}</span>
-                  <span>R$ {formatCurrency(item.value)}</span>
-                </div>
-                <div className="h-3 rounded-full bg-gray-200 overflow-hidden">
-                  <div className={`h-full rounded-full ${item.accent}`} style={{ width: `${largura}%` }} />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="bg-white p-6 rounded shadow mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold">{t("dashboard.monthlyRevenue")}</h2>
-          <span className="text-sm text-gray-500">{ano}</span>
-        </div>
-        <div className="mb-4 flex flex-wrap items-center gap-4 text-sm text-gray-600">
-          <div className="flex items-center gap-2">
-            <span className="h-3 w-3 rounded-full bg-black" />
-            <span>{t("dashboard.highestMonth")}</span>
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <select value={mes} onChange={(e) => setMes(Number(e.target.value))} className="select pr-8 py-2 text-sm min-w-[140px]">
+              {mesesLabels.map((label, i) => (
+                <option key={i + 1} value={i + 1}>{label}</option>
+              ))}
+            </select>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="h-3 w-3 rounded-full bg-gray-200 border border-gray-300" />
-            <span>{t("dashboard.relativeComparison")}</span>
-          </div>
+          <input type="number" value={ano} onChange={(e) => setAno(Number(e.target.value))} className="input w-24 text-sm" />
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          {serieMensalComVariacao.map((item, index) => {
-            const largura = maiorFaturamentoMensal > 0 ? (Number(item.faturamento || 0) / maiorFaturamentoMensal) * 100 : 0;
-            const barraPrincipal = index === new Date().getMonth() ? "bg-black" : "bg-gray-800";
-            const variacaoTexto = item.variacao === null
-              ? t("dashboard.noPreviousMonth")
-              : `${item.variacao >= 0 ? "+" : ""}${item.variacao.toFixed(1)}% ${t("dashboard.vsPreviousMonth")}`;
-            return (
-              <div key={item.mes} className="rounded-xl border border-gray-200 p-3 bg-linear-to-b from-gray-50 to-white">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-semibold text-sm text-gray-700">{mesesLabels[item.mes - 1]}</span>
-                  <span className="text-xs text-gray-500">{String(item.mes).padStart(2, "0")}</span>
-                </div>
-                <div className="h-28 flex items-end">
-                  <div className="w-full h-full flex items-end">
-                    <div className="w-full h-full bg-gray-100 rounded-lg overflow-hidden flex items-end" title={`R$ ${formatCurrency(item.faturamento)} | ${variacaoTexto}`}>
-                      <div className={`w-full ${barraPrincipal} rounded-lg transition-all`} style={{ height: `${largura}%` }} />
+        <button type="button" onClick={exportarCsv} className="btn-ghost text-sm px-3 py-2 rounded-lg flex items-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          {t("dashboard.exportCsv")}
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <KpiCard
+          label={t("dashboard.monthRevenue")}
+          value={resumo.faturamento}
+          trend={trendData.monthTrend}
+          icon={kpiIcons.revenue}
+          accent="bg-primary-light text-primary"
+        />
+        <KpiCard
+          label={t("dashboard.todayRevenue")}
+          value={resumo.faturamento_dia}
+          icon={kpiIcons.revenue}
+          accent="bg-success-light text-success"
+        />
+        <KpiCard
+          label={t("dashboard.yearRevenue")}
+          value={resumo.faturamento_ano}
+          icon={kpiIcons.revenue}
+          accent="bg-info-light text-info"
+        />
+        <KpiCard
+          label={t("dashboard.totalAppointments")}
+          value={resumo.total_agendamentos || 0}
+          prefix=""
+          icon={kpiIcons.appointments}
+          accent="bg-accent-light text-accent"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <KpiCard label={t("dashboard.topService")} value={indicadores.servico_mais_vendido || "—"} prefix="" icon={kpiIcons.service} />
+        <KpiCard label={t("dashboard.topClient")} value={indicadores.cliente_que_mais_agendou || "—"} prefix="" icon={kpiIcons.clients} />
+        <KpiCard label={t("dashboard.averageTicket")} value={indicadores.ticket_medio} icon={kpiIcons.ticket} />
+        <KpiCard label={t("dashboard.totalClients")} value={indicadores.total_clientes || 0} prefix="" icon={kpiIcons.clients} />
+        <KpiCard label={t("dashboard.activeBarbers")} value={indicadores.total_barbeiros_ativos || 0} prefix="" icon={kpiIcons.barbers} />
+        <KpiCard label={t("dashboard.completedServices")} value={indicadores.total_atendimentos_concluidos || 0} prefix="" icon={kpiIcons.service} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="card p-5 lg:col-span-2">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-text">{t("dashboard.monthlyRevenue")}</h2>
+            <span className="text-xs text-text-tertiary">{ano}</span>
+          </div>
+          <RevenueChart data={seriesMensal} year={ano} />
+        </div>
+
+        <div className="card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-text">{t("dashboard.topServices")}</h2>
+          </div>
+          {servicos.length > 0 ? (
+            <div className="space-y-2">
+              {servicos.slice(0, 5).map((servico, i) => {
+                const maxQty = Math.max(...servicos.map((s) => s.quantidade), 1);
+                const pct = (servico.quantidade / maxQty) * 100;
+                return (
+                  <div key={servico.nome}>
+                    <div className="flex items-center justify-between text-sm mb-1">
+                      <span className="text-text truncate">{servico.nome}</span>
+                      <span className="text-text-secondary font-medium">{servico.quantidade}x</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-surface-tertiary overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-primary transition-all"
+                        style={{ width: `${pct}%` }}
+                      />
                     </div>
                   </div>
-                </div>
-                <div className="mt-3 flex items-center justify-between text-sm gap-2">
-                  <span className="text-gray-500">{t("common.value")}</span>
-                  <strong className="text-right">R$ {formatCurrency(item.faturamento)}</strong>
-                </div>
-                <div className="mt-1 text-xs text-gray-500">{variacaoTexto}</div>
-              </div>
-            );
-          })}
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-text-tertiary py-8 text-center">{t("charts.noServices")}</p>
+          )}
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded shadow">
-        <h2 className="text-2xl font-bold mb-4">{t("dashboard.topServices")}</h2>
-        <div className="space-y-3">
-          {servicos.map((servico) => (
-            <div key={servico.nome} className="flex justify-between border-b pb-2">
-              <span>{servico.nome}</span>
-              <span>{servico.quantidade}x</span>
-            </div>
-          ))}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="card p-5 lg:col-span-2">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-text">{t("dashboard.revenueComparison")}</h2>
+          </div>
+          <ComparisonChart
+            data={[
+              { label: t("dashboard.monthRevenue"), value: Number(resumo.faturamento || 0) },
+              { label: t("dashboard.todayRevenue"), value: Number(resumo.faturamento_dia || 0) },
+              { label: t("dashboard.yearRevenue"), value: Number(resumo.faturamento_ano || 0) },
+            ]}
+          />
+        </div>
+
+        <div className="card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-text">{t("dashboard.topServices")}</h2>
+          </div>
+          <ServicesPieChart data={servicos} />
         </div>
       </div>
     </div>

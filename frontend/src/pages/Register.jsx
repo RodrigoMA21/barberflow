@@ -34,52 +34,43 @@ function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form onSubmit={fazerCadastro} className="bg-white p-8 rounded shadow w-full max-w-md">
-        <h1 className="text-3xl font-bold mb-6 text-center">{t("auth.registerTitle")}</h1>
-
-        <div className="mb-4">
-          <label className="block mb-1">{t("auth.name")}</label>
-          <input
-            type="text"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            className="w-full border p-2 rounded"
-          />
+    <div className="min-h-screen flex items-center justify-center bg-surface-secondary p-4">
+      <div className="card-static p-8 w-full max-w-md animate-fade-in-up">
+        <div className="text-center mb-8">
+          <div className="w-12 h-12 rounded-xl bg-primary-light flex items-center justify-center mx-auto mb-4">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+              <path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-text">{t("app.name")}</h1>
+          <p className="text-sm text-text-secondary mt-1">{t("auth.registerTitle")}</p>
         </div>
 
-        <div className="mb-4">
-          <label className="block mb-1">{t("auth.email")}</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border p-2 rounded"
-          />
-        </div>
+        <form onSubmit={fazerCadastro} className="space-y-4">
+          <div>
+            <label className="input-label">{t("auth.name")}</label>
+            <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} className="input" placeholder={t("auth.name")} />
+          </div>
 
-        <div className="mb-6">
-          <label className="block mb-1">{t("auth.password")}</label>
-          <input
-            type="password"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            className="w-full border p-2 rounded"
-          />
-        </div>
+          <div>
+            <label className="input-label">{t("auth.email")}</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input" placeholder="seu@email.com" />
+          </div>
 
-        <button type="submit" className="w-full bg-black text-white py-2 rounded">
-          {t("auth.register")}
-        </button>
+          <div>
+            <label className="input-label">{t("auth.password")}</label>
+            <input type="password" value={senha} onChange={(e) => setSenha(e.target.value)} className="input" placeholder="••••••••" />
+          </div>
 
-        <button
-          type="button"
-          onClick={() => navigate("/login")}
-          className="w-full mt-3 text-sm text-gray-600 hover:text-black"
-        >
+          <button type="submit" className="btn-primary w-full py-2.5">
+            {t("auth.register")}
+          </button>
+        </form>
+
+        <button type="button" onClick={() => navigate("/login")} className="w-full mt-4 text-sm text-text-secondary hover:text-text transition-colors">
           {t("auth.hasAccount")}
         </button>
-      </form>
+      </div>
     </div>
   );
 }

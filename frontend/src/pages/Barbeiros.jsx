@@ -141,31 +141,34 @@ function Barbeiros() {
   }
 
   return (
-    <div>
-      <form onSubmit={cadastrarBarbeiro} className="bg-white p-6 rounded shadow mb-6">
-        <div className="mb-4">
-          <label className="block mb-1">{t("common.name")}</label>
-          <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} className="w-full border p-2 rounded" />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1">{t("common.phone")}</label>
-          <input type="text" value={telefone} onChange={(e) => setTelefone(e.target.value)} className="w-full border p-2 rounded" />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1">{t("common.specialty")}</label>
-          <input type="text" value={especialidade} onChange={(e) => setEspecialidade(e.target.value)} className="w-full border p-2 rounded" />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1">{t("common.photo")}</label>
-          <input type="url" value={foto} onChange={(e) => setFoto(e.target.value)} className="w-full border p-2 rounded" />
-        </div>
-        <div className="mb-4 flex items-center gap-2">
-          <input type="checkbox" checked={ativo} onChange={(e) => setAtivo(e.target.checked)} className="w-4 h-4" />
-          <label>{t("barbeiros.active")}</label>
+    <div className="space-y-6 animate-fade-in">
+      <form onSubmit={cadastrarBarbeiro} className="card-static p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="input-label">{t("common.name")}</label>
+            <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} className="input" />
+          </div>
+          <div>
+            <label className="input-label">{t("common.phone")}</label>
+            <input type="text" value={telefone} onChange={(e) => setTelefone(e.target.value)} className="input" />
+          </div>
+          <div>
+            <label className="input-label">{t("common.specialty")}</label>
+            <input type="text" value={especialidade} onChange={(e) => setEspecialidade(e.target.value)} className="input" />
+          </div>
+          <div>
+            <label className="input-label">{t("common.photo")}</label>
+            <input type="url" value={foto} onChange={(e) => setFoto(e.target.value)} className="input" />
+          </div>
         </div>
 
-        <div className="mb-4 p-4 rounded border bg-gray-50">
-          <h3 className="font-semibold mb-3">{t("barbeiros.schedule")}</h3>
+        <div className="mb-4 flex items-center gap-2">
+          <input type="checkbox" checked={ativo} onChange={(e) => setAtivo(e.target.checked)} className="w-4 h-4 accent-primary" />
+          <label className="text-sm text-text">{t("barbeiros.active")}</label>
+        </div>
+
+        <div className="mb-4 card-static p-4">
+          <h3 className="font-semibold mb-3 text-text">{t("barbeiros.schedule")}</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
             {DIAS.map((dia) => {
               const selected = diasAtendimento.includes(String(dia.value));
@@ -179,44 +182,44 @@ function Barbeiros() {
                     );
                   }}
                   className={`text-left rounded-lg border-2 p-3 transition-all cursor-pointer ${
-                    selected ? "border-black bg-gray-100 shadow-sm" : "border-gray-200 bg-white hover:border-gray-400"
+                    selected ? "border-primary bg-primary-light" : "border-border bg-surface hover:border-border-hover"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <span className="font-semibold text-sm">{t(dia.label)}</span>
-                    {selected && <span className="text-black text-lg leading-none shrink-0">✓</span>}
+                    <span className="font-semibold text-sm text-text">{t(dia.label)}</span>
+                    {selected && <span className="text-primary text-lg leading-none shrink-0">✓</span>}
                   </div>
                 </button>
               );
             })}
           </div>
-          <p className="text-xs text-gray-400 mb-4">{t("barbeiros.noDays")}</p>
+          <p className="text-xs text-text-tertiary mb-4">{t("barbeiros.noDays")}</p>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label className="block mb-1">{t("barbeiros.start")}</label>
-              <input type="time" value={horarioInicio} onChange={(e) => setHorarioInicio(e.target.value)} className="w-full border p-2 rounded" />
+              <label className="input-label">{t("barbeiros.start")}</label>
+              <input type="time" value={horarioInicio} onChange={(e) => setHorarioInicio(e.target.value)} className="input" />
             </div>
             <div>
-              <label className="block mb-1">{t("barbeiros.end")}</label>
-              <input type="time" value={horarioFim} onChange={(e) => setHorarioFim(e.target.value)} className="w-full border p-2 rounded" />
+              <label className="input-label">{t("barbeiros.end")}</label>
+              <input type="time" value={horarioFim} onChange={(e) => setHorarioFim(e.target.value)} className="input" />
             </div>
             <div>
-              <label className="block mb-1">{t("barbeiros.breakStart")}</label>
-              <input type="time" value={horarioIntervaloInicio} onChange={(e) => setHorarioIntervaloInicio(e.target.value)} className="w-full border p-2 rounded" />
+              <label className="input-label">{t("barbeiros.breakStart")}</label>
+              <input type="time" value={horarioIntervaloInicio} onChange={(e) => setHorarioIntervaloInicio(e.target.value)} className="input" />
             </div>
             <div>
-              <label className="block mb-1">{t("barbeiros.breakEnd")}</label>
-              <input type="time" value={horarioIntervaloFim} onChange={(e) => setHorarioIntervaloFim(e.target.value)} className="w-full border p-2 rounded" />
+              <label className="input-label">{t("barbeiros.breakEnd")}</label>
+              <input type="time" value={horarioIntervaloFim} onChange={(e) => setHorarioIntervaloFim(e.target.value)} className="input" />
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <button type="submit" className="bg-black text-white px-4 py-2 rounded">
+          <button type="submit" className="btn-primary">
             {barbeiroEditando ? t("common.update") : t("common.create")}
           </button>
           {barbeiroEditando && (
-            <button type="button" onClick={limparFormulario} className="bg-gray-300 text-black px-4 py-2 rounded">
+            <button type="button" onClick={limparFormulario} className="btn-ghost px-4 py-2 rounded-lg text-sm">
               {t("common.cancel")}
             </button>
           )}
@@ -225,85 +228,85 @@ function Barbeiros() {
 
       <div className="space-y-4">
         {barbeiros.map((barbeiro) => (
-          <div key={barbeiro.id} className="bg-white p-4 rounded shadow flex gap-4 items-start">
+          <div key={barbeiro.id} className="card-static p-4 flex gap-4 items-start animate-fade-in-up">
             {barbeiro.foto ? (
-              <img src={barbeiro.foto} alt={barbeiro.nome} className="w-20 h-20 rounded object-cover bg-gray-100" />
+              <img src={barbeiro.foto} alt={barbeiro.nome} className="w-16 h-16 rounded-xl object-cover bg-surface-tertiary" />
             ) : (
-              <div className="w-20 h-20 rounded bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
+              <div className="w-16 h-16 rounded-xl bg-surface-tertiary flex items-center justify-center text-text-tertiary text-xs">
                 {t("common.noPhoto")}
               </div>
             )}
             <div className="flex-1">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <h2 className="text-xl font-semibold text-text flex items-center gap-2">
                     {barbeiro.nome}
-                    <span className={`text-xs px-2 py-1 rounded-full ${barbeiro.ativo ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"}`}>
+                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${barbeiro.ativo ? "badge-success" : "badge-neutral"}`}>
                       {barbeiro.ativo ? t("barbeiros.active") : t("barbeiros.inactive")}
                     </span>
                   </h2>
-                  <p>{barbeiro.telefone || t("common.noPhone")}</p>
-                  <p>{barbeiro.especialidade || t("common.noSpecialty")}</p>
+                  <p className="text-text-secondary">{barbeiro.telefone || t("common.noPhone")}</p>
+                  <p className="text-text-secondary">{barbeiro.especialidade || t("common.noSpecialty")}</p>
                 </div>
                 <div className="flex gap-2 flex-wrap justify-end">
-                  <button onClick={() => toggleStats(barbeiro)} className="bg-gray-200 text-black px-4 py-2 rounded">
+                  <button onClick={() => toggleStats(barbeiro)} className="btn-ghost px-3 py-2 rounded-lg text-sm">
                     {statsAberto === barbeiro.id ? t("barbeiroStats.close") : t("barbeiroStats.view")}
                   </button>
-                  <button onClick={() => editarBarbeiro(barbeiro)} className="bg-blue-500 text-white px-4 py-2 rounded">
+                  <button onClick={() => editarBarbeiro(barbeiro)} className="btn-ghost px-3 py-2 rounded-lg text-sm">
                     {t("common.edit")}
                   </button>
-                  <button onClick={() => pedirConfirmacaoDeletar(barbeiro)} className="bg-red-500 text-white px-4 py-2 rounded">
+                  <button onClick={() => pedirConfirmacaoDeletar(barbeiro)} className="bg-error text-white px-3 py-2 rounded-lg text-sm">
                     {t("common.delete")}
                   </button>
                 </div>
               </div>
 
               {statsAberto === barbeiro.id && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="mt-4 pt-4 border-t border-border">
                   {!barbeiroStats ? (
-                    <p className="text-sm text-gray-500">{t("barbeiroStats.loading")}</p>
+                    <p className="text-sm text-text-tertiary">{t("barbeiroStats.loading")}</p>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <h4 className="font-semibold text-sm mb-2">{t("barbeiroStats.topClients")}</h4>
+                        <h4 className="font-semibold text-sm mb-2 text-text">{t("barbeiroStats.topClients")}</h4>
                         {barbeiroStats.clientes.length === 0 ? (
-                          <p className="text-xs text-gray-400">{t("barbeiroStats.noCompleted")}</p>
+                          <p className="text-xs text-text-tertiary">{t("barbeiroStats.noCompleted")}</p>
                         ) : (
                           <ul className="space-y-1">
                             {barbeiroStats.clientes.map((c, i) => (
-                              <li key={i} className="text-sm flex justify-between">
+                              <li key={i} className="text-sm flex justify-between text-text-secondary">
                                 <span>{c.nome}</span>
-                                <span className="text-gray-500">{c.total}x</span>
+                                <span className="text-text-tertiary">{c.total}x</span>
                               </li>
                             ))}
                           </ul>
                         )}
                       </div>
                       <div>
-                        <h4 className="font-semibold text-sm mb-2">{t("barbeiroStats.topDays")}</h4>
+                        <h4 className="font-semibold text-sm mb-2 text-text">{t("barbeiroStats.topDays")}</h4>
                         {barbeiroStats.dias.length === 0 ? (
-                          <p className="text-xs text-gray-400">{t("barbeiroStats.noData")}</p>
+                          <p className="text-xs text-text-tertiary">{t("barbeiroStats.noData")}</p>
                         ) : (
                           <ul className="space-y-1">
                             {barbeiroStats.dias.map((d, i) => (
-                              <li key={i} className="text-sm flex justify-between">
+                              <li key={i} className="text-sm flex justify-between text-text-secondary">
                                 <span>{d.dia}</span>
-                                <span className="text-gray-500">{d.total}x</span>
+                                <span className="text-text-tertiary">{d.total}x</span>
                               </li>
                             ))}
                           </ul>
                         )}
                       </div>
                       <div>
-                        <h4 className="font-semibold text-sm mb-2">{t("barbeiroStats.totals")}</h4>
+                        <h4 className="font-semibold text-sm mb-2 text-text">{t("barbeiroStats.totals")}</h4>
                         <ul className="space-y-1">
-                          <li className="text-sm flex justify-between">
+                          <li className="text-sm flex justify-between text-text-secondary">
                             <span>{t("barbeiroStats.completedAppointments")}</span>
-                            <span className="font-semibold">{barbeiroStats.totais.concluidos}</span>
+                            <span className="font-semibold text-text">{barbeiroStats.totais.concluidos}</span>
                           </li>
-                          <li className="text-sm flex justify-between">
+                          <li className="text-sm flex justify-between text-text-secondary">
                             <span>{t("barbeiroStats.totalAppointments")}</span>
-                            <span className="font-semibold">{barbeiroStats.totais.total}</span>
+                            <span className="font-semibold text-text">{barbeiroStats.totais.total}</span>
                           </li>
                         </ul>
                       </div>
@@ -317,13 +320,13 @@ function Barbeiros() {
       </div>
 
       {showConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded shadow max-w-sm w-full">
-            <h3 className="text-lg font-semibold mb-4">{t("common.confirm")}</h3>
-            <p className="mb-4">{t("common.confirmDeleteMessage")}</p>
-            <div className="flex justify-end space-x-3">
-              <button onClick={cancelarDeletar} className="px-4 py-2 rounded border">{t("common.cancel")}</button>
-              <button onClick={confirmarDeletar} className="px-4 py-2 rounded bg-red-500 text-white">{t("common.delete")}</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="card-static p-6 max-w-sm w-full animate-scale-in">
+            <h3 className="text-lg font-semibold mb-4 text-text">{t("common.confirm")}</h3>
+            <p className="mb-4 text-text-secondary">{t("common.confirmDeleteMessage")}</p>
+            <div className="flex justify-end gap-3">
+              <button onClick={cancelarDeletar} className="btn-ghost px-4 py-2 rounded-lg text-sm">{t("common.cancel")}</button>
+              <button onClick={confirmarDeletar} className="bg-error text-white px-4 py-2 rounded-lg text-sm">{t("common.delete")}</button>
             </div>
           </div>
         </div>

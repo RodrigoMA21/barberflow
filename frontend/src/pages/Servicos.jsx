@@ -58,31 +58,31 @@ function Servicos() {
   }
 
   return (
-    <div>
-      <form onSubmit={editandoId ? salvarEdicao : cadastrarServico} className="bg-white p-6 rounded shadow mb-6">
+    <div className="space-y-6 animate-fade-in">
+      <form onSubmit={editandoId ? salvarEdicao : cadastrarServico} className="card-static p-6">
         <div className="mb-4">
-          <label className="block mb-1">{t("common.name")}</label>
-          <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} className="w-full border p-2 rounded" />
+          <label className="input-label">{t("common.name")}</label>
+          <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} className="input" />
         </div>
         <div className="mb-4">
-          <label className="block mb-1">{t("common.price")}</label>
-          <input type="number" step="0.01" value={preco} onChange={(e) => setPreco(e.target.value)} className="w-full border p-2 rounded" />
+          <label className="input-label">{t("common.price")}</label>
+          <input type="number" step="0.01" value={preco} onChange={(e) => setPreco(e.target.value)} className="input" />
         </div>
-        <button type="submit" className="bg-black text-white px-4 py-2 rounded">
+        <button type="submit" className="btn-primary">
           {editandoId ? t("common.update") : t("common.create")}
         </button>
       </form>
 
       <div className="space-y-4">
         {servicos.map((servico) => (
-          <div key={servico.id} className="bg-white p-4 rounded shadow">
-            <h2 className="text-xl font-semibold">{servico.nome}</h2>
-            <p>R$ {servico.preco}</p>
+          <div key={servico.id} className="card-static p-4 animate-fade-in-up">
+            <h2 className="text-xl font-semibold text-text">{servico.nome}</h2>
+            <p className="text-text-secondary">R$ {servico.preco}</p>
             <div className="flex gap-2 mt-3">
-              <button onClick={() => iniciarEdicao(servico)} className="bg-yellow-500 text-white px-4 py-2 rounded">
+              <button onClick={() => iniciarEdicao(servico)} className="btn-ghost px-4 py-2 rounded-lg text-sm">
                 {t("common.edit")}
               </button>
-              <button onClick={() => deletarServico(servico.id)} className="bg-red-500 text-white px-4 py-2 rounded">
+              <button onClick={() => deletarServico(servico.id)} className="bg-error text-white px-4 py-2 rounded-lg text-sm">
                 {t("common.delete")}
               </button>
             </div>
