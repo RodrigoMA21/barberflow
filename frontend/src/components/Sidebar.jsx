@@ -18,8 +18,20 @@ function Sidebar() {
           Serviços
         </Link>
 
+        <Link to="/barbeiros" className="hover:text-gray-400">
+          Barbeiros
+        </Link>
+
+        <Link to="/agenda" className="hover:text-gray-400">
+          Agenda
+        </Link>
+
         <Link to="/agendamentos" className="hover:text-gray-400">
           Agendamentos
+        </Link>
+
+        <Link to="/historico" className="hover:text-gray-400">
+          Histórico
         </Link>
       </nav>
     </aside>
