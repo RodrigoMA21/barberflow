@@ -1,0 +1,7 @@
+Copyright (c) 2026 Seu Nome
+
+All rights reserved.
+
+This source code is provided for viewing purposes only.
+
+No permission is granted to use, copy, modify, merge, publish, distribute, sublicense, or sell this software without prior written permission from the copyright holder.

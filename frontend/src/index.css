@@ -1,1 +1,217 @@
 @import "tailwindcss";
+
+@layer base {
+  :root,
+  [data-theme="light"] {
+    --color-primary: #000000;
+    --color-primary-hover: #1a1a1a;
+    --color-primary-light: #f3f4f6;
+    --color-surface: #ffffff;
+    --color-surface-hover: #f9fafb;
+    --color-surface-secondary: #f3f4f6;
+    --color-surface-tertiary: #e5e7eb;
+    --color-text: #111827;
+    --color-text-secondary: #4b5563;
+    --color-text-tertiary: #9ca3af;
+    --color-border: #e5e7eb;
+    --color-border-hover: #d1d5db;
+    --color-error: #ef4444;
+    --color-error-hover: #dc2626;
+    --color-error-light: #fef2f2;
+    --color-success: #22c55e;
+    --color-success-hover: #16a34a;
+    --color-success-light: #f0fdf4;
+    --color-warning: #f59e0b;
+    --color-warning-hover: #d97706;
+    --color-warning-light: #fffbeb;
+    --color-brand-300: #9ca3af;
+    --color-brand-400: #6b7280;
+    --color-brand-500: #4b5563;
+    --color-brand-600: #374151;
+    --color-brand-700: #1f2937;
+    --color-brand-800: #111827;
+  }
+
+  [data-theme="dark"] {
+    --color-primary: #ffffff;
+    --color-primary-hover: #e5e7eb;
+    --color-primary-light: #1f2937;
+    --color-surface: #111827;
+    --color-surface-hover: #1f2937;
+    --color-surface-secondary: #1f2937;
+    --color-surface-tertiary: #374151;
+    --color-text: #f9fafb;
+    --color-text-secondary: #d1d5db;
+    --color-text-tertiary: #6b7280;
+    --color-border: #374151;
+    --color-border-hover: #4b5563;
+    --color-error: #ef4444;
+    --color-error-hover: #f87171;
+    --color-error-light: #450a0a;
+    --color-success: #22c55e;
+    --color-success-hover: #4ade80;
+    --color-success-light: #052e16;
+    --color-warning: #f59e0b;
+    --color-warning-hover: #fbbf24;
+    --color-warning-light: #451a03;
+    --color-brand-300: #d1d5db;
+    --color-brand-400: #9ca3af;
+    --color-brand-500: #6b7280;
+    --color-brand-600: #4b5563;
+    --color-brand-700: #374151;
+    --color-brand-800: #1f2937;
+  }
+}
+
+@layer utilities {
+  .shadow-button {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+  .shadow-card-hover {
+    box-shadow: 0 4px 12px -2px rgb(0 0 0 / 0.1);
+  }
+  .shadow-modal {
+    box-shadow: 0 20px 60px -8px rgb(0 0 0 / 0.15);
+  }
+  .shadow-dropdown {
+    box-shadow: 0 4px 12px -2px rgb(0 0 0 / 0.1);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--color-text-secondary);
+    &:hover {
+      background: var(--color-surface-tertiary);
+      color: var(--color-text);
+    }
+  }
+  .btn-icon {
+    width: 2rem;
+    height: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+  }
+
+  .input {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--color-text);
+    background: var(--color-surface);
+    transition: border-color 0.15s;
+    &:focus {
+      outline: 2px solid transparent;
+      outline-offset: 2px;
+      border-color: var(--color-primary);
+    }
+  }
+  .input-error {
+    border-color: var(--color-error);
+    &:focus {
+      border-color: var(--color-error);
+      --tw-ring-color: var(--color-error);
+    }
+  }
+  .input-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    color: var(--color-text);
+  }
+
+  .select {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 2.25rem 0.5rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--color-text);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%239CA3AF' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 1rem;
+    transition: border-color 0.15s;
+    &:focus {
+      outline: 2px solid transparent;
+      outline-offset: 2px;
+      border-color: var(--color-primary);
+    }
+  }
+
+  .card-static {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+  }
+
+  .badge-success {
+    background: var(--color-success-light);
+    color: var(--color-success);
+  }
+  .badge-warning {
+    background: var(--color-warning-light);
+    color: var(--color-warning);
+  }
+  .badge-error {
+    background: var(--color-error-light);
+    color: var(--color-error);
+  }
+  .badge-info {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+  .badge-neutral {
+    background: var(--color-surface-tertiary);
+    color: var(--color-text-secondary);
+  }
+
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .animate-pulse-soft {
+    animation: pulse-soft 2s ease-in-out infinite;
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .animate-fade-in {
+    animation: fade-in 0.15s ease-out;
+  }
+
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .animate-scale-in {
+    animation: scale-in 0.15s ease-out;
+  }
+
+  @keyframes toast-in {
+    from { opacity: 0; transform: translateX(100%); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  .animate-toast-in {
+    animation: toast-in 0.25s ease-out;
+  }
+
+  @keyframes toast-out {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(100%); }
+  }
+  .animate-toast-out {
+    animation: toast-out 0.25s ease-in forwards;
+  }
+}
