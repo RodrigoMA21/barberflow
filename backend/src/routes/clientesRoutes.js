@@ -13,6 +13,7 @@ function mapCliente(row) {
     cartao_fidelidade_ativo: Boolean(row.cartao_fidelidade_ativo) || cartaoFidelidadeCarimbos > 0,
     cartao_fidelidade_carimbos: cartaoFidelidadeCarimbos,
     cartao_fidelidade_meta: Number(row.cartao_fidelidade_meta) || 10,
+    cartao_fidelidade_usados: Number(row.cartao_fidelidade_usados) || 0,
   };
 }
 
@@ -28,12 +29,10 @@ router.get("/", async (req, res) => {
         c.cpf,
         c.created_at,
         c.cartao_fidelidade_ativo,
-        COALESCE(COUNT(r.id), 0)::int AS cartao_fidelidade_carimbos,
-        c.cartao_fidelidade_meta
+        c.cartao_fidelidade_carimbos,
+        c.cartao_fidelidade_meta,
+        COALESCE(c.cartao_fidelidade_usados, 0) AS cartao_fidelidade_usados
       FROM clientes c
-      LEFT JOIN cartao_fidelidade_registros r
-        ON r.cliente_id = c.id
-      GROUP BY c.id, c.nome, c.telefone, c.email, c.cpf, c.created_at, c.cartao_fidelidade_ativo, c.cartao_fidelidade_meta
       ORDER BY c.id ASC
       `,
     );
@@ -92,7 +91,8 @@ router.post("/", async (req, res) => {
         created_at,
         cartao_fidelidade_ativo,
         cartao_fidelidade_carimbos,
-        cartao_fidelidade_meta
+        cartao_fidelidade_meta,
+        cartao_fidelidade_usados
       `,
       [nome, telefone, email || null, cpf || null, cartao_fidelidade_ativo, cartao_fidelidade_carimbos, cartao_fidelidade_meta],
     );
@@ -156,7 +156,8 @@ router.put("/:id", async (req, res) => {
          created_at,
          cartao_fidelidade_ativo,
          cartao_fidelidade_carimbos,
-         cartao_fidelidade_meta`,
+         cartao_fidelidade_meta,
+         cartao_fidelidade_usados`,
       [nome, telefone, email || null, cpf || null, cartao_fidelidade_ativo, cartao_fidelidade_carimbos, cartao_fidelidade_meta, id],
     );
 
@@ -224,10 +225,41 @@ router.post("/:id/cartao-fidelidade", async (req, res) => {
       [id, data_atendimento, observacao || null],
     );
 
+    await pool.query(
+      `UPDATE clientes SET cartao_fidelidade_carimbos = cartao_fidelidade_carimbos + 1 WHERE id = $1`,
+      [id],
+    );
+
     res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error("POST /clientes/:id/cartao-fidelidade failed:", error.message);
     res.status(500).json({ error: "Erro ao registrar atendimento no cartão fidelidade" });
+  }
+});
+
+router.post("/:id/cartao-fidelidade/usar", async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const result = await pool.query(
+      `UPDATE clientes
+       SET cartao_fidelidade_carimbos = 0,
+           cartao_fidelidade_usados = COALESCE(cartao_fidelidade_usados, 0) + 1
+       WHERE id = $1
+       RETURNING
+         id,
+         cartao_fidelidade_carimbos,
+         cartao_fidelidade_meta,
+         cartao_fidelidade_usados`,
+      [id],
+    );
+
+    await pool.query("DELETE FROM cartao_fidelidade_registros WHERE cliente_id = $1", [id]);
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("POST /clientes/:id/cartao-fidelidade/usar failed:", error.message);
+    res.status(500).json({ error: "Erro ao usar cartão fidelidade" });
   }
 });
 
@@ -236,6 +268,8 @@ router.delete("/:id/cartao-fidelidade", async (req, res) => {
     const id = req.params.id;
 
     await pool.query("DELETE FROM cartao_fidelidade_registros WHERE cliente_id = $1", [id]);
+
+    await pool.query("UPDATE clientes SET cartao_fidelidade_carimbos = 0 WHERE id = $1", [id]);
 
     res.status(204).send();
   } catch (error) {

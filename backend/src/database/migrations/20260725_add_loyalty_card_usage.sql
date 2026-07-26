@@ -1,0 +1,6 @@
+BEGIN;
+
+ALTER TABLE public.clientes
+  ADD COLUMN IF NOT EXISTS cartao_fidelidade_usados INTEGER NOT NULL DEFAULT 0;
+
+COMMIT;
