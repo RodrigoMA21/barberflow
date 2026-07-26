@@ -143,6 +143,11 @@
   .bg-surface-secondary { background: var(--color-surface-secondary); }
   .bg-surface-tertiary { background: var(--color-surface-tertiary); }
   .bg-surface-raised { background: var(--color-surface-raised); }
+  .bg-primary { background: var(--color-primary); }
+  .bg-error { background: var(--color-error); }
+  .bg-success { background: var(--color-success); }
+  .bg-warning { background: var(--color-warning); }
+  .bg-amber-400 { background: #fbbf24; }
 
   /* Text */
   .text-text { color: var(--color-text); }

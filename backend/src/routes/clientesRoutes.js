@@ -177,7 +177,7 @@ router.get("/:id/cartao-fidelidade", async (req, res) => {
 
     const result = await pool.query(
       `
-      SELECT
+      SELECT DISTINCT ON (data_atendimento)
         id,
         cliente_id,
         data_atendimento,
@@ -185,7 +185,7 @@ router.get("/:id/cartao-fidelidade", async (req, res) => {
         created_at
       FROM cartao_fidelidade_registros
       WHERE cliente_id = $1
-      ORDER BY data_atendimento DESC, id DESC
+      ORDER BY data_atendimento DESC, id ASC
       `,
       [id],
     );
