@@ -40,7 +40,7 @@ export default function ComparisonChart({ data = [] }) {
             tick={{ fontSize: 11, fill: "var(--color-text-tertiary)" }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={(v) => `R$${v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v}`}
+            tickFormatter={(v) => `R$${v >= 1000 ? `${(v / 1000).toFixed(1)}k` : Math.round(v)}`}
           />
           <YAxis
             type="category"
