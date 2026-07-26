@@ -164,7 +164,8 @@
     "registrationDate": "Data de cadastro",
     "recentHistory": "Histórico recente de agendamentos deste cliente.",
     "loyaltyHelp": "Use este cartão para conceder descontos ou bonificações manuais quando o cliente atingir a meta.",
-    "cleanConfirm": "Tem certeza que deseja limpar o cartão fidelidade deste cliente?"
+    "cleanConfirm": "Tem certeza que deseja limpar o cartão fidelidade deste cliente?",
+    "viewCard": "Ver cartão fidelidade"
   },
   "servicos": {
     "title": "Serviços",
@@ -263,6 +264,7 @@
     "savedSuccess": "Agendamento atualizado com sucesso!",
     "saving": "Salvando...",
     "selectBarber": "Selecione um barbeiro",
+    "create": "Agendar",
     "selectClient": "Selecione um cliente",
     "selectService": "Selecione ao menos um serviço",
     "selected_one": "selecionado",

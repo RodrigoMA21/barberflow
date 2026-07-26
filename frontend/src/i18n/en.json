@@ -164,7 +164,8 @@
     "registrationDate": "Registration date",
     "recentHistory": "Recent appointment history for this client.",
     "loyaltyHelp": "Use this card to grant manual discounts or bonuses when the customer reaches the goal.",
-    "cleanConfirm": "Are you sure you want to clear this client's loyalty card?"
+    "cleanConfirm": "Are you sure you want to clear this client's loyalty card?",
+    "viewCard": "View loyalty card"
   },
   "servicos": {
     "title": "Services",
@@ -260,6 +261,7 @@
     "savedSuccess": "Appointment updated successfully!",
     "saving": "Saving...",
     "selectBarber": "Select a barber",
+    "create": "Schedule",
     "selectClient": "Select a client",
     "selectService": "Select at least one service",
     "selected_one": "selected",

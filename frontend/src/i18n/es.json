@@ -164,7 +164,8 @@
     "registrationDate": "Fecha de registro",
     "recentHistory": "Historial reciente de citas de este cliente.",
     "loyaltyHelp": "Use esta tarjeta para otorgar descuentos o bonificaciones manuales cuando el cliente alcance la meta.",
-    "cleanConfirm": "¿Estás seguro de que deseas limpiar la tarjeta de fidelidad de este cliente?"
+    "cleanConfirm": "¿Estás seguro de que deseas limpiar la tarjeta de fidelidad de este cliente?",
+    "viewCard": "Ver tarjeta de fidelidad"
   },
   "servicos": {
     "title": "Servicios",
@@ -260,6 +261,7 @@
     "savedSuccess": "Cita actualizada con éxito!",
     "saving": "Guardando...",
     "selectBarber": "Seleccione un barbero",
+    "create": "Agendar",
     "selectClient": "Seleccione un cliente",
     "selectService": "Seleccione al menos un servicio",
     "selected_one": "seleccionado",

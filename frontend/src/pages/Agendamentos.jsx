@@ -159,7 +159,8 @@ function Agendamentos() {
       desconto_valor: descontoValor === "" ? 0 : Number(descontoValor),
       valor_final: valorFinal === "" ? null : Number(valorFinal),
     };
-    const response = editingId
+    const isEditing = !!editingId;
+    const response = isEditing
       ? await api(`/agendamentos/${editingId}`, {
           method: "PUT",
           body: JSON.stringify(novoAgendamento),
@@ -173,6 +174,7 @@ function Agendamentos() {
       notify(errorData.error || t("agendamentos.saveError"));
       return;
     }
+    notify(isEditing ? t("agendamentos.savedSuccess") : t("agendamentos.createdSuccess"));
     setClienteId(""); setBarbeiroId(""); setServicoIds([]);
     setData(""); setHorario(""); setStatus("agendado");
     setDescontoValor(""); setValorFinal(""); setEditingId(null);
@@ -348,7 +350,7 @@ function Agendamentos() {
 
         <div className="flex items-center gap-2">
           <button type="submit" className="bg-primary text-surface px-4 py-2 rounded">
-            {editingId ? t("common.save") : t("agendamentos.createdSuccess")}
+            {editingId ? t("common.save") : t("agendamentos.create")}
           </button>
           {editingId && (
             <button type="button" onClick={limparFormulario} className="bg-surface-tertiary text-text px-4 py-2 rounded">

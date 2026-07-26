@@ -205,6 +205,16 @@ router.post("/:id/cartao-fidelidade", async (req, res) => {
       return res.status(400).json({ error: "Informe a data do atendimento" });
     }
 
+    const existing = await pool.query(
+      `SELECT id FROM cartao_fidelidade_registros
+       WHERE cliente_id = $1 AND data_atendimento = $2`,
+      [id, data_atendimento],
+    );
+
+    if (existing.rows.length > 0) {
+      return res.status(200).json(existing.rows[0]);
+    }
+
     const result = await pool.query(
       `
       INSERT INTO cartao_fidelidade_registros (cliente_id, data_atendimento, observacao)

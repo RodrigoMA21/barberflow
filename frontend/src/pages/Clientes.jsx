@@ -29,6 +29,7 @@ function Clientes() {
   const [cartaoFidelidadeCarimbos, setCartaoFidelidadeCarimbos] = useState(0);
   const [cartaoFidelidadeMeta, setCartaoFidelidadeMeta] = useState(10);
   const [cartaoDrafts, setCartaoDrafts] = useState({});
+  const [clienteFidelidadeModal, setClienteFidelidadeModal] = useState(null);
 
   async function carregarClientes() {
     const response = await api("/clientes");
@@ -174,6 +175,11 @@ function Clientes() {
     }
   }
 
+  async function abrirFidelidadeModal(cliente) {
+    await carregarCartaoFidelidade(cliente.id);
+    setClienteFidelidadeModal(cliente);
+  }
+
   return (
     <div>
       <form onSubmit={cadastrarCliente} className="card-static p-6 mb-6">
@@ -257,6 +263,9 @@ function Clientes() {
             </button>
             <button onClick={() => editarCliente(cliente)} className="mt-3 ml-3 bg-primary text-surface px-4 py-2 rounded">
               {t("common.edit")}
+            </button>
+            <button onClick={() => abrirFidelidadeModal(cliente)} className="mt-3 ml-3 btn-ghost px-4 py-2 rounded text-sm">
+              {t("clientes.viewCard")}
             </button>
 
             {clienteAbertoId === cliente.id && (
@@ -356,6 +365,44 @@ function Clientes() {
               <button onClick={cancelarDeletar} className="px-4 py-2 rounded border-border btn-ghost">{t("common.cancel")}</button>
               <button onClick={confirmarDeletar} className="px-4 py-2 rounded bg-error text-white">{t("common.delete")}</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {clienteFidelidadeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setClienteFidelidadeModal(null)}>
+          <div className="bg-surface border border-border rounded-2xl shadow-dropdown p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">{t("clientes.loyaltyCard")} — {clienteFidelidadeModal.nome}</h3>
+              <button onClick={() => setClienteFidelidadeModal(null)} className="btn-ghost btn-icon text-lg">×</button>
+            </div>
+            <div className="flex items-center gap-2 text-sm mb-4">
+              <span className={`px-2 py-1 rounded-full font-medium ${clienteFidelidadeModal.cartao_fidelidade_ativo ? "badge-success" : "badge-neutral"}`}>
+                {clienteFidelidadeModal.cartao_fidelidade_ativo ? t("clientes.active") : t("clientes.inactive")}
+              </span>
+              <span className="text-text-secondary">{Number(clienteFidelidadeModal.cartao_fidelidade_carimbos) || 0}/{Number(clienteFidelidadeModal.cartao_fidelidade_meta) || 10}</span>
+            </div>
+            <div className="h-4 rounded-full bg-surface-tertiary overflow-hidden mb-4">
+              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${Math.min(100, (Number(clienteFidelidadeModal.cartao_fidelidade_carimbos) / Math.max(Number(clienteFidelidadeModal.cartao_fidelidade_meta), 1)) * 100)}%` }} />
+            </div>
+            <div className="space-y-2">
+              {(cartoesPorCliente[clienteFidelidadeModal.id] || []).length > 0 ? (
+                cartoesPorCliente[clienteFidelidadeModal.id].map((registro) => (
+                  <div key={registro.id} className="flex items-center justify-between bg-surface-secondary rounded-lg px-4 py-3 text-sm">
+                    <div className="flex items-center gap-3">
+                      <span className="w-8 h-8 rounded-full bg-primary text-surface flex items-center justify-center text-xs font-bold">✓</span>
+                      <span className="font-medium">{formatDateBR(registro.data_atendimento)}</span>
+                    </div>
+                    <span className="text-text-tertiary text-xs">{registro.observacao || t("clientes.noObservation")}</span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-text-tertiary text-center py-8">{t("clientes.noRecords")}</p>
+              )}
+            </div>
+            <button onClick={() => setClienteFidelidadeModal(null)} className="btn-ghost w-full mt-4 py-2 rounded-lg text-sm">
+              {t("common.close")}
+            </button>
           </div>
         </div>
       )}
