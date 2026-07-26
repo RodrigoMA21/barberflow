@@ -1,4 +1,4 @@
-Copyright (c) 2026 Seu Nome
+Copyright (c) 2026 Rodrigo Mayer Alves 
 
 All rights reserved.
 
