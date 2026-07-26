@@ -39,6 +39,7 @@ function Clientes() {
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [clienteParaDeletar, setClienteParaDeletar] = useState(null);
+  const [showCriarModal, setShowCriarModal] = useState(false);
 
   async function carregarClientes() {
     const response = await api("/clientes");
@@ -207,64 +208,82 @@ function Clientes() {
 
   return (
     <div>
-      <form onSubmit={cadastrarCliente} className="card-static p-6 mb-6">
-        <h3 className="font-semibold mb-4">{t("clientes.new")}</h3>
-        <div className="mb-4">
-          <label className="input-label">{t("common.name")}</label>
-          <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} className="input" />
-        </div>
-        <div className="mb-4">
-          <label className="input-label">{t("common.phone")}</label>
-          <input type="text" value={telefone} onChange={(e) => setTelefone(e.target.value)} className="input" />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="input-label">{t("clientes.email")}</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input" />
-          </div>
-          <div>
-            <label className="input-label">{t("clientes.cpf")}</label>
-            <input type="text" value={cpf} onChange={(e) => setCpf(e.target.value)} className="input" />
-          </div>
-        </div>
+      <button onClick={() => setShowCriarModal(true)} className="bg-primary text-surface px-4 py-2 rounded mb-6">
+        {t("clientes.new")}
+      </button>
 
-        <div className="mb-4 card-static p-4">
-          <div className="flex items-center justify-between gap-4 mb-3">
-            <div>
-              <h3 className="font-semibold">{t("clientes.loyaltyCard")}</h3>
-              <p className="text-text-secondary text-sm">{t("clientes.loyaltyDescription")}</p>
+      {showCriarModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowCriarModal(false)}>
+          <div className="bg-surface border border-border rounded-2xl shadow-dropdown p-6 max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">{t("clientes.new")}</h3>
+              <button onClick={() => setShowCriarModal(false)} className="btn-ghost btn-icon text-lg">×</button>
             </div>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={cartaoFidelidadeAtivo} onChange={(e) => setCartaoFidelidadeAtivo(e.target.checked)} />
-              {t("clientes.active")}
-            </label>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="input-label">{t("clientes.stamps")}</label>
-              <input type="number" min="0" value={cartaoFidelidadeCarimbos} onChange={(e) => setCartaoFidelidadeCarimbos(Number(e.target.value) || 0)} className="input" />
-            </div>
-            <div>
-              <label className="input-label">{t("clientes.goal")}</label>
-              <input type="number" min="1" value={cartaoFidelidadeMeta} onChange={(e) => setCartaoFidelidadeMeta(Number(e.target.value) || 10)} className="input" />
-            </div>
-          </div>
-          <div className="mt-4 card-static p-4">
-            <div className="flex items-center justify-between text-sm mb-2">
-              <span className="font-medium">{t("clientes.progress")}</span>
-              <span>{cartaoFidelidadeCarimbos}/{cartaoFidelidadeMeta}</span>
-            </div>
-            <div className="h-3 rounded-full bg-surface-tertiary overflow-hidden">
-              <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, (Number(cartaoFidelidadeCarimbos) / Math.max(Number(cartaoFidelidadeMeta), 1)) * 100)}%` }} />
-            </div>
-            <p className="mt-3 text-sm text-text-secondary">{t("clientes.loyaltyHelp")}</p>
+            <form onSubmit={(e) => { cadastrarCliente(e); setShowCriarModal(false); }}>
+              <div className="mb-4">
+                <label className="input-label">{t("common.name")}</label>
+                <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} className="input" required />
+              </div>
+              <div className="mb-4">
+                <label className="input-label">{t("common.phone")}</label>
+                <input type="text" value={telefone} onChange={(e) => setTelefone(e.target.value)} className="input" required />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="input-label">{t("clientes.email")}</label>
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input" />
+                </div>
+                <div>
+                  <label className="input-label">{t("clientes.cpf")}</label>
+                  <input type="text" value={cpf} onChange={(e) => setCpf(e.target.value)} className="input" />
+                </div>
+              </div>
+
+              <div className="mb-4 card-static p-4">
+                <div className="flex items-center justify-between gap-4 mb-3">
+                  <div>
+                    <h3 className="font-semibold">{t("clientes.loyaltyCard")}</h3>
+                    <p className="text-text-secondary text-sm">{t("clientes.loyaltyDescription")}</p>
+                  </div>
+                  <label className="flex items-center gap-2 text-sm">
+                    <input type="checkbox" checked={cartaoFidelidadeAtivo} onChange={(e) => setCartaoFidelidadeAtivo(e.target.checked)} />
+                    {t("clientes.active")}
+                  </label>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="input-label">{t("clientes.stamps")}</label>
+                    <input type="number" min="0" value={cartaoFidelidadeCarimbos} onChange={(e) => setCartaoFidelidadeCarimbos(Number(e.target.value) || 0)} className="input" />
+                  </div>
+                  <div>
+                    <label className="input-label">{t("clientes.goal")}</label>
+                    <input type="number" min="1" value={cartaoFidelidadeMeta} onChange={(e) => setCartaoFidelidadeMeta(Number(e.target.value) || 10)} className="input" />
+                  </div>
+                </div>
+                <div className="mt-4 card-static p-4">
+                  <div className="flex items-center justify-between text-sm mb-2">
+                    <span className="font-medium">{t("clientes.progress")}</span>
+                    <span>{cartaoFidelidadeCarimbos}/{cartaoFidelidadeMeta}</span>
+                  </div>
+                  <div className="h-3 rounded-full bg-surface-tertiary overflow-hidden">
+                    <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, (Number(cartaoFidelidadeCarimbos) / Math.max(Number(cartaoFidelidadeMeta), 1)) * 100)}%` }} />
+                  </div>
+                  <p className="mt-3 text-sm text-text-secondary">{t("clientes.loyaltyHelp")}</p>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <button type="button" onClick={() => setShowCriarModal(false)} className="btn-ghost px-4 py-2 rounded">
+                  {t("common.cancel")}
+                </button>
+                <button type="submit" className="bg-primary text-surface px-4 py-2 rounded">
+                  {t("common.create")}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-
-        <button type="submit" className="bg-primary text-surface px-4 py-2 rounded">
-          {t("common.create")}
-        </button>
-      </form>
+      )}
 
       <div className="space-y-4">
         {clientes.map((cliente) => (
@@ -283,7 +302,7 @@ function Clientes() {
               )}
             </div>
             <div className="mt-3 flex gap-2 flex-wrap">
-              <button onClick={() => pedirConfirmacaoDeletar(cliente)} className="bg-error text-white px-4 py-2 rounded text-sm">
+              <button onClick={() => pedirConfirmacaoDeletar(cliente)} className="bg-error text-surface px-4 py-2 rounded text-sm">
                 {t("common.delete")}
               </button>
               <button onClick={() => abrirEdicao(cliente)} className="bg-primary text-surface px-4 py-2 rounded text-sm">
@@ -323,7 +342,7 @@ function Clientes() {
                       <button type="button" onClick={() => carregarCartaoFidelidade(cliente.id)} className="btn-ghost px-3 py-2 rounded text-sm">
                         {t("clientes.refresh")}
                       </button>
-                      <button type="button" onClick={() => limparCartaoFidelidade(cliente.id)} className="bg-error text-white px-3 py-2 rounded text-sm">
+                      <button type="button" onClick={() => limparCartaoFidelidade(cliente.id)} className="bg-error text-surface px-3 py-2 rounded text-sm">
                         {t("clientes.clearCard")}
                       </button>
                     </div>
@@ -468,7 +487,7 @@ function Clientes() {
             <p className="mb-4">{t("confirmDialog.message")}</p>
             <div className="flex justify-end space-x-3">
               <button onClick={cancelarDeletar} className="px-4 py-2 rounded border-border btn-ghost">{t("common.cancel")}</button>
-              <button onClick={confirmarDeletar} className="px-4 py-2 rounded bg-error text-white">{t("common.delete")}</button>
+              <button onClick={confirmarDeletar} className="px-4 py-2 rounded bg-error text-surface">{t("common.delete")}</button>
             </div>
           </div>
         </div>
