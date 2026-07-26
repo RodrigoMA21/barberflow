@@ -157,7 +157,14 @@
     "notes": "Observação opcional",
     "noRecords": "Nenhum registro no cartão.",
     "history": "Histórico de agendamentos",
-    "noAppointments": "Nenhum agendamento encontrado."
+    "noAppointments": "Nenhum agendamento encontrado.",
+    "refresh": "Atualizar",
+    "noObservation": "Sem observação",
+    "informDate": "Informe a data do atendimento",
+    "registrationDate": "Data de cadastro",
+    "recentHistory": "Histórico recente de agendamentos deste cliente.",
+    "loyaltyHelp": "Use este cartão para conceder descontos ou bonificações manuais quando o cliente atingir a meta.",
+    "cleanConfirm": "Tem certeza que deseja limpar o cartão fidelidade deste cliente?"
   },
   "servicos": {
     "title": "Serviços",
@@ -244,6 +251,10 @@
     "nextAppointments": "Próximos agendamentos",
     "historyNote": "Para histórico use a aba Histórico",
     "noFutureAppointments": "Nenhum agendamento futuro.",
+    "grossValue": "Valor bruto",
+    "refresh": "Atualizar",
+    "endTime": "Término",
+    "duration": "Duração",
     "createdSuccess": "Agendamento criado com sucesso!",
     "description": "Preencha os dados do agendamento",
     "informDate": "Informe a data",

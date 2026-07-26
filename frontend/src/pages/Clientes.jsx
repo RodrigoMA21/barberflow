@@ -1,20 +1,57 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../api";
+import { useNotify } from "../components/Notification";
+
+function formatDateBR(dateStr) {
+  if (!dateStr) return "";
+  const raw = dateStr.includes("T") ? dateStr.split("T")[0] : dateStr;
+  const [year, month, day] = raw.split("-");
+  return `${day}/${month}/${year}`;
+}
 
 function Clientes() {
   const [clientes, setClientes] = useState([]);
+  const [cartoesPorCliente, setCartoesPorCliente] = useState({});
+  const [historicoPorCliente, setHistoricoPorCliente] = useState({});
+  const [clienteAbertoId, setClienteAbertoId] = useState(null);
+  const notify = useNotify();
+  const { t } = useTranslation();
+
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
+  const [email, setEmail] = useState("");
+  const [cpf, setCpf] = useState("");
   const [clienteEditando, setClienteEditando] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [clienteParaDeletar, setClienteParaDeletar] = useState(null);
-  const { t } = useTranslation();
+  const [cartaoFidelidadeAtivo, setCartaoFidelidadeAtivo] = useState(false);
+  const [cartaoFidelidadeCarimbos, setCartaoFidelidadeCarimbos] = useState(0);
+  const [cartaoFidelidadeMeta, setCartaoFidelidadeMeta] = useState(10);
+  const [cartaoDrafts, setCartaoDrafts] = useState({});
 
   async function carregarClientes() {
     const response = await api("/clientes");
     const data = await response.json();
     setClientes(data);
+  }
+
+  async function carregarCartaoFidelidade(clienteId) {
+    const response = await api(`/clientes/${clienteId}/cartao-fidelidade`);
+    const data = await response.json();
+    setCartoesPorCliente((prev) => ({
+      ...prev,
+      [clienteId]: Array.isArray(data) ? data : [],
+    }));
+  }
+
+  async function carregarHistoricoCliente(clienteId) {
+    const response = await api(`/agendamentos/historico?cliente_id=${clienteId}&page=1&limit=20`);
+    const data = await response.json();
+    setHistoricoPorCliente((prev) => ({
+      ...prev,
+      [clienteId]: Array.isArray(data.data) ? data.data : [],
+    }));
   }
 
   useEffect(() => {
@@ -23,7 +60,12 @@ function Clientes() {
 
   async function cadastrarCliente(e) {
     e.preventDefault();
-    const clienteData = { nome, telefone };
+    const clienteData = {
+      nome, telefone, email, cpf,
+      cartao_fidelidade_ativo: cartaoFidelidadeAtivo,
+      cartao_fidelidade_carimbos: cartaoFidelidadeCarimbos,
+      cartao_fidelidade_meta: cartaoFidelidadeMeta,
+    };
     if (clienteEditando) {
       await api(`/clientes/${clienteEditando.id}`, {
         method: "PUT",
@@ -36,8 +78,10 @@ function Clientes() {
         body: JSON.stringify(clienteData),
       });
     }
-    setNome("");
-    setTelefone("");
+    setNome(""); setTelefone(""); setEmail(""); setCpf("");
+    setCartaoFidelidadeAtivo(false);
+    setCartaoFidelidadeCarimbos(0);
+    setCartaoFidelidadeMeta(10);
     carregarClientes();
   }
 
@@ -67,47 +111,250 @@ function Clientes() {
     setClienteEditando(cliente);
     setNome(cliente.nome);
     setTelefone(cliente.telefone);
+    setEmail(cliente.email || "");
+    setCpf(cliente.cpf || "");
+    setCartaoFidelidadeAtivo(Boolean(cliente.cartao_fidelidade_ativo));
+    setCartaoFidelidadeCarimbos(Number(cliente.cartao_fidelidade_carimbos) || 0);
+    setCartaoFidelidadeMeta(Number(cliente.cartao_fidelidade_meta) || 10);
+  }
+
+  function limparFormulario() {
+    setClienteEditando(null);
+    setNome(""); setTelefone(""); setEmail(""); setCpf("");
+    setCartaoFidelidadeAtivo(false);
+    setCartaoFidelidadeCarimbos(0);
+    setCartaoFidelidadeMeta(10);
+  }
+
+  async function adicionarAtendimentoNoCartao(clienteId) {
+    const draft = cartaoDrafts[clienteId] || {};
+    if (!draft.dataAtendimento) {
+      notify(t("clientes.informDate"));
+      return;
+    }
+    const response = await api(`/clientes/${clienteId}/cartao-fidelidade`, {
+      method: "POST",
+      body: JSON.stringify({
+        data_atendimento: draft.dataAtendimento,
+        observacao: draft.observacao || "",
+      }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      notify(errorData.error || t("clientes.informDate"));
+      return;
+    }
+    setCartaoDrafts((prev) => ({
+      ...prev,
+      [clienteId]: { dataAtendimento: "", observacao: "" },
+    }));
+    carregarCartaoFidelidade(clienteId);
+    carregarClientes();
+  }
+
+  async function limparCartaoFidelidade(clienteId) {
+    const confirmar = window.confirm(t("clientes.cleanConfirm"));
+    if (!confirmar) return;
+    const response = await api(`/clientes/${clienteId}/cartao-fidelidade`, { method: "DELETE" });
+    if (!response.ok) {
+      const errorData = await response.json();
+      notify(errorData.error || "Erro ao limpar cartão fidelidade");
+      return;
+    }
+    carregarCartaoFidelidade(clienteId);
+    carregarClientes();
+  }
+
+  function abrirOuFecharCliente(cliente) {
+    const novoAbertoId = clienteAbertoId === cliente.id ? null : cliente.id;
+    setClienteAbertoId(novoAbertoId);
+    if (novoAbertoId) {
+      carregarCartaoFidelidade(cliente.id);
+      carregarHistoricoCliente(cliente.id);
+    }
   }
 
   return (
     <div>
-      <form onSubmit={cadastrarCliente} className="bg-white p-6 rounded shadow mb-6">
+      <form onSubmit={cadastrarCliente} className="card-static p-6 mb-6">
         <div className="mb-4">
-          <label className="block mb-1">{t("common.name")}</label>
-          <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} className="w-full border p-2 rounded" />
+          <label className="input-label">{t("common.name")}</label>
+          <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} className="input" />
         </div>
         <div className="mb-4">
-          <label className="block mb-1">{t("common.phone")}</label>
-          <input type="text" value={telefone} onChange={(e) => setTelefone(e.target.value)} className="w-full border p-2 rounded" />
+          <label className="input-label">{t("common.phone")}</label>
+          <input type="text" value={telefone} onChange={(e) => setTelefone(e.target.value)} className="input" />
         </div>
-        <button type="submit" className="bg-black text-white px-4 py-2 rounded">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="input-label">{t("clientes.email")}</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input" />
+          </div>
+          <div>
+            <label className="input-label">{t("clientes.cpf")}</label>
+            <input type="text" value={cpf} onChange={(e) => setCpf(e.target.value)} className="input" />
+          </div>
+        </div>
+
+        <div className="mb-4 card-static p-4">
+          <div className="flex items-center justify-between gap-4 mb-3">
+            <div>
+              <h3 className="font-semibold">{t("clientes.loyaltyCard")}</h3>
+              <p className="text-text-secondary text-sm">{t("clientes.loyaltyDescription")}</p>
+            </div>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={cartaoFidelidadeAtivo} onChange={(e) => setCartaoFidelidadeAtivo(e.target.checked)} />
+              {t("clientes.active")}
+            </label>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="input-label">{t("clientes.stamps")}</label>
+              <input type="number" min="0" value={cartaoFidelidadeCarimbos} onChange={(e) => setCartaoFidelidadeCarimbos(Number(e.target.value) || 0)} className="input" />
+            </div>
+            <div>
+              <label className="input-label">{t("clientes.goal")}</label>
+              <input type="number" min="1" value={cartaoFidelidadeMeta} onChange={(e) => setCartaoFidelidadeMeta(Number(e.target.value) || 10)} className="input" />
+            </div>
+          </div>
+          <div className="mt-4 card-static p-4">
+            <div className="flex items-center justify-between text-sm mb-2">
+              <span className="font-medium">{t("clientes.progress")}</span>
+              <span>{cartaoFidelidadeCarimbos}/{cartaoFidelidadeMeta}</span>
+            </div>
+            <div className="h-3 rounded-full bg-surface-tertiary overflow-hidden">
+              <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, (Number(cartaoFidelidadeCarimbos) / Math.max(Number(cartaoFidelidadeMeta), 1)) * 100)}%` }} />
+            </div>
+            <p className="mt-3 text-sm text-text-secondary">{t("clientes.loyaltyHelp")}</p>
+          </div>
+        </div>
+
+        <button type="submit" className="bg-primary text-surface px-4 py-2 rounded">
           {clienteEditando ? t("common.update") : t("common.create")}
         </button>
+        {clienteEditando && (
+          <button type="button" onClick={limparFormulario} className="ml-3 bg-surface-tertiary text-text px-4 py-2 rounded">
+            {t("common.cancel")}
+          </button>
+        )}
       </form>
 
       <div className="space-y-4">
         {clientes.map((cliente) => (
-          <div key={cliente.id} className="bg-white p-4 rounded shadow">
-            <h2 className="text-xl font-semibold">{cliente.nome}</h2>
+          <div key={cliente.id} className="card-static p-4">
+            <button type="button" onClick={() => abrirOuFecharCliente(cliente)} className="text-left w-full">
+              <h2 className="text-xl font-semibold text-text hover:text-text-secondary">{cliente.nome}</h2>
+            </button>
             <p>{cliente.telefone}</p>
-            <button onClick={() => pedirConfirmacaoDeletar(cliente)} className="mt-3 bg-red-500 text-white px-4 py-2 rounded">
+            <div className="mt-2 flex items-center gap-2 text-sm">
+              <span className={`px-2 py-1 rounded-full font-medium ${cliente.cartao_fidelidade_ativo ? "badge-success" : "badge-neutral"}`}>
+                {cliente.cartao_fidelidade_ativo ? t("clientes.active") : t("clientes.inactive")}
+              </span>
+              <span className="text-text-secondary">{Number(cliente.cartao_fidelidade_carimbos) || 0}/{Number(cliente.cartao_fidelidade_meta) || 10}</span>
+            </div>
+            <button onClick={() => pedirConfirmacaoDeletar(cliente)} className="mt-3 bg-error text-white px-4 py-2 rounded">
               {t("common.delete")}
             </button>
-            <button onClick={() => editarCliente(cliente)} className="mt-3 ml-3 bg-blue-500 text-white px-4 py-2 rounded">
+            <button onClick={() => editarCliente(cliente)} className="mt-3 ml-3 bg-primary text-surface px-4 py-2 rounded">
               {t("common.edit")}
             </button>
+
+            {clienteAbertoId === cliente.id && (
+              <div className="mt-4 pt-4 border-border border-t space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-surface-secondary rounded p-3">
+                    <span className="block text-xs text-text-tertiary">{t("clientes.email")}</span>
+                    <strong className="text-text">{cliente.email || "—"}</strong>
+                  </div>
+                  <div className="bg-surface-secondary rounded p-3">
+                    <span className="block text-xs text-text-tertiary">{t("clientes.cpf")}</span>
+                    <strong className="text-text">{cliente.cpf || "—"}</strong>
+                  </div>
+                  <div className="bg-surface-secondary rounded p-3">
+                    <span className="block text-xs text-text-tertiary">{t("clientes.registrationDate")}</span>
+                    <strong className="text-text">{formatDateBR(cliente.created_at)}</strong>
+                  </div>
+                </div>
+
+                <div className="card-static p-4">
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <h3 className="font-semibold">{t("clientes.loyaltyCard")}</h3>
+                    <div className="flex gap-2">
+                      <button type="button" onClick={() => carregarCartaoFidelidade(cliente.id)} className="btn-ghost px-3 py-2 rounded text-sm">
+                        {t("clientes.refresh")}
+                      </button>
+                      <button type="button" onClick={() => limparCartaoFidelidade(cliente.id)} className="bg-error text-white px-3 py-2 rounded text-sm">
+                        {t("clientes.clearCard")}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                    <input type="date" value={cartaoDrafts[cliente.id]?.dataAtendimento || ""} onChange={(e) => setCartaoDrafts((prev) => ({ ...prev, [cliente.id]: { ...(prev[cliente.id] || {}), dataAtendimento: e.target.value } }))} className="input" />
+                    <input type="text" value={cartaoDrafts[cliente.id]?.observacao || ""} onChange={(e) => setCartaoDrafts((prev) => ({ ...prev, [cliente.id]: { ...(prev[cliente.id] || {}), observacao: e.target.value } }))} placeholder={t("clientes.notes")} className="input md:col-span-1" />
+                    <button type="button" onClick={() => adicionarAtendimentoNoCartao(cliente.id)} className="bg-primary text-surface px-4 py-2 rounded">
+                      {t("clientes.addDate")}
+                    </button>
+                  </div>
+                  <div className="mb-2 text-sm text-text-secondary flex items-center gap-2">
+                    <span className={`px-2 py-1 rounded-full font-medium ${cliente.cartao_fidelidade_ativo ? "badge-success" : "badge-neutral"}`}>
+                      {cliente.cartao_fidelidade_ativo ? t("clientes.active") : t("clientes.inactive")}
+                    </span>
+                    <span>{Number(cliente.cartao_fidelidade_carimbos) || 0}/{Number(cliente.cartao_fidelidade_meta) || 10}</span>
+                  </div>
+                  <div className="space-y-2">
+                    {(cartoesPorCliente[cliente.id] || []).length > 0 ? (
+                      cartoesPorCliente[cliente.id].map((registro) => (
+                        <div key={registro.id} className="flex items-center justify-between card-static px-3 py-2 text-sm">
+                          <span>{formatDateBR(registro.data_atendimento)}</span>
+                          <span className="text-text-tertiary">{registro.observacao || t("clientes.noObservation")}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-text-tertiary">{t("clientes.noRecords")}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="card-static p-4">
+                  <div className="mb-2 text-sm text-text-tertiary">
+                    {t("clientes.recentHistory")}
+                  </div>
+                  <h3 className="font-semibold mb-2">{t("clientes.history")}</h3>
+                  <div className="space-y-2">
+                    {(historicoPorCliente[cliente.id] || []).length > 0 ? (
+                      historicoPorCliente[cliente.id].map((agendamento) => (
+                        <div key={agendamento.id} className="card-static p-3 text-sm">
+                          <div className="flex items-center justify-between gap-3">
+                            <strong>{agendamento.data ? formatDateBR(agendamento.data.split("T")[0]) + " " + String(agendamento.horario || "").slice(0, 5) : "—"}</strong>
+                            <span className="text-text-secondary">{agendamento.status}</span>
+                          </div>
+                          <div className="mt-1 text-text-secondary">
+                            {agendamento.servicos?.map((s) => s.nome).join(", ") || "—"}
+                          </div>
+                          <div className="mt-1 text-text-secondary">
+                            {t("common.value")}: R$ {Number(agendamento.valor_final ?? agendamento.total ?? 0).toFixed(2)}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-text-tertiary">{t("clientes.noAppointments")}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
 
       {showConfirm && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded shadow max-w-sm w-full">
-            <h3 className="text-lg font-semibold mb-4">{t("common.confirm")}</h3>
-            <p className="mb-4">{t("common.confirmDeleteMessage")}</p>
+          <div className="card-static p-6 max-w-sm w-full">
+            <h3 className="text-lg font-semibold mb-4">{t("confirmDialog.title")}</h3>
+            <p className="mb-4">{t("confirmDialog.message")}</p>
             <div className="flex justify-end space-x-3">
-              <button onClick={cancelarDeletar} className="px-4 py-2 rounded border">{t("common.cancel")}</button>
-              <button onClick={confirmarDeletar} className="px-4 py-2 rounded bg-red-500 text-white">{t("common.delete")}</button>
+              <button onClick={cancelarDeletar} className="px-4 py-2 rounded border-border btn-ghost">{t("common.cancel")}</button>
+              <button onClick={confirmarDeletar} className="px-4 py-2 rounded bg-error text-white">{t("common.delete")}</button>
             </div>
           </div>
         </div>

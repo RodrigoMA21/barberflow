@@ -157,7 +157,14 @@
     "notes": "Optional note",
     "noRecords": "No card records.",
     "history": "Appointment history",
-    "noAppointments": "No appointments found."
+    "noAppointments": "No appointments found.",
+    "refresh": "Refresh",
+    "noObservation": "No observation",
+    "informDate": "Enter the appointment date",
+    "registrationDate": "Registration date",
+    "recentHistory": "Recent appointment history for this client.",
+    "loyaltyHelp": "Use this card to grant manual discounts or bonuses when the customer reaches the goal.",
+    "cleanConfirm": "Are you sure you want to clear this client's loyalty card?"
   },
   "servicos": {
     "title": "Services",
@@ -257,7 +264,11 @@
     "selectService": "Select at least one service",
     "selected_one": "selected",
     "selected_other": "selected",
-    "noFutureAppointments": "No upcoming appointments."
+    "noFutureAppointments": "No upcoming appointments.",
+    "grossValue": "Gross value",
+    "refresh": "Refresh",
+    "endTime": "End",
+    "duration": "Duration"
   },
   "historico": {
     "title": "History",

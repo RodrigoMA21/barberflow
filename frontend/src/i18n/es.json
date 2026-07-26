@@ -157,7 +157,14 @@
     "notes": "Observación opcional",
     "noRecords": "Sin registros en la tarjeta.",
     "history": "Historial de citas",
-    "noAppointments": "No se encontraron citas."
+    "noAppointments": "No se encontraron citas.",
+    "refresh": "Actualizar",
+    "noObservation": "Sin observación",
+    "informDate": "Ingrese la fecha del atendimiento",
+    "registrationDate": "Fecha de registro",
+    "recentHistory": "Historial reciente de citas de este cliente.",
+    "loyaltyHelp": "Use esta tarjeta para otorgar descuentos o bonificaciones manuales cuando el cliente alcance la meta.",
+    "cleanConfirm": "¿Estás seguro de que deseas limpiar la tarjeta de fidelidad de este cliente?"
   },
   "servicos": {
     "title": "Servicios",
@@ -257,7 +264,11 @@
     "selectService": "Seleccione al menos un servicio",
     "selected_one": "seleccionado",
     "selected_other": "seleccionados",
-    "noFutureAppointments": "No hay próximas citas."
+    "noFutureAppointments": "No hay próximas citas.",
+    "grossValue": "Valor bruto",
+    "refresh": "Actualizar",
+    "endTime": "Fin",
+    "duration": "Duración"
   },
   "historico": {
     "title": "Historial",
