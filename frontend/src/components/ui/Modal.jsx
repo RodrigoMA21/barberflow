@@ -1,7 +1,9 @@
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 export function Modal({ open, onClose, title, description, children, size = "md" }) {
   const overlayRef = useRef(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!open) return;
@@ -45,7 +47,7 @@ export function Modal({ open, onClose, title, description, children, size = "md"
               type="button"
               onClick={onClose}
               className="btn-ghost btn-icon shrink-0 mt-0.5"
-              aria-label="Fechar"
+              aria-label={t("common.close")}
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />

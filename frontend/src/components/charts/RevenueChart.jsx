@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
@@ -23,6 +24,8 @@ function CustomTooltip({ active, payload, label }) {
 }
 
 export default function RevenueChart({ data = [], year }) {
+  const { t } = useTranslation();
+
   const chartData = useMemo(() => {
     return mesesLabels.map((label, i) => {
       const month = i + 1;
@@ -39,7 +42,7 @@ export default function RevenueChart({ data = [], year }) {
   if (chartData.every((d) => d.Faturamento === 0)) {
     return (
       <div className="flex items-center justify-center h-64 text-sm text-text-tertiary">
-        Nenhum dado disponível para {year}
+        {t("charts.noDataYear", { year })}
       </div>
     );
   }

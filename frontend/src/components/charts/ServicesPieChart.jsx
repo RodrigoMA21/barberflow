@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 const CHART_COLORS = [
@@ -11,21 +12,24 @@ const CHART_COLORS = [
 ];
 
 function CustomTooltip({ active, payload }) {
+  const { t } = useTranslation();
   if (!active || !payload?.length) return null;
   const d = payload[0];
   return (
     <div className="bg-surface border border-border rounded-xl shadow-dropdown px-3 py-2 text-sm">
       <p className="font-semibold text-text">{d.name}</p>
-      <p className="text-text-secondary">{d.value}x realizados</p>
+      <p className="text-text-secondary">{t("charts.timesPerformed", { count: d.value })}</p>
     </div>
   );
 }
 
 export default function ServicesPieChart({ data = [] }) {
+  const { t } = useTranslation();
+
   if (data.length === 0) {
     return (
       <div className="flex items-center justify-center h-48 text-sm text-text-tertiary">
-        Nenhum serviço realizado
+        {t("charts.noServices")}
       </div>
     );
   }

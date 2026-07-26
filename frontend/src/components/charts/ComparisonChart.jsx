@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
@@ -13,12 +14,13 @@ function CustomTooltip({ active, payload, label }) {
 }
 
 export default function ComparisonChart({ data = [] }) {
+  const { t } = useTranslation();
   const maxValue = Math.max(...data.map((d) => d.value), 0);
 
   if (data.length === 0) {
     return (
       <div className="flex items-center justify-center h-40 text-sm text-text-tertiary">
-        Sem dados para comparar
+        {t("charts.noData")}
       </div>
     );
   }

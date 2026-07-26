@@ -1,5 +1,6 @@
 import { Modal, ModalBody, ModalFooter } from "./Modal";
 import Button from "./Button";
+import { useTranslation } from "react-i18next";
 
 const iconColors = {
   danger: "bg-error-light text-error",
@@ -23,13 +24,15 @@ export default function ConfirmDialog({
   open,
   onClose,
   onConfirm,
-  title = "Tem certeza?",
-  message = "Esta ação não pode ser desfeita.",
-  confirmText = "Confirmar",
-  cancelText = "Cancelar",
+  title,
+  message,
+  confirmText,
+  cancelText,
   variant = "danger",
   loading,
 }) {
+  const { t } = useTranslation();
+
   return (
     <Modal open={open} onClose={onClose} size="sm">
       <ModalBody className="flex flex-col items-center gap-4 text-center">
@@ -39,13 +42,13 @@ export default function ConfirmDialog({
           </svg>
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-text">{title}</h3>
-          <p className="text-sm text-text-secondary mt-1">{message}</p>
+          <h3 className="text-lg font-semibold text-text">{title || t("confirmDialog.title")}</h3>
+          <p className="text-sm text-text-secondary mt-1">{message || t("confirmDialog.message")}</p>
         </div>
       </ModalBody>
       <ModalFooter>
-        <Button variant="secondary" onClick={onClose}>{cancelText}</Button>
-        <Button variant={variant} onClick={onConfirm} loading={loading}>{confirmText}</Button>
+        <Button variant="secondary" onClick={onClose}>{cancelText || t("confirmDialog.cancel")}</Button>
+        <Button variant={variant} onClick={onConfirm} loading={loading}>{confirmText || t("confirmDialog.confirm")}</Button>
       </ModalFooter>
     </Modal>
   );

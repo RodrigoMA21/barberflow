@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { api } from "../api";
 import { useNotify } from "../components/Notification";
 import AgendamentoModal from "../components/AgendamentoModal";
@@ -48,25 +49,20 @@ function getBusinessSlots(dateValue, barbeiro) {
   const intervaloInicio = timeStringToMinutes(barbeiro?.horario_intervalo_inicio);
   const intervaloFim = timeStringToMinutes(barbeiro?.horario_intervalo_fim);
   const diaSelecionado = new Date(`${dateValue}T12:00:00`).getDay();
-
   if (dias.length > 0 && !dias.includes(diaSelecionado)) return [];
-
   if (inicio === null || fim === null) {
     for (let m = START_HOUR * 60; m < END_HOUR * 60; m += 30) slots.push(m);
     return slots;
   }
-
   const ranges = [];
   if (intervaloInicio !== null && intervaloFim !== null && intervaloFim > intervaloInicio) {
     ranges.push([inicio, intervaloInicio], [intervaloFim, fim]);
   } else {
     ranges.push([inicio, fim]);
   }
-
   for (const [start, end] of ranges) {
     for (let m = start; m < end; m += 30) slots.push(m);
   }
-
   return slots;
 }
 
@@ -76,13 +72,16 @@ function minutesToLabel(minutes) {
   return `${h}:${m}`;
 }
 
-function formatDaysSummary(diasAtendimento) {
-  const daysMap = { 0: "Dom", 1: "Seg", 2: "Ter", 3: "Qua", 4: "Qui", 5: "Sex", 6: "Sáb" };
+function formatDaysSummary(diasAtendimento, t) {
+  const daysMap = {
+    0: t("common.day_sun"), 1: t("common.day_mon"), 2: t("common.day_tue"),
+    3: t("common.day_wed"), 4: t("common.day_thu"), 5: t("common.day_fri"), 6: t("common.day_sat"),
+  };
   const ordered = Array.isArray(diasAtendimento) ? diasAtendimento.map(Number).filter((d) => Number.isInteger(d)).sort((a, b) => a - b) : [];
-  if (ordered.length === 0) return "Todos os dias";
-  if (ordered.length === 6 && !ordered.includes(0)) return "Seg-Sáb";
-  if (ordered.length === 5 && ordered.every((d, i) => d === i + 1)) return "Seg-Sex";
-  if (ordered.length === 1) return daysMap[ordered[0]] || "Dia";
+  if (ordered.length === 0) return t("agenda.allDays");
+  if (ordered.length === 6 && !ordered.includes(0)) return t("agenda.monSat");
+  if (ordered.length === 5 && ordered.every((d, i) => d === i + 1)) return t("agenda.monFri");
+  if (ordered.length === 1) return daysMap[ordered[0]] || t("agenda.dayView");
   return ordered.map((d) => daysMap[d] || String(d)).join(", ");
 }
 
@@ -91,10 +90,9 @@ function statusColor(status) {
   return map[status] || "bg-gray-400";
 }
 
-function AppointmentBlock({ item, onEdit, onStatusChange, onDelete }) {
+function AppointmentBlock({ item, onEdit, onStatusChange, onDelete, t }) {
   const startTop = timeToTop(item.horario);
   const height = durToHeight(Number(item.duracao_total_minutos) || 30);
-
   return (
     <div
       onClick={() => onEdit(item)}
@@ -104,30 +102,25 @@ function AppointmentBlock({ item, onEdit, onStatusChange, onDelete }) {
       <div className={`h-full rounded ${statusColor(item.status)} text-white p-1 flex flex-col justify-between text-[11px]`}>
         <div>
           <div className="font-semibold leading-tight truncate">{item.cliente}</div>
-          <div className="opacity-80 leading-tight truncate">
-            {item.servicos?.map((s) => s.nome).join(", ") || "Serviço"}
-          </div>
+          <div className="opacity-80 leading-tight truncate">{item.servicos?.map((s) => s.nome).join(", ") || t("agenda.service")}</div>
         </div>
-        <div className="opacity-70">
-          {formatTime(item.horario)}-{formatTime(item.termino_em)}
-        </div>
+        <div className="opacity-70">{formatTime(item.horario)}-{formatTime(item.termino_em)}</div>
         <div className="absolute top-0.5 right-0.5 hidden group-hover:flex gap-0.5">
           {item.status === "agendado" && (
-            <button onClick={(e) => { e.stopPropagation(); onStatusChange(item.id, "confirmado"); }} className="bg-white/30 hover:bg-white/50 text-white text-[9px] px-1 rounded" title="Confirmar">C</button>
+            <button onClick={(e) => { e.stopPropagation(); onStatusChange(item.id, "confirmado"); }} className="bg-white/30 hover:bg-white/50 text-white text-[9px] px-1 rounded" title={t("agenda.confirmAction")}>{t("agenda.confirmAction")[0]}</button>
           )}
           {item.status === "confirmado" && (
-            <button onClick={(e) => { e.stopPropagation(); onStatusChange(item.id, "concluido"); }} className="bg-white/30 hover:bg-white/50 text-white text-[9px] px-1 rounded" title="Concluir">✓</button>
+            <button onClick={(e) => { e.stopPropagation(); onStatusChange(item.id, "concluido"); }} className="bg-white/30 hover:bg-white/50 text-white text-[9px] px-1 rounded" title={t("agenda.completeAction")}>✓</button>
           )}
-          <button onClick={(e) => { e.stopPropagation(); onDelete(item.id); }} className="bg-red-500/60 hover:bg-red-500 text-white text-[9px] px-1 rounded" title="Excluir">×</button>
+          <button onClick={(e) => { e.stopPropagation(); onDelete(item.id); }} className="bg-red-500/60 hover:bg-red-500 text-white text-[9px] px-1 rounded" title={t("agenda.deleteAction")}>×</button>
         </div>
       </div>
     </div>
   );
 }
 
-function BarberColumn({ barbeiro, items, onEdit, onStatusChange, onDelete, onFreeSlot, data: colData, isLast }) {
+function BarberColumn({ barbeiro, items, onEdit, onStatusChange, onDelete, onFreeSlot, data: colData, isLast, t }) {
   const slots = getBusinessSlots(colData, barbeiro);
-
   const freeSlots = useMemo(() => {
     const occupied = new Set();
     for (const item of items) {
@@ -143,60 +136,45 @@ function BarberColumn({ barbeiro, items, onEdit, onStatusChange, onDelete, onFre
     }
     return slots.filter((m) => !occupied.has(m));
   }, [items, slots, colData]);
-
   const columnHeight = TOTAL_HOURS * 60 / 30 * SLOT_HEIGHT;
-
   return (
     <div className={`min-w-[180px] flex-1 border-r border-gray-200 ${isLast ? "border-r-0" : ""}`}>
       <div className="text-center py-2 px-1 border-b border-gray-200 bg-white sticky top-0 z-10">
         <div className="font-semibold text-sm truncate">{barbeiro.nome}</div>
-        <div className="text-xs text-gray-400 truncate">{formatDaysSummary(barbeiro.dias_atendimento)}</div>
+        <div className="text-xs text-gray-400 truncate">{formatDaysSummary(barbeiro.dias_atendimento, t)}</div>
         <div className="text-[10px] text-gray-400 truncate">
-          {barbeiro.horario_inicio ? `${formatTime(barbeiro.horario_inicio)}-${formatTime(barbeiro.horario_fim)}` : "Livre"}
+          {barbeiro.horario_inicio ? `${formatTime(barbeiro.horario_inicio)}-${formatTime(barbeiro.horario_fim)}` : t("agenda.free")}
         </div>
       </div>
-
       <div className="relative" style={{ height: columnHeight }}>
         {items.filter((i) => i.status !== "cancelado").map((item) => (
-          <AppointmentBlock key={item.id} item={item} onEdit={onEdit} onStatusChange={onStatusChange} onDelete={onDelete} />
+          <AppointmentBlock key={item.id} item={item} onEdit={onEdit} onStatusChange={onStatusChange} onDelete={onDelete} t={t} />
         ))}
-
         {freeSlots.map((m) => (
-          <div
-            key={m}
-            onClick={() => onFreeSlot(barbeiro, m)}
-            className="absolute left-0 right-0 z-10 cursor-pointer hover:bg-emerald-50 transition-colors border-b border-dashed border-gray-100 flex items-center justify-center group"
-            style={{ top: ((m - START_HOUR * 60) / 30) * SLOT_HEIGHT, height: SLOT_HEIGHT }}
-          >
+          <div key={m} onClick={() => onFreeSlot(barbeiro, m)} className="absolute left-0 right-0 z-10 cursor-pointer hover:bg-emerald-50 transition-colors border-b border-dashed border-gray-100 flex items-center justify-center group" style={{ top: ((m - START_HOUR * 60) / 30) * SLOT_HEIGHT, height: SLOT_HEIGHT }}>
             <span className="text-[10px] text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity">+</span>
           </div>
         ))}
-
         {slots.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center text-xs text-gray-400">
-            Não atende neste dia
-          </div>
+          <div className="absolute inset-0 flex items-center justify-center text-xs text-gray-400">{t("agenda.notWorking")}</div>
         )}
       </div>
     </div>
   );
 }
 
-function NoBarberColumn({ items, onEdit, onStatusChange, onDelete }) {
+function NoBarberColumn({ items, onEdit, onStatusChange, onDelete, t }) {
   const columnHeight = TOTAL_HOURS * 60 / 30 * SLOT_HEIGHT;
-
   const filtered = useMemo(() => items.filter((i) => i.status !== "cancelado"), [items]);
-
   return (
     <div className="min-w-[180px] flex-1">
       <div className="text-center py-2 px-1 border-b border-gray-200 bg-white sticky top-0 z-10">
-        <div className="font-semibold text-sm">Sem barbeiro</div>
-        <div className="text-xs text-gray-400">Sem atribuição</div>
+        <div className="font-semibold text-sm">{t("agenda.noService")}</div>
+        <div className="text-xs text-gray-400">{t("agenda.noAssignment")}</div>
       </div>
-
       <div className="relative" style={{ height: columnHeight }}>
         {filtered.map((item) => (
-          <AppointmentBlock key={item.id} item={item} onEdit={onEdit} onStatusChange={onStatusChange} onDelete={onDelete} />
+          <AppointmentBlock key={item.id} item={item} onEdit={onEdit} onStatusChange={onStatusChange} onDelete={onDelete} t={t} />
         ))}
       </div>
     </div>
@@ -212,6 +190,7 @@ function Agenda() {
   const [modalAberto, setModalAberto] = useState(false);
   const [agendamentoInicial, setAgendamentoInicial] = useState(null);
   const [mobileTab, setMobileTab] = useState(0);
+  const { t } = useTranslation();
   const notify = useNotify();
 
   useEffect(() => {
@@ -259,14 +238,14 @@ function Agenda() {
     });
     if (!response.ok) {
       const errorData = await response.json();
-      notify(errorData.error || "Erro ao atualizar status");
+      notify(errorData.error || t("agenda.errorUpdateStatus"));
       return;
     }
     recarregarAgenda();
   }
 
   async function deletarAgendamento(id) {
-    if (!window.confirm("Tem certeza que deseja excluir este agendamento?")) return;
+    if (!window.confirm(t("agenda.confirmDelete"))) return;
     await api(`/agendamentos/${id}`, { method: "DELETE" });
     recarregarAgenda();
   }
@@ -323,22 +302,17 @@ function Agenda() {
           <span className="text-sm font-medium whitespace-nowrap">{formatDateBR(data)}</span>
           <button onClick={() => navegarDia(1)} className="p-1.5 rounded hover:bg-gray-100 text-lg leading-none">▶</button>
         </div>
-
         <div className="text-xs text-gray-500 capitalize">{getDayName(data)}</div>
-
         <div className="ml-auto flex items-center gap-2">
-          <label className="text-xs text-gray-500 hidden sm:inline">Barbeiro</label>
+          <label className="text-xs text-gray-500 hidden sm:inline">{t("agenda.barber")}</label>
           <select value={barbeiroId} onChange={(e) => setBarbeiroId(e.target.value)} className="border p-1.5 rounded text-sm">
-            <option value="">Todos</option>
+            <option value="">{t("agenda.all")}</option>
             {barbeiros.map((b) => (
               <option key={b.id} value={b.id}>{b.nome}</option>
             ))}
           </select>
         </div>
-
-        <button onClick={() => setData(hoje)} className="text-xs text-gray-500 hover:text-black border px-2 py-1.5 rounded">
-          Hoje
-        </button>
+        <button onClick={() => setData(hoje)} className="text-xs text-gray-500 hover:text-black border px-2 py-1.5 rounded">{t("agenda.today")}</button>
       </div>
     </div>
   );
@@ -358,9 +332,7 @@ function Agenda() {
       <div className="h-[53px]" />
       {hours.map((h) => (
         <div key={h} className="relative" style={{ height: SLOT_HEIGHT * 2 }}>
-          <span className="absolute -top-2.5 left-1 text-[10px] text-gray-400 font-mono">
-            {String(h).padStart(2, "0")}:00
-          </span>
+          <span className="absolute -top-2.5 left-1 text-[10px] text-gray-400 font-mono">{String(h).padStart(2, "0")}:00</span>
         </div>
       ))}
     </div>
@@ -371,9 +343,7 @@ function Agenda() {
       <div className="h-[53px]" />
       {hours.map((h) => (
         <div key={h} className="relative" style={{ height: SLOT_HEIGHT * 2 }}>
-          <span className="absolute -top-2.5 left-0.5 text-[10px] text-gray-400 font-mono">
-            {String(h).padStart(2, "0")}:00
-          </span>
+          <span className="absolute -top-2.5 left-0.5 text-[10px] text-gray-400 font-mono">{String(h).padStart(2, "0")}:00</span>
         </div>
       ))}
     </div>
@@ -383,9 +353,7 @@ function Agenda() {
     return (
       <div>
         {header}
-        <div className="bg-white p-6 rounded shadow text-sm text-gray-500">
-          Nenhum barbeiro ativo cadastrado. Cadastre barbeiros para visualizar a agenda.
-        </div>
+        <div className="bg-white p-6 rounded shadow text-sm text-gray-500">{t("agenda.noBarbers")}</div>
         {modal}
       </div>
     );
@@ -395,9 +363,7 @@ function Agenda() {
     return (
       <div>
         {header}
-        <div className="bg-white p-6 rounded shadow text-sm text-gray-500">
-          Nenhum agendamento encontrado para esta data.
-        </div>
+        <div className="bg-white p-6 rounded shadow text-sm text-gray-500">{t("agenda.noAppointments")}</div>
         {modal}
       </div>
     );
@@ -406,22 +372,20 @@ function Agenda() {
   return (
     <div>
       {header}
-
       <div className="hidden md:block bg-white rounded shadow overflow-hidden">
         <div className="overflow-x-auto">
           <div className="flex" style={{ minWidth: Math.max(allColumns.length * 200, 300) }}>
             {timeColumn}
             {allColumns.map((col, i) =>
               col.type === "barber" ? (
-                <BarberColumn key={col.barbeiro.id} barbeiro={col.barbeiro} items={col.items} isLast={i === allColumns.length - 1} onEdit={editarAgendamento} onStatusChange={atualizarStatusAgendamento} onDelete={deletarAgendamento} onFreeSlot={agendarHorarioLivre} data={data} />
+                <BarberColumn key={col.barbeiro.id} barbeiro={col.barbeiro} items={col.items} isLast={i === allColumns.length - 1} onEdit={editarAgendamento} onStatusChange={atualizarStatusAgendamento} onDelete={deletarAgendamento} onFreeSlot={agendarHorarioLivre} data={data} t={t} />
               ) : (
-                <NoBarberColumn key="nobarber" items={col.items} onEdit={editarAgendamento} onStatusChange={atualizarStatusAgendamento} onDelete={deletarAgendamento} />
+                <NoBarberColumn key="nobarber" items={col.items} onEdit={editarAgendamento} onStatusChange={atualizarStatusAgendamento} onDelete={deletarAgendamento} t={t} />
               )
             )}
           </div>
         </div>
       </div>
-
       <div className="md:hidden">
         {allColumns.length > 1 && (
           <div className="flex gap-1 mb-3 overflow-x-auto pb-1">
@@ -429,30 +393,26 @@ function Agenda() {
               <button
                 key={i}
                 onClick={() => setMobileTab(Math.min(i, allColumns.length - 1))}
-                className={`shrink-0 text-xs px-3 py-1.5 rounded-full border ${
-                  mobileTab === i ? "bg-black text-white border-black" : "bg-white text-gray-600 border-gray-200"
-                }`}
+                className={`shrink-0 text-xs px-3 py-1.5 rounded-full border ${mobileTab === i ? "bg-black text-white border-black" : "bg-white text-gray-600 border-gray-200"}`}
               >
-                {col.type === "barber" ? col.barbeiro.nome : "Sem barbeiro"}
+                {col.type === "barber" ? col.barbeiro.nome : t("agenda.noService")}
               </button>
             ))}
           </div>
         )}
-
         {currentCol && (
           <div className="bg-white rounded shadow overflow-hidden">
             <div className="flex">
               {timeColumnMobile}
               {currentCol.type === "barber" ? (
-                <BarberColumn barbeiro={currentCol.barbeiro} items={currentCol.items} isLast onEdit={editarAgendamento} onStatusChange={atualizarStatusAgendamento} onDelete={deletarAgendamento} onFreeSlot={agendarHorarioLivre} data={data} />
+                <BarberColumn barbeiro={currentCol.barbeiro} items={currentCol.items} isLast onEdit={editarAgendamento} onStatusChange={atualizarStatusAgendamento} onDelete={deletarAgendamento} onFreeSlot={agendarHorarioLivre} data={data} t={t} />
               ) : (
-                <NoBarberColumn items={currentCol.items} onEdit={editarAgendamento} onStatusChange={atualizarStatusAgendamento} onDelete={deletarAgendamento} />
+                <NoBarberColumn items={currentCol.items} onEdit={editarAgendamento} onStatusChange={atualizarStatusAgendamento} onDelete={deletarAgendamento} t={t} />
               )}
             </div>
           </div>
         )}
       </div>
-
       {modal}
     </div>
   );

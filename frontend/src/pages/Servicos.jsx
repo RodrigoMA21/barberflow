@@ -1,20 +1,16 @@
 import { useEffect, useState } from "react";
-import { api } from "../api";
+import { useTranslation } from "react-i18next";
 
 function Servicos() {
   const [servicos, setServicos] = useState([]);
-
   const [nome, setNome] = useState("");
   const [preco, setPreco] = useState("");
-  const [duracaoMinutos, setDuracaoMinutos] = useState(30);
-
   const [editandoId, setEditandoId] = useState(null);
+  const { t } = useTranslation();
 
   async function carregarServicos() {
-    const response = await api("/servicos");
-
+    const response = await fetch("http://localhost:3000/servicos");
     const data = await response.json();
-
     setServicos(data);
   }
 
@@ -24,122 +20,57 @@ function Servicos() {
 
   async function cadastrarServico(e) {
     e.preventDefault();
-
-    const novoServico = {
-      nome,
-      preco,
-      duracao_minutos: duracaoMinutos,
-    };
-
-    await api("/servicos", {
+    const novoServico = { nome, preco };
+    await fetch("http://localhost:3000/servicos", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(novoServico),
     });
-
     setNome("");
     setPreco("");
-    setDuracaoMinutos(30);
-
     carregarServicos();
   }
 
   async function deletarServico(id) {
-    const confirmar = window.confirm(
-      "Tem certeza que deseja deletar este serviço?",
-    );
-
-    if (!confirmar) {
-      return;
-    }
-
-    await api(`/servicos/${id}`, {
-      method: "DELETE",
-    });
-
+    const confirmar = window.confirm(t("common.confirmDeleteMessage"));
+    if (!confirmar) return;
+    await fetch(`http://localhost:3000/servicos/${id}`, { method: "DELETE" });
     carregarServicos();
   }
 
   function iniciarEdicao(servico) {
     setEditandoId(servico.id);
-
     setNome(servico.nome);
-
     setPreco(servico.preco);
-    setDuracaoMinutos(servico.duracao_minutos || 30);
   }
 
   async function salvarEdicao(e) {
     e.preventDefault();
-
-    const servicoAtualizado = {
-      nome,
-      preco,
-      duracao_minutos: duracaoMinutos,
-    };
-
-    await api(`/servicos/${editandoId}`, {
+    const servicoAtualizado = { nome, preco };
+    await fetch(`http://localhost:3000/servicos/${editandoId}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(servicoAtualizado),
     });
-
     setEditandoId(null);
-
     setNome("");
     setPreco("");
-    setDuracaoMinutos(30);
-
     carregarServicos();
   }
 
   return (
     <div>
-      <form
-        onSubmit={editandoId ? salvarEdicao : cadastrarServico}
-        className="bg-white p-6 rounded shadow mb-6"
-      >
+      <form onSubmit={editandoId ? salvarEdicao : cadastrarServico} className="bg-white p-6 rounded shadow mb-6">
         <div className="mb-4">
-          <label className="block mb-1">Nome</label>
-
-          <input
-            type="text"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            className="w-full border p-2 rounded"
-          />
+          <label className="block mb-1">{t("common.name")}</label>
+          <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} className="w-full border p-2 rounded" />
         </div>
-
         <div className="mb-4">
-          <label className="block mb-1">Preço</label>
-
-          <input
-            type="number"
-            step="0.01"
-            value={preco}
-            onChange={(e) => setPreco(e.target.value)}
-            className="w-full border p-2 rounded"
-          />
+          <label className="block mb-1">{t("common.price")}</label>
+          <input type="number" step="0.01" value={preco} onChange={(e) => setPreco(e.target.value)} className="w-full border p-2 rounded" />
         </div>
-
-        <div className="mb-4">
-          <label className="block mb-1">Duração (minutos)</label>
-
-          <input
-            type="number"
-            min="1"
-            value={duracaoMinutos}
-            onChange={(e) => setDuracaoMinutos(Number(e.target.value))}
-            className="w-full border p-2 rounded"
-          />
-        </div>
-
         <button type="submit" className="bg-black text-white px-4 py-2 rounded">
-          {editandoId ? "Salvar Edição" : "Cadastrar"}
+          {editandoId ? t("common.update") : t("common.create")}
         </button>
       </form>
 
@@ -147,24 +78,13 @@ function Servicos() {
         {servicos.map((servico) => (
           <div key={servico.id} className="bg-white p-4 rounded shadow">
             <h2 className="text-xl font-semibold">{servico.nome}</h2>
-
-            <p>
-              R$ {Number(servico.preco).toFixed(2)} · {servico.duracao_minutos || 30} min
-            </p>
-
+            <p>R$ {servico.preco}</p>
             <div className="flex gap-2 mt-3">
-              <button
-                onClick={() => iniciarEdicao(servico)}
-                className="bg-yellow-500 text-white px-4 py-2 rounded"
-              >
-                Editar
+              <button onClick={() => iniciarEdicao(servico)} className="bg-yellow-500 text-white px-4 py-2 rounded">
+                {t("common.edit")}
               </button>
-
-              <button
-                onClick={() => deletarServico(servico.id)}
-                className="bg-red-500 text-white px-4 py-2 rounded"
-              >
-                Deletar
+              <button onClick={() => deletarServico(servico.id)} className="bg-red-500 text-white px-4 py-2 rounded">
+                {t("common.delete")}
               </button>
             </div>
           </div>
