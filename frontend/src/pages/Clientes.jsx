@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { api } from "../api";
 
 function Clientes() {
   const [clientes, setClientes] = useState([]);
@@ -11,7 +12,7 @@ function Clientes() {
   const { t } = useTranslation();
 
   async function carregarClientes() {
-    const response = await fetch("http://localhost:3000/clientes");
+    const response = await api("/clientes");
     const data = await response.json();
     setClientes(data);
   }
@@ -24,16 +25,14 @@ function Clientes() {
     e.preventDefault();
     const clienteData = { nome, telefone };
     if (clienteEditando) {
-      await fetch(`http://localhost:3000/clientes/${clienteEditando.id}`, {
+      await api(`/clientes/${clienteEditando.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(clienteData),
       });
       setClienteEditando(null);
     } else {
-      await fetch("http://localhost:3000/clientes", {
+      await api("/clientes", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(clienteData),
       });
     }
@@ -43,7 +42,7 @@ function Clientes() {
   }
 
   async function deletarCliente(id) {
-    await fetch(`http://localhost:3000/clientes/${id}`, { method: "DELETE" });
+    await api(`/clientes/${id}`, { method: "DELETE" });
     carregarClientes();
   }
 

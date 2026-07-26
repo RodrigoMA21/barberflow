@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { api } from "../api";
 
 function Servicos() {
   const [servicos, setServicos] = useState([]);
@@ -9,7 +10,7 @@ function Servicos() {
   const { t } = useTranslation();
 
   async function carregarServicos() {
-    const response = await fetch("http://localhost:3000/servicos");
+    const response = await api("/servicos");
     const data = await response.json();
     setServicos(data);
   }
@@ -21,9 +22,8 @@ function Servicos() {
   async function cadastrarServico(e) {
     e.preventDefault();
     const novoServico = { nome, preco };
-    await fetch("http://localhost:3000/servicos", {
+    await api("/servicos", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(novoServico),
     });
     setNome("");
@@ -34,7 +34,7 @@ function Servicos() {
   async function deletarServico(id) {
     const confirmar = window.confirm(t("common.confirmDeleteMessage"));
     if (!confirmar) return;
-    await fetch(`http://localhost:3000/servicos/${id}`, { method: "DELETE" });
+    await api(`/servicos/${id}`, { method: "DELETE" });
     carregarServicos();
   }
 
@@ -47,9 +47,8 @@ function Servicos() {
   async function salvarEdicao(e) {
     e.preventDefault();
     const servicoAtualizado = { nome, preco };
-    await fetch(`http://localhost:3000/servicos/${editandoId}`, {
+    await api(`/servicos/${editandoId}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(servicoAtualizado),
     });
     setEditandoId(null);

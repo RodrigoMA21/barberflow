@@ -148,6 +148,22 @@
     }
   }
 
+  .bg-surface {
+    background: var(--color-surface);
+  }
+  .bg-surface-secondary {
+    background: var(--color-surface-secondary);
+  }
+  .text-text {
+    color: var(--color-text);
+  }
+  .text-text-secondary {
+    color: var(--color-text-secondary);
+  }
+  .border-border {
+    border-color: var(--color-border);
+  }
+
   .card-static {
     background: var(--color-surface);
     border: 1px solid var(--color-border);

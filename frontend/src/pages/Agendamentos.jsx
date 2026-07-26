@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { api } from "../api";
 
 function formatDateBR(dateStr) {
   if (!dateStr) return "";
@@ -20,19 +21,19 @@ function Agendamentos() {
   const { t } = useTranslation();
 
   async function carregarAgendamentos() {
-    const response = await fetch("http://localhost:3000/agendamentos");
+    const response = await api("/agendamentos");
     const data = await response.json();
     setAgendamentos(data);
   }
 
   async function carregarClientes() {
-    const response = await fetch("http://localhost:3000/clientes");
+    const response = await api("/clientes");
     const data = await response.json();
     setClientes(data);
   }
 
   async function carregarServicos() {
-    const response = await fetch("http://localhost:3000/servicos");
+    const response = await api("/servicos");
     const data = await response.json();
     setServicos(data);
   }
@@ -48,15 +49,13 @@ function Agendamentos() {
     const novoAgendamento = { cliente_id: clienteId, servico_ids: servicoIds, data, horario };
     let response;
     if (editingId) {
-      response = await fetch(`http://localhost:3000/agendamentos/${editingId}`, {
+      response = await api(`/agendamentos/${editingId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(novoAgendamento),
       });
     } else {
-      response = await fetch("http://localhost:3000/agendamentos", {
+      response = await api("/agendamentos", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(novoAgendamento),
       });
     }
@@ -72,7 +71,7 @@ function Agendamentos() {
   async function deletarAgendamento(id) {
     const confirmar = confirm(t("agendamentosPage.confirmDelete"));
     if (!confirmar) return;
-    await fetch(`http://localhost:3000/agendamentos/${id}`, { method: "DELETE" });
+    await api(`/agendamentos/${id}`, { method: "DELETE" });
     carregarAgendamentos();
   }
 
