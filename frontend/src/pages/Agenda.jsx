@@ -11,6 +11,12 @@ function formatTime(value) {
   return String(value).slice(0, 5);
 }
 
+function extractTime(datetime) {
+  if (!datetime) return "";
+  const t = String(datetime).split("T")[1];
+  return t ? t.slice(0, 5) : "";
+}
+
 function getDayName(dateValue) {
   const date = new Date(`${dateValue}T12:00:00`);
   return new Intl.DateTimeFormat("pt-BR", { weekday: "long" }).format(date);
@@ -109,7 +115,7 @@ function AppointmentBlock({ item, onEdit, onStatusChange, onDelete, t, startHour
             <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
             </svg>
-            {formatTime(item.horario)}-{formatTime(item.termino_em)}
+            {formatTime(item.horario)}-{extractTime(item.termino_em)}
           </div>
           <div className="flex gap-1 shrink-0">
             {item.status === "agendado" && (
