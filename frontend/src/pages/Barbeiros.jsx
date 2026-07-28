@@ -30,6 +30,7 @@ function Barbeiros() {
   const [barbeiroParaDeletar, setBarbeiroParaDeletar] = useState(null);
   const [barbeiroStats, setBarbeiroStats] = useState(null);
   const [statsAberto, setStatsAberto] = useState(null);
+  const [formAberto, setFormAberto] = useState(false);
   const { t } = useTranslation();
   const notify = useNotify();
 
@@ -75,6 +76,7 @@ function Barbeiros() {
     setAtivo(true); setDiasAtendimento([]);
     setHorarioInicio(""); setHorarioFim("");
     setHorarioIntervaloInicio(""); setHorarioIntervaloFim("");
+    setFormAberto(false);
     recarregarBarbeiros();
   }
 
@@ -130,6 +132,7 @@ function Barbeiros() {
     setHorarioFim(barbeiro.horario_fim || "");
     setHorarioIntervaloInicio(barbeiro.horario_intervalo_inicio || "");
     setHorarioIntervaloFim(barbeiro.horario_intervalo_fim || "");
+    setFormAberto(true);
   }
 
   function limparFormulario() {
@@ -138,93 +141,16 @@ function Barbeiros() {
     setAtivo(true); setDiasAtendimento([]);
     setHorarioInicio(""); setHorarioFim("");
     setHorarioIntervaloInicio(""); setHorarioIntervaloFim("");
+    setFormAberto(false);
   }
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <form onSubmit={cadastrarBarbeiro} className="card-static p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="input-label">{t("common.name")}</label>
-            <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} className="input" />
-          </div>
-          <div>
-            <label className="input-label">{t("common.phone")}</label>
-            <input type="text" value={telefone} onChange={(e) => setTelefone(e.target.value)} className="input" />
-          </div>
-          <div>
-            <label className="input-label">{t("common.specialty")}</label>
-            <input type="text" value={especialidade} onChange={(e) => setEspecialidade(e.target.value)} className="input" />
-          </div>
-          <div>
-            <label className="input-label">{t("common.photo")}</label>
-            <input type="url" value={foto} onChange={(e) => setFoto(e.target.value)} className="input" />
-          </div>
-        </div>
-
-        <div className="mb-4 flex items-center gap-2">
-          <input type="checkbox" checked={ativo} onChange={(e) => setAtivo(e.target.checked)} className="w-4 h-4 accent-primary" />
-          <label className="text-sm text-text">{t("barbeiros.active")}</label>
-        </div>
-
-        <div className="mb-4 card-static p-4">
-          <h3 className="font-semibold mb-3 text-text">{t("barbeiros.schedule")}</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
-            {DIAS.map((dia) => {
-              const selected = diasAtendimento.includes(String(dia.value));
-              return (
-                <button
-                  type="button"
-                  key={dia.value}
-                  onClick={() => {
-                    setDiasAtendimento((prev) =>
-                      selected ? prev.filter((item) => item !== String(dia.value)) : [...prev, String(dia.value)],
-                    );
-                  }}
-                  className={`text-left rounded-lg border-2 p-3 transition-all cursor-pointer ${
-                    selected ? "border-primary bg-primary-light" : "border-border bg-surface hover:border-border-hover"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <span className="font-semibold text-sm text-text">{t(dia.label)}</span>
-                    {selected && <span className="text-primary text-lg leading-none shrink-0">✓</span>}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-          <p className="text-xs text-text-tertiary mb-4">{t("barbeiros.noDays")}</p>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label className="input-label">{t("barbeiros.start")}</label>
-              <input type="time" value={horarioInicio} onChange={(e) => setHorarioInicio(e.target.value)} className="input" />
-            </div>
-            <div>
-              <label className="input-label">{t("barbeiros.end")}</label>
-              <input type="time" value={horarioFim} onChange={(e) => setHorarioFim(e.target.value)} className="input" />
-            </div>
-            <div>
-              <label className="input-label">{t("barbeiros.breakStart")}</label>
-              <input type="time" value={horarioIntervaloInicio} onChange={(e) => setHorarioIntervaloInicio(e.target.value)} className="input" />
-            </div>
-            <div>
-              <label className="input-label">{t("barbeiros.breakEnd")}</label>
-              <input type="time" value={horarioIntervaloFim} onChange={(e) => setHorarioIntervaloFim(e.target.value)} className="input" />
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button type="submit" className="btn-primary">
-            {barbeiroEditando ? t("common.update") : t("common.create")}
-          </button>
-          {barbeiroEditando && (
-            <button type="button" onClick={limparFormulario} className="btn-ghost px-4 py-2 rounded-lg text-sm">
-              {t("common.cancel")}
-            </button>
-          )}
-        </div>
-      </form>
+      <div className="flex justify-end">
+        <button onClick={() => { limparFormulario(); setFormAberto(true); }} className="btn-primary">
+          {t("common.create")}
+        </button>
+      </div>
 
       <div className="space-y-4">
         {barbeiros.map((barbeiro) => (
@@ -318,6 +244,98 @@ function Barbeiros() {
           </div>
         ))}
       </div>
+
+      {formAberto && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 p-4 pt-12 overflow-y-auto" onClick={() => setFormAberto(false)}>
+          <div className="card-static max-w-2xl w-full p-6 animate-fade-in" onClick={(e) => e.stopPropagation()}>
+            <form onSubmit={cadastrarBarbeiro}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-base font-semibold text-text">{barbeiroEditando ? t("common.edit") : t("common.create")}</div>
+                <button type="button" onClick={limparFormulario} className="btn-ghost btn-icon">×</button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="input-label">{t("common.name")}</label>
+                  <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} className="input" />
+                </div>
+                <div>
+                  <label className="input-label">{t("common.phone")}</label>
+                  <input type="text" value={telefone} onChange={(e) => setTelefone(e.target.value)} className="input" />
+                </div>
+                <div>
+                  <label className="input-label">{t("common.specialty")}</label>
+                  <input type="text" value={especialidade} onChange={(e) => setEspecialidade(e.target.value)} className="input" />
+                </div>
+                <div>
+                  <label className="input-label">{t("common.photo")}</label>
+                  <input type="url" value={foto} onChange={(e) => setFoto(e.target.value)} className="input" />
+                </div>
+              </div>
+
+              <div className="mb-4 flex items-center gap-2">
+                <input type="checkbox" checked={ativo} onChange={(e) => setAtivo(e.target.checked)} className="w-4 h-4 accent-primary" />
+                <label className="text-sm text-text">{t("barbeiros.active")}</label>
+              </div>
+
+              <div className="mb-4 card-static p-4">
+                <h3 className="font-semibold mb-3 text-text">{t("barbeiros.schedule")}</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+                  {DIAS.map((dia) => {
+                    const selected = diasAtendimento.includes(String(dia.value));
+                    return (
+                      <button
+                        type="button"
+                        key={dia.value}
+                        onClick={() => {
+                          setDiasAtendimento((prev) =>
+                            selected ? prev.filter((item) => item !== String(dia.value)) : [...prev, String(dia.value)],
+                          );
+                        }}
+                        className={`text-left rounded-lg border-2 p-3 transition-all cursor-pointer ${
+                          selected ? "border-primary bg-primary-light" : "border-border bg-surface hover:border-border-hover"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="font-semibold text-sm text-text">{t(dia.label)}</span>
+                          {selected && <span className="text-primary text-lg leading-none shrink-0">✓</span>}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-xs text-text-tertiary mb-4">{t("barbeiros.noDays")}</p>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="input-label">{t("barbeiros.start")}</label>
+                    <input type="time" value={horarioInicio} onChange={(e) => setHorarioInicio(e.target.value)} className="input" />
+                  </div>
+                  <div>
+                    <label className="input-label">{t("barbeiros.end")}</label>
+                    <input type="time" value={horarioFim} onChange={(e) => setHorarioFim(e.target.value)} className="input" />
+                  </div>
+                  <div>
+                    <label className="input-label">{t("barbeiros.breakStart")}</label>
+                    <input type="time" value={horarioIntervaloInicio} onChange={(e) => setHorarioIntervaloInicio(e.target.value)} className="input" />
+                  </div>
+                  <div>
+                    <label className="input-label">{t("barbeiros.breakEnd")}</label>
+                    <input type="time" value={horarioIntervaloFim} onChange={(e) => setHorarioIntervaloFim(e.target.value)} className="input" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button type="submit" className="btn-primary">
+                  {barbeiroEditando ? t("common.update") : t("common.create")}
+                </button>
+                <button type="button" onClick={limparFormulario} className="btn-ghost px-4 py-2 rounded-lg text-sm">
+                  {t("common.cancel")}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {showConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
