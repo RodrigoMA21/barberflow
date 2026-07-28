@@ -372,5 +372,9 @@
     "dateLabel": "Fecha:",
     "timeLabel": "Hora:",
     "saveError": "Error al guardar la cita"
+  },
+  "footer": {
+    "copyright": "Copyright © 2026 Rodrigo Mayer Alves. Todos los derechos reservados.",
+    "portfolio": "Mi Portafolio"
   }
 }

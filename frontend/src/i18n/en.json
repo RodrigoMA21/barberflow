@@ -372,5 +372,9 @@
     "dateLabel": "Date:",
     "timeLabel": "Time:",
     "saveError": "Error saving appointment"
+  },
+  "footer": {
+    "copyright": "Copyright © 2026 Rodrigo Mayer Alves. All rights reserved.",
+    "portfolio": "My Portfolio"
   }
 }

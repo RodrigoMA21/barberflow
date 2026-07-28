@@ -372,5 +372,9 @@
     "dateLabel": "Data:",
     "timeLabel": "Horário:",
     "saveError": "Erro ao salvar agendamento"
+  },
+  "footer": {
+    "copyright": "Copyright © 2026 Rodrigo Mayer Alves. Todos os direitos reservados.",
+    "portfolio": "Meu Portfólio"
   }
 }
