@@ -53,7 +53,15 @@ function Historico() {
 
   const limit = 6;
 
-  const carregarHistorico = useCallback(async (pageAtual = page) => {
+  async function carregarClientesLista() {
+    const res = await api("/clientes");
+    if (res.ok) {
+      const data = await res.json();
+      setClientes(Array.isArray(data) ? data : []);
+    }
+  }
+
+  const carregarHistorico = useCallback(async (pageAtual = 1) => {
     const params = new URLSearchParams();
     params.append("page", String(pageAtual));
     params.append("limit", String(limit));
@@ -61,28 +69,16 @@ function Historico() {
     if (year) params.append("year", year);
     if (clienteId) params.append("cliente_id", clienteId);
     const res = await api(`/agendamentos/historico?${params.toString()}`);
+    if (!res.ok) return;
     const data = await res.json();
-    setHistorico(data.data || []);
+    setHistorico(Array.isArray(data.data) ? data.data : []);
     setMeta(data.meta || { page: pageAtual, limit, total: 0 });
-  }, [clienteId, limit, month, page, year]);
+  }, [clienteId, limit, month, year]);
 
   useEffect(() => {
-    void (async () => {
-      const resClientes = await api("/clientes");
-      const clientesData = await resClientes.json();
-      setClientes(clientesData);
-      const params = new URLSearchParams();
-      params.append("page", "1");
-      params.append("limit", String(limit));
-      if (month) params.append("month", month);
-      if (year) params.append("year", year);
-      if (clienteId) params.append("cliente_id", clienteId);
-      const resHistorico = await api(`/agendamentos/historico?${params.toString()}`);
-      const historicoData = await resHistorico.json();
-      setHistorico(historicoData.data || []);
-      setMeta(historicoData.meta || { page: 1, limit, total: 0 });
-    })();
-  }, [clienteId, limit, month, year]);
+    carregarClientesLista();
+    carregarHistorico(1);
+  }, [carregarHistorico]);
 
   async function excluirAgendamento(id) {
     const confirmar = window.confirm(t("common.confirmDeleteMessage"));
@@ -183,7 +179,7 @@ function Historico() {
               <p><span className="text-text-tertiary">{t("historico.finalValueLabel")}</span> R$ {Number(h.total || 0).toFixed(2)}</p>
             </div>
             <div className="mt-3 flex gap-2 flex-wrap">
-              <button type="button" onClick={() => editarAgendamento(h.id)} className="btn-ghost px-4 py-2 rounded-lg text-sm">
+              <button type="button" onClick={() => editarAgendamento(h.id)} className="bg-primary text-white px-4 py-2 rounded text-sm">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="inline mr-1">
                   <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>

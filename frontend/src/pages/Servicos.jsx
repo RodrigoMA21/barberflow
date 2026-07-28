@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../api";
+import { useNotify } from "../components/Notification";
 
 function Servicos() {
   const [servicos, setServicos] = useState([]);
@@ -8,11 +9,13 @@ function Servicos() {
   const [preco, setPreco] = useState("");
   const [editandoId, setEditandoId] = useState(null);
   const { t } = useTranslation();
+  const notify = useNotify();
 
   async function carregarServicos() {
     const response = await api("/servicos");
+    if (!response.ok) return;
     const data = await response.json();
-    setServicos(data);
+    setServicos(Array.isArray(data) ? data : []);
   }
 
   useEffect(() => {
@@ -22,10 +25,15 @@ function Servicos() {
   async function cadastrarServico(e) {
     e.preventDefault();
     const novoServico = { nome, preco };
-    await api("/servicos", {
+    const response = await api("/servicos", {
       method: "POST",
       body: JSON.stringify(novoServico),
     });
+    if (!response.ok) {
+      const errorData = await response.json();
+      notify(errorData.error || "Erro ao cadastrar serviço");
+      return;
+    }
     setNome("");
     setPreco("");
     carregarServicos();
@@ -34,7 +42,12 @@ function Servicos() {
   async function deletarServico(id) {
     const confirmar = window.confirm(t("common.confirmDeleteMessage"));
     if (!confirmar) return;
-    await api(`/servicos/${id}`, { method: "DELETE" });
+    const response = await api(`/servicos/${id}`, { method: "DELETE" });
+    if (!response.ok) {
+      const errorData = await response.json();
+      notify(errorData.error || "Erro ao deletar serviço");
+      return;
+    }
     carregarServicos();
   }
 
@@ -47,10 +60,15 @@ function Servicos() {
   async function salvarEdicao(e) {
     e.preventDefault();
     const servicoAtualizado = { nome, preco };
-    await api(`/servicos/${editandoId}`, {
+    const response = await api(`/servicos/${editandoId}`, {
       method: "PUT",
       body: JSON.stringify(servicoAtualizado),
     });
+    if (!response.ok) {
+      const errorData = await response.json();
+      notify(errorData.error || "Erro ao atualizar serviço");
+      return;
+    }
     setEditandoId(null);
     setNome("");
     setPreco("");
@@ -79,7 +97,7 @@ function Servicos() {
             <h2 className="text-xl font-semibold text-text">{servico.nome}</h2>
             <p className="text-text-secondary">R$ {servico.preco}</p>
             <div className="flex gap-2 mt-3">
-              <button onClick={() => iniciarEdicao(servico)} className="btn-ghost px-4 py-2 rounded-lg text-sm">
+              <button onClick={() => iniciarEdicao(servico)} className="bg-primary text-white px-4 py-2 rounded text-sm">
                 {t("common.edit")}
               </button>
               <button onClick={() => deletarServico(servico.id)} className="bg-error text-white px-4 py-2 rounded-lg text-sm">

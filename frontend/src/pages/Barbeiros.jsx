@@ -252,7 +252,7 @@ function Barbeiros() {
                   <button onClick={() => toggleStats(barbeiro)} className="btn-ghost px-3 py-2 rounded-lg text-sm">
                     {statsAberto === barbeiro.id ? t("barbeiroStats.close") : t("barbeiroStats.view")}
                   </button>
-                  <button onClick={() => editarBarbeiro(barbeiro)} className="btn-ghost px-3 py-2 rounded-lg text-sm">
+                  <button onClick={() => editarBarbeiro(barbeiro)} className="bg-primary text-white px-3 py-2 rounded text-sm">
                     {t("common.edit")}
                   </button>
                   <button onClick={() => pedirConfirmacaoDeletar(barbeiro)} className="bg-error text-white px-3 py-2 rounded-lg text-sm">

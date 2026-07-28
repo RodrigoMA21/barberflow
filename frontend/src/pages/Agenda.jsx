@@ -207,8 +207,9 @@ function Agenda() {
   useEffect(() => {
     void (async () => {
       const response = await api("/barbeiros");
+      if (!response.ok) return;
       const d = await response.json();
-      setBarbeiros(d.filter((b) => b.ativo));
+      setBarbeiros(Array.isArray(d) ? d.filter((b) => b.ativo) : []);
     })();
   }, []);
 
@@ -217,6 +218,7 @@ function Agenda() {
       const params = new URLSearchParams({ data });
       if (barbeiroId) params.append("barbeiro_id", barbeiroId);
       const response = await api(`/agendamentos/agenda?${params.toString()}`);
+      if (!response.ok) return;
       const d = await response.json();
       setAgenda(Array.isArray(d) ? d : []);
     })();
@@ -226,6 +228,7 @@ function Agenda() {
     const params = new URLSearchParams({ data });
     if (barbeiroId) params.append("barbeiro_id", barbeiroId);
     const response = await api(`/agendamentos/agenda?${params.toString()}`);
+    if (!response.ok) return;
     const d = await response.json();
     setAgenda(Array.isArray(d) ? d : []);
   }

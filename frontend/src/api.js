@@ -19,6 +19,13 @@ async function api(input, options = {}) {
 
   const response = await fetch(url, { ...options, headers });
 
+  if (response.status === 401 || response.status === 403) {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    window.location.href = "/login";
+    return response;
+  }
+
   return response;
 }
 

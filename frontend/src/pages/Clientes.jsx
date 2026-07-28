@@ -43,12 +43,14 @@ function Clientes() {
 
   async function carregarClientes() {
     const response = await api("/clientes");
+    if (!response.ok) return;
     const data = await response.json();
-    setClientes(data);
+    setClientes(Array.isArray(data) ? data : []);
   }
 
   async function carregarCartaoFidelidade(clienteId) {
     const response = await api(`/clientes/${clienteId}/cartao-fidelidade`);
+    if (!response.ok) return;
     const data = await response.json();
     setCartoesPorCliente((prev) => ({
       ...prev,
@@ -58,6 +60,7 @@ function Clientes() {
 
   async function carregarHistoricoCliente(clienteId) {
     const response = await api(`/agendamentos/historico?cliente_id=${clienteId}&page=1&limit=20`);
+    if (!response.ok) return;
     const data = await response.json();
     setHistoricoPorCliente((prev) => ({
       ...prev,
@@ -77,10 +80,15 @@ function Clientes() {
       cartao_fidelidade_carimbos: cartaoFidelidadeCarimbos,
       cartao_fidelidade_meta: cartaoFidelidadeMeta,
     };
-    await api("/clientes", {
+    const response = await api("/clientes", {
       method: "POST",
       body: JSON.stringify(clienteData),
     });
+    if (!response.ok) {
+      const errorData = await response.json();
+      notify(errorData.error || "Erro ao cadastrar cliente");
+      return;
+    }
     setNome(""); setTelefone(""); setEmail(""); setCpf("");
     setCartaoFidelidadeAtivo(false);
     setCartaoFidelidadeCarimbos(0);
@@ -89,7 +97,12 @@ function Clientes() {
   }
 
   async function deletarCliente(id) {
-    await api(`/clientes/${id}`, { method: "DELETE" });
+    const response = await api(`/clientes/${id}`, { method: "DELETE" });
+    if (!response.ok) {
+      const errorData = await response.json();
+      notify(errorData.error || "Erro ao deletar cliente");
+      return;
+    }
     carregarClientes();
   }
 
@@ -124,7 +137,7 @@ function Clientes() {
   async function salvarEdicao(e) {
     e.preventDefault();
     if (!clienteEditandoModal) return;
-    await api(`/clientes/${clienteEditandoModal.id}`, {
+    const response = await api(`/clientes/${clienteEditandoModal.id}`, {
       method: "PUT",
       body: JSON.stringify({
         nome: editNome,
@@ -136,6 +149,11 @@ function Clientes() {
         cartao_fidelidade_meta: editFidelidadeMeta,
       }),
     });
+    if (!response.ok) {
+      const errorData = await response.json();
+      notify(errorData.error || "Erro ao atualizar cliente");
+      return;
+    }
     setClienteEditandoModal(null);
     carregarClientes();
   }

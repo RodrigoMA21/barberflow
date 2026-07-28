@@ -56,6 +56,10 @@ function Dashboard() {
 
   async function carregarDashboard() {
     const response = await api(`/dashboard?mes=${mes}&ano=${ano}`);
+    if (!response.ok) {
+      setData(null);
+      return;
+    }
     const d = await response.json();
     setData(d);
   }

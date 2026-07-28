@@ -72,26 +72,30 @@ function Agendamentos() {
 
   async function carregarAgendamentos() {
     const response = await api("/agendamentos");
+    if (!response.ok) return;
     const responseData = await response.json();
-    setAgendamentos(responseData);
+    setAgendamentos(Array.isArray(responseData) ? responseData : []);
   }
 
   async function carregarClientes() {
     const response = await api("/clientes");
+    if (!response.ok) return;
     const responseData = await response.json();
-    setClientes(responseData);
+    setClientes(Array.isArray(responseData) ? responseData : []);
   }
 
   async function carregarServicos() {
     const response = await api("/servicos");
+    if (!response.ok) return;
     const responseData = await response.json();
-    setServicos(responseData);
+    setServicos(Array.isArray(responseData) ? responseData : []);
   }
 
   async function carregarBarbeiros() {
     const response = await api("/barbeiros");
+    if (!response.ok) return;
     const responseData = await response.json();
-    setBarbeiros(responseData.filter((b) => b.ativo));
+    setBarbeiros(Array.isArray(responseData) ? responseData.filter((b) => b.ativo) : []);
   }
 
   useEffect(() => {
