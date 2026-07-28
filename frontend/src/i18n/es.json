@@ -243,7 +243,8 @@
     "breakEnd": "Fin del Descanso",
     "workingDays": "Días de Atención",
     "settingsSaved": "¡Configuración guardada!",
-    "settingsError": "Error al guardar la configuración"
+    "settingsError": "Error al guardar la configuración",
+    "break": "Descanso"
   },
   "agendamentos": {
     "title": "Citas",

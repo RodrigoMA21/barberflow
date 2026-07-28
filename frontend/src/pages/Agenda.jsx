@@ -132,6 +132,10 @@ function AppointmentBlock({ item, onEdit, onStatusChange, onDelete, t, startHour
 
 function BarberColumn({ barbeiro, items, onEdit, onStatusChange, onDelete, onFreeSlot, data: colData, isLast, t, startHour, endHour }) {
   const slots = getBusinessSlots(colData, barbeiro, startHour, endHour);
+  const breakInicio = barbeiro?.horario_intervalo_inicio;
+  const breakFim = barbeiro?.horario_intervalo_fim;
+  const breakTop = breakInicio ? timeToTop(breakInicio, startHour) : null;
+  const breakHeight = breakInicio && breakFim ? timeToTop(breakFim, startHour) - breakTop : null;
   const freeSlots = useMemo(() => {
     const occupied = new Set();
     for (const item of items) {
@@ -158,6 +162,11 @@ function BarberColumn({ barbeiro, items, onEdit, onStatusChange, onDelete, onFre
         </div>
       </div>
       <div className="relative" style={{ height: columnHeight }}>
+        {breakTop !== null && breakHeight > 0 && (
+          <div className="absolute left-0 right-0 z-5 bg-surface-tertiary/60 border-b border-dashed border-white/20 flex items-center justify-center text-[10px] text-text-secondary font-medium pointer-events-none" style={{ top: breakTop, height: breakHeight }}>
+            {t("agenda.break")}
+          </div>
+        )}
         {items.filter((i) => i.status !== "cancelado").map((item) => (
           <AppointmentBlock key={item.id} item={item} onEdit={onEdit} onStatusChange={onStatusChange} onDelete={onDelete} t={t} startHour={startHour} />
         ))}
@@ -398,7 +407,7 @@ function Agenda() {
   );
 
   const hourOptions = [];
-  for (let h = 0; h < 24; h++) {
+  for (let h = 0; h <= 24; h++) {
     const label = `${String(h).padStart(2, "0")}:00`;
     hourOptions.push(label);
   }

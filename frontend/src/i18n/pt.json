@@ -243,7 +243,8 @@
     "breakEnd": "Fim do Intervalo",
     "workingDays": "Dias de Atendimento",
     "settingsSaved": "Configurações salvas!",
-    "settingsError": "Erro ao salvar configurações"
+    "settingsError": "Erro ao salvar configurações",
+    "break": "Intervalo"
   },
   "agendamentos": {
     "title": "Agendamentos",

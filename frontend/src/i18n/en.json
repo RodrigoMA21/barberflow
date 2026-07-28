@@ -243,7 +243,8 @@
     "breakEnd": "Break End",
     "workingDays": "Working Days",
     "settingsSaved": "Settings saved!",
-    "settingsError": "Error saving settings"
+    "settingsError": "Error saving settings",
+    "break": "Break"
   },
   "agendamentos": {
     "title": "Appointments",
