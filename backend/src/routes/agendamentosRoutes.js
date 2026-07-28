@@ -280,8 +280,12 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "Selecione um cliente" });
     }
 
-    if (!barbeiro_id) {
-      return res.status(400).json({ error: "Selecione um barbeiro" });
+    if (!data) {
+      return res.status(400).json({ error: "Informe a data" });
+    }
+
+    if (!horario) {
+      return res.status(400).json({ error: "Informe o horário" });
     }
 
     if (!Array.isArray(servico_ids) || servico_ids.length === 0) {
@@ -311,41 +315,45 @@ router.post("/", async (req, res) => {
     const totalBruto = servicosDetalhados.reduce((total, servico) => total + Number(servico.preco || 0), 0);
     const valorCalculado = calculateBillingValue(totalBruto, descontoValor, valorFinal);
 
-    const barbeiro = await buscarBarbeiroPorId(client, Number(barbeiro_id));
-    const businessValidation = validateBusinessHours(dataHoraInicio, dataHoraFim, barbeiro);
+    const barbeiroIdNum = barbeiro_id ? Number(barbeiro_id) : null;
 
-    if (!businessValidation.ok) {
-      await client.query("ROLLBACK");
-      return res.status(400).json({ error: businessValidation.error });
-    }
+    if (barbeiroIdNum) {
+      const barbeiro = await buscarBarbeiroPorId(client, barbeiroIdNum);
+      const businessValidation = validateBusinessHours(dataHoraInicio, dataHoraFim, barbeiro);
 
-    const conflitos = await buscarConflitos(client, {
-      barbeiroId: Number(barbeiro_id),
-      data,
-    });
-
-    for (const conflito of conflitos) {
-      const conflitoInicio = parseLocalDateTime(conflito.data, conflito.horario);
-      if (!conflitoInicio) {
-        continue;
+      if (!businessValidation.ok) {
+        await client.query("ROLLBACK");
+        return res.status(400).json({ error: businessValidation.error });
       }
 
-      const conflitoFim = calculateAppointmentEnd(
-        conflitoInicio,
-        Number(conflito.duracao_total_minutos) || 0,
-      );
+      const conflitos = await buscarConflitos(client, {
+        barbeiroId: barbeiroIdNum,
+        data,
+      });
 
-      if (
-        conflitoInicio &&
-        conflitoFim &&
-        overlaps(dataHoraInicio, dataHoraFim, conflitoInicio, conflitoFim)
-      ) {
-        await client.query("ROLLBACK");
-        return res.status(400).json({
-          error: `Conflito de horário para o barbeiro selecionado. O atendimento termina às ${formatMinutesAsTime(
-            dataHoraInicio.getHours() * 60 + dataHoraInicio.getMinutes() + duracaoTotal,
-          )}.`,
-        });
+      for (const conflito of conflitos) {
+        const conflitoInicio = parseLocalDateTime(conflito.data, conflito.horario);
+        if (!conflitoInicio) {
+          continue;
+        }
+
+        const conflitoFim = calculateAppointmentEnd(
+          conflitoInicio,
+          Number(conflito.duracao_total_minutos) || 0,
+        );
+
+        if (
+          conflitoInicio &&
+          conflitoFim &&
+          overlaps(dataHoraInicio, dataHoraFim, conflitoInicio, conflitoFim)
+        ) {
+          await client.query("ROLLBACK");
+          return res.status(400).json({
+            error: `Conflito de horário para o barbeiro selecionado. O atendimento termina às ${formatMinutesAsTime(
+              dataHoraInicio.getHours() * 60 + dataHoraInicio.getMinutes() + duracaoTotal,
+            )}.`,
+          });
+        }
       }
     }
 
@@ -355,7 +363,7 @@ router.post("/", async (req, res) => {
       VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING id
       `,
-      [cliente_id, barbeiro_id, data, horario, normalizedStatus, descontoValor, valorFinal !== null ? valorFinal : valorCalculado],
+      [cliente_id, barbeiroIdNum, data, horario, normalizedStatus, descontoValor, valorFinal !== null ? valorFinal : valorCalculado],
     );
 
     const agendamentoId = insertAg.rows[0].id;
