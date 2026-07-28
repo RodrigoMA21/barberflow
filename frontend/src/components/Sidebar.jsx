@@ -12,7 +12,7 @@ const navItems = [
   { to: "/historico", labelKey: "nav.historico", icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" },
 ];
 
-function Sidebar() {
+function Sidebar({ isOpen, onClose }) {
   const location = useLocation();
   const { t } = useTranslation();
   const [user, setUser] = useState(null);
@@ -30,6 +30,10 @@ function Sidebar() {
   useEffect(() => {
     if (editing) inputRef.current?.focus();
   }, [editing]);
+
+  useEffect(() => {
+    onClose();
+  }, [location.pathname]);
 
   function isActive(path) {
     if (path === "/") return location.pathname === "/";
@@ -67,93 +71,91 @@ function Sidebar() {
   const displayName = user?.nome || user?.email || t("header.admin");
 
   return (
-    <aside className="sticky top-0 w-64 min-h-screen bg-sidebar border-r border-border flex flex-col shrink-0">
-      <div className="p-5 border-b border-border">
-        <h2 className="text-lg font-bold tracking-tight text-text">{t("sidebar.title")}</h2>
-      </div>
+    <>
+      {isOpen && (
+        <div className="fixed inset-0 bg-black/40 z-30 sm:hidden" onClick={onClose} />
+      )}
+      <aside
+        className={`
+          fixed sm:sticky top-0 left-0 z-40
+          w-64 min-h-screen bg-sidebar border-r border-border
+          flex flex-col shrink-0
+          transition-transform duration-200 ease-in-out
+          ${isOpen ? "translate-x-0" : "-translate-x-full"}
+          sm:translate-x-0
+        `}
+      >
+        <div className="p-5 border-b border-border">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold tracking-tight text-text">{t("sidebar.title")}</h2>
+            <button onClick={onClose} className="sm:hidden btn-ghost btn-icon text-lg">&times;</button>
+          </div>
+        </div>
 
-      <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-        {navItems.map((item) => {
-          const active = isActive(item.to);
-          return (
-            <Link
-              key={item.to}
-              to={item.to}
-              className={`group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
-                active
-                  ? "bg-primary-light text-primary"
-                  : "text-text-secondary hover:bg-surface-tertiary hover:text-text"
-              }`}
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="shrink-0"
+        <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
+          {navItems.map((item) => {
+            const active = isActive(item.to);
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
+                  active
+                    ? "bg-primary-light text-primary"
+                    : "text-text-secondary hover:bg-surface-tertiary hover:text-text"
+                }`}
               >
-                <path d={item.icon} />
-              </svg>
-              <span>{t(item.labelKey)}</span>
-              {active && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
-              )}
-            </Link>
-          );
-        })}
-      </nav>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                  <path d={item.icon} />
+                </svg>
+                <span>{t(item.labelKey)}</span>
+                {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
+              </Link>
+            );
+          })}
+        </nav>
 
-      <div className="p-3 border-t border-border space-y-1">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-text-tertiary">
-            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
-          <div className="flex-1 min-w-0">
-            {editing ? (
-              <input
-                ref={inputRef}
-                type="text"
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSaveName();
-                  if (e.key === "Escape") handleCancelEdit();
-                }}
-                onBlur={handleSaveName}
-                className="w-full text-xs bg-surface-tertiary text-text rounded px-1.5 py-0.5 outline-none border border-border"
-              />
-            ) : (
-              <p className="text-xs font-medium text-text-secondary truncate">{displayName}</p>
+        <div className="p-3 border-t border-border space-y-1 bg-sidebar sticky bottom-0">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-text-tertiary">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            <div className="flex-1 min-w-0">
+              {editing ? (
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleSaveName();
+                    if (e.key === "Escape") handleCancelEdit();
+                  }}
+                  onBlur={handleSaveName}
+                  className="w-full text-xs bg-surface-tertiary text-text rounded px-1.5 py-0.5 outline-none border border-border"
+                />
+              ) : (
+                <p className="text-xs font-medium text-text-secondary truncate">{displayName}</p>
+              )}
+            </div>
+            {!editing && (
+              <button onClick={() => { setEditName(user?.nome || ""); setEditing(true); }} className="shrink-0 text-text-tertiary hover:text-text transition-colors" title={t("common.edit")}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                </svg>
+              </button>
             )}
           </div>
-          {!editing && (
-            <button
-              onClick={() => { setEditName(user?.nome || ""); setEditing(true); }}
-              className="shrink-0 text-text-tertiary hover:text-text transition-colors"
-              title={t("common.edit")}
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-              </svg>
-            </button>
-          )}
+          <button onClick={handleLogout} className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-xs font-medium text-text-tertiary hover:text-error hover:bg-error-light transition-all duration-150">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+            </svg>
+            {t("auth.logout")}
+          </button>
         </div>
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-xs font-medium text-text-tertiary hover:text-error hover:bg-error-light transition-all duration-150"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
-          </svg>
-          {t("auth.logout")}
-        </button>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }
 
