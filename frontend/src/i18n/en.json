@@ -111,6 +111,7 @@
     "noPhone": "No phone",
     "noSpecialty": "No specialty",
     "value": "Value",
+    "description": "Description",
     "saveSuccess": "Saved successfully!",
     "updateSuccess": "Updated successfully!"
   },

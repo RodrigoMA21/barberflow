@@ -7,7 +7,9 @@ function Servicos() {
   const [servicos, setServicos] = useState([]);
   const [nome, setNome] = useState("");
   const [preco, setPreco] = useState("");
+  const [descricao, setDescricao] = useState("");
   const [editandoId, setEditandoId] = useState(null);
+  const [formAberto, setFormAberto] = useState(false);
   const { t } = useTranslation();
   const notify = useNotify();
 
@@ -24,7 +26,7 @@ function Servicos() {
 
   async function cadastrarServico(e) {
     e.preventDefault();
-    const novoServico = { nome, preco };
+    const novoServico = { nome, preco, descricao };
     const response = await api("/servicos", {
       method: "POST",
       body: JSON.stringify(novoServico),
@@ -36,6 +38,8 @@ function Servicos() {
     }
     setNome("");
     setPreco("");
+    setDescricao("");
+    setFormAberto(false);
     carregarServicos();
   }
 
@@ -55,11 +59,13 @@ function Servicos() {
     setEditandoId(servico.id);
     setNome(servico.nome);
     setPreco(servico.preco);
+    setDescricao(servico.descricao || "");
+    setFormAberto(true);
   }
 
   async function salvarEdicao(e) {
     e.preventDefault();
-    const servicoAtualizado = { nome, preco };
+    const servicoAtualizado = { nome, preco, descricao };
     const response = await api(`/servicos/${editandoId}`, {
       method: "PUT",
       body: JSON.stringify(servicoAtualizado),
@@ -72,30 +78,33 @@ function Servicos() {
     setEditandoId(null);
     setNome("");
     setPreco("");
+    setDescricao("");
+    setFormAberto(false);
     carregarServicos();
+  }
+
+  function limparFormulario() {
+    setEditandoId(null);
+    setNome("");
+    setPreco("");
+    setDescricao("");
+    setFormAberto(false);
   }
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <form onSubmit={editandoId ? salvarEdicao : cadastrarServico} className="card-static p-6">
-        <div className="mb-4">
-          <label className="input-label">{t("common.name")}</label>
-          <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} className="input" />
-        </div>
-        <div className="mb-4">
-          <label className="input-label">{t("common.price")}</label>
-          <input type="number" step="0.01" value={preco} onChange={(e) => setPreco(e.target.value)} className="input" />
-        </div>
-        <button type="submit" className="btn-primary">
-          {editandoId ? t("common.update") : t("common.create")}
+      <div className="flex justify-end">
+        <button onClick={() => { setEditandoId(null); setNome(""); setPreco(""); setDescricao(""); setFormAberto(true); }} className="btn-primary">
+          {t("common.create")}
         </button>
-      </form>
+      </div>
 
       <div className="space-y-4">
         {servicos.map((servico) => (
           <div key={servico.id} className="card-static p-4 animate-fade-in-up">
             <h2 className="text-xl font-semibold text-text">{servico.nome}</h2>
             <p className="text-text-secondary">R$ {servico.preco}</p>
+            {servico.descricao && <p className="text-text-tertiary text-sm mt-1">{servico.descricao}</p>}
             <div className="flex gap-2 mt-3">
               <button onClick={() => iniciarEdicao(servico)} className="bg-primary text-white px-4 py-2 rounded text-sm">
                 {t("common.edit")}
@@ -107,6 +116,39 @@ function Servicos() {
           </div>
         ))}
       </div>
+
+      {formAberto && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 p-4 pt-12 overflow-y-auto" onClick={() => setFormAberto(false)}>
+          <div className="card-static max-w-lg w-full p-6 animate-fade-in" onClick={(e) => e.stopPropagation()}>
+            <form onSubmit={editandoId ? salvarEdicao : cadastrarServico}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-base font-semibold text-text">{editandoId ? t("common.edit") : t("common.create")}</div>
+                <button type="button" onClick={limparFormulario} className="btn-ghost btn-icon">&times;</button>
+              </div>
+              <div className="mb-4">
+                <label className="input-label">{t("common.name")}</label>
+                <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} className="input" />
+              </div>
+              <div className="mb-4">
+                <label className="input-label">{t("common.price")}</label>
+                <input type="number" step="0.01" value={preco} onChange={(e) => setPreco(e.target.value)} className="input" />
+              </div>
+              <div className="mb-4">
+                <label className="input-label">{t("common.description")}</label>
+                <textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} className="input" rows={3} />
+              </div>
+              <div className="flex items-center gap-2">
+                <button type="submit" className="btn-primary">
+                  {editandoId ? t("common.update") : t("common.create")}
+                </button>
+                <button type="button" onClick={limparFormulario} className="btn-ghost px-4 py-2 rounded-lg text-sm">
+                  {t("common.cancel")}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

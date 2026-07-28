@@ -111,6 +111,7 @@
     "noPhone": "Sin teléfono",
     "noSpecialty": "Sin especialidad",
     "value": "Valor",
+    "description": "Descripción",
     "saveSuccess": "¡Guardado con éxito!",
     "updateSuccess": "¡Actualizado con éxito!"
   },

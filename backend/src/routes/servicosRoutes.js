@@ -3,18 +3,12 @@ const express = require("express");
 
 const router = express.Router();
 
+pool.query(`ALTER TABLE servicos ADD COLUMN IF NOT EXISTS descricao TEXT DEFAULT ''`).catch(() => {});
+
 router.get("/", async (req, res) => {
   try {
     const result = await pool.query(
-      `
-      SELECT
-        id,
-        nome,
-        preco,
-        COALESCE(duracao_minutos, 30) AS duracao_minutos
-      FROM servicos
-      ORDER BY id ASC
-      `,
+      `SELECT id, nome, descricao, preco, COALESCE(duracao_minutos, 30) AS duracao_minutos FROM servicos ORDER BY id ASC`,
     );
 
     res.json(result.rows);
@@ -29,15 +23,11 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { nome, preco, duracao_minutos = 30 } = req.body;
+    const { nome, preco, duracao_minutos = 30, descricao = "" } = req.body;
 
     const result = await pool.query(
-      `
-      INSERT INTO servicos (nome, preco, duracao_minutos)
-      VALUES ($1, $2, $3)
-      RETURNING id, nome, preco, COALESCE(duracao_minutos, 30) AS duracao_minutos
-      `,
-      [nome, preco, duracao_minutos],
+      `INSERT INTO servicos (nome, preco, duracao_minutos, descricao) VALUES ($1, $2, $3, $4) RETURNING id, nome, descricao, preco, COALESCE(duracao_minutos, 30) AS duracao_minutos`,
+      [nome, preco, duracao_minutos, descricao],
     );
 
     res.status(201).json(result.rows[0]);
@@ -54,14 +44,11 @@ router.put("/:id", async (req, res) => {
   try {
     const id = req.params.id;
 
-    const { nome, preco, duracao_minutos = 30 } = req.body;
+    const { nome, preco, duracao_minutos = 30, descricao = "" } = req.body;
 
     const result = await pool.query(
-      `UPDATE servicos
-       SET nome = $1, preco = $2, duracao_minutos = $3
-       WHERE id = $4
-       RETURNING id, nome, preco, COALESCE(duracao_minutos, 30) AS duracao_minutos`,
-      [nome, preco, duracao_minutos, id],
+      `UPDATE servicos SET nome = $1, preco = $2, duracao_minutos = $3, descricao = $4 WHERE id = $5 RETURNING id, nome, descricao, preco, COALESCE(duracao_minutos, 30) AS duracao_minutos`,
+      [nome, preco, duracao_minutos, descricao, id],
     );
 
     res.json(result.rows[0]);
