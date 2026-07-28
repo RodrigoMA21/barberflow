@@ -4,11 +4,6 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
 
-const mesesLabels = [
-  "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
-  "Jul", "Ago", "Set", "Out", "Nov", "Dez",
-];
-
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
   return (
@@ -23,11 +18,15 @@ function CustomTooltip({ active, payload, label }) {
   );
 }
 
-export default function RevenueChart({ data = [], year }) {
+export default function RevenueChart({ data = [], year, monthLabels }) {
   const { t } = useTranslation();
 
   const chartData = useMemo(() => {
-    return mesesLabels.map((label, i) => {
+    const labels = monthLabels || [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ];
+    return labels.map((label, i) => {
       const month = i + 1;
       const item = data.find((d) => Number(d.mes) === month);
       return {

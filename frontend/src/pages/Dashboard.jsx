@@ -89,6 +89,12 @@ function Dashboard() {
     t("common.month_jul"), t("common.month_aug"), t("common.month_sep"),
     t("common.month_oct"), t("common.month_nov"), t("common.month_dec"),
   ];
+  const monthShortLabels = [
+    t("common.month_jan_short"), t("common.month_feb_short"), t("common.month_mar_short"),
+    t("common.month_apr_short"), t("common.month_may_short"), t("common.month_jun_short"),
+    t("common.month_jul_short"), t("common.month_aug_short"), t("common.month_sep_short"),
+    t("common.month_oct_short"), t("common.month_nov_short"), t("common.month_dec_short"),
+  ];
 
   function exportarCsv() {
     const linhas = [
@@ -190,7 +196,7 @@ function Dashboard() {
             <h2 className="text-base font-semibold text-text">{t("dashboard.monthlyRevenue")}</h2>
             <span className="text-xs text-text-tertiary">{ano}</span>
           </div>
-          <RevenueChart data={seriesMensal} year={ano} />
+          <RevenueChart data={seriesMensal} year={ano} monthLabels={monthShortLabels} />
         </div>
 
         <div className="card p-5">
