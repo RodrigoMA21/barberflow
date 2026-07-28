@@ -11,12 +11,6 @@ function formatTime(value) {
   return String(value).slice(0, 5);
 }
 
-function extractTime(datetime) {
-  if (!datetime) return "";
-  const t = String(datetime).split("T")[1];
-  return t ? t.slice(0, 5) : "";
-}
-
 function getDayName(dateValue) {
   const date = new Date(`${dateValue}T12:00:00`);
   return new Intl.DateTimeFormat("pt-BR", { weekday: "long" }).format(date);
@@ -38,6 +32,15 @@ function timeToTop(timeStr, startHour) {
   if (!timeStr) return 0;
   const [h, m] = String(timeStr).slice(0, 5).split(":").map(Number);
   return ((h * 60 + m - startHour * 60) / 30) * SLOT_HEIGHT;
+}
+
+function addMinutesToTime(time, minutes) {
+  if (!time) return "";
+  const [h, m] = String(time).slice(0, 5).split(":").map(Number);
+  const total = h * 60 + m + Number(minutes || 0);
+  const hours = String(Math.floor(total / 60) % 24).padStart(2, "0");
+  const mins = String(total % 60).padStart(2, "0");
+  return `${hours}:${mins}`;
 }
 
 function durToHeight(minutes) {
@@ -115,7 +118,7 @@ function AppointmentBlock({ item, onEdit, onStatusChange, onDelete, t, startHour
             <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
             </svg>
-            {formatTime(item.horario)}-{extractTime(item.termino_em)}
+            {formatTime(item.horario)}-{addMinutesToTime(item.horario, item.duracao_total_minutos)}
           </div>
           <div className="flex gap-1 shrink-0">
             {item.status === "agendado" && (
