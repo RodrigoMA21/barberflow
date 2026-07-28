@@ -94,6 +94,7 @@ function Clientes() {
     setCartaoFidelidadeCarimbos(0);
     setCartaoFidelidadeMeta(10);
     carregarClientes();
+    notify(t("common.saveSuccess"), "success");
   }
 
   async function deletarCliente(id) {
@@ -104,6 +105,7 @@ function Clientes() {
       return;
     }
     carregarClientes();
+    notify(t("common.deleteSuccess"), "success");
   }
 
   function pedirConfirmacaoDeletar(cliente) {
@@ -156,6 +158,7 @@ function Clientes() {
     }
     setClienteEditandoModal(null);
     carregarClientes();
+    notify(t("common.updateSuccess"), "success");
   }
 
   async function adicionarAtendimentoNoCartao(clienteId) {
@@ -182,6 +185,7 @@ function Clientes() {
     }));
     carregarCartaoFidelidade(clienteId);
     carregarClientes();
+    notify(t("clientes.loyaltyAdded"), "success");
   }
 
   async function limparCartaoFidelidade(clienteId) {
@@ -195,6 +199,7 @@ function Clientes() {
     }
     carregarCartaoFidelidade(clienteId);
     carregarClientes();
+    notify(t("common.deleteSuccess"), "success");
   }
 
   async function usarCartaoFidelidade(clienteId) {
@@ -208,6 +213,7 @@ function Clientes() {
     }
     carregarCartaoFidelidade(clienteId);
     carregarClientes();
+    notify(t("clientes.loyaltyUsed"), "success");
   }
 
   function abrirOuFecharCliente(cliente) {

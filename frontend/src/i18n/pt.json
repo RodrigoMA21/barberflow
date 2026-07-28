@@ -113,7 +113,8 @@
     "value": "Valor",
     "description": "Descrição",
     "saveSuccess": "Salvo com sucesso!",
-    "updateSuccess": "Atualizado com sucesso!"
+    "updateSuccess": "Atualizado com sucesso!",
+    "deleteSuccess": "Excluído com sucesso!"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -169,7 +170,9 @@
     "recentHistory": "Histórico recente de agendamentos deste cliente.",
     "loyaltyHelp": "Use este cartão para conceder descontos ou bonificações manuais quando o cliente atingir a meta.",
     "cleanConfirm": "Tem certeza que deseja limpar o cartão fidelidade deste cliente?",
-    "viewCard": "Ver cartão fidelidade"
+    "viewCard": "Ver cartão fidelidade",
+    "loyaltyAdded": "Atendimento registrado no cartão fidelidade",
+    "loyaltyUsed": "Cartão fidelidade utilizado com sucesso"
   },
   "servicos": {
     "title": "Serviços",
@@ -223,6 +226,7 @@
     "previousWeek": "Semana anterior",
     "nextWeek": "Próxima semana",
     "errorUpdateStatus": "Erro ao atualizar status",
+    "statusUpdated": "Status atualizado com sucesso",
     "allDays": "Todos os dias",
     "monSat": "Seg-Sáb",
     "monFri": "Seg-Sex",
@@ -276,6 +280,7 @@
     "informDate": "Informe a data",
     "informTime": "Informe o horário",
     "saveError": "Erro ao salvar agendamento",
+    "statusUpdated": "Status atualizado com sucesso",
     "savedSuccess": "Agendamento atualizado com sucesso!",
     "saving": "Salvando...",
     "selectBarber": "Selecione um barbeiro",

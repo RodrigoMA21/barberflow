@@ -113,7 +113,8 @@
     "value": "Valor",
     "description": "Descripción",
     "saveSuccess": "¡Guardado con éxito!",
-    "updateSuccess": "¡Actualizado con éxito!"
+    "updateSuccess": "¡Actualizado con éxito!",
+    "deleteSuccess": "¡Eliminado con éxito!"
   },
   "dashboard": {
     "title": "Panel",
@@ -169,7 +170,9 @@
     "recentHistory": "Historial reciente de citas de este cliente.",
     "loyaltyHelp": "Use esta tarjeta para otorgar descuentos o bonificaciones manuales cuando el cliente alcance la meta.",
     "cleanConfirm": "¿Estás seguro de que deseas limpiar la tarjeta de fidelidad de este cliente?",
-    "viewCard": "Ver tarjeta de fidelidad"
+    "viewCard": "Ver tarjeta de fidelidad",
+    "loyaltyAdded": "Asistencia registrada en la tarjeta de fidelidad",
+    "loyaltyUsed": "Tarjeta de fidelidad utilizada con éxito"
   },
   "servicos": {
     "title": "Servicios",
@@ -223,6 +226,7 @@
     "previousWeek": "Semana anterior",
     "nextWeek": "Siguiente semana",
     "errorUpdateStatus": "Error al actualizar estado",
+    "statusUpdated": "Estado actualizado con éxito",
     "allDays": "Todos los días",
     "monSat": "Lun-Sáb",
     "monFri": "Lun-Vie",
@@ -271,6 +275,7 @@
     "informDate": "Ingrese la fecha",
     "informTime": "Ingrese la hora",
     "saveError": "Error al guardar la cita",
+    "statusUpdated": "Estado actualizado con éxito",
     "savedSuccess": "Cita actualizada con éxito!",
     "saving": "Guardando...",
     "selectBarber": "Seleccione un barbero",

@@ -113,7 +113,8 @@
     "value": "Value",
     "description": "Description",
     "saveSuccess": "Saved successfully!",
-    "updateSuccess": "Updated successfully!"
+    "updateSuccess": "Updated successfully!",
+    "deleteSuccess": "Deleted successfully!"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -169,7 +170,9 @@
     "recentHistory": "Recent appointment history for this client.",
     "loyaltyHelp": "Use this card to grant manual discounts or bonuses when the customer reaches the goal.",
     "cleanConfirm": "Are you sure you want to clear this client's loyalty card?",
-    "viewCard": "View loyalty card"
+    "viewCard": "View loyalty card",
+    "loyaltyAdded": "Attendance recorded on loyalty card",
+    "loyaltyUsed": "Loyalty card successfully used"
   },
   "servicos": {
     "title": "Services",
@@ -223,6 +226,7 @@
     "previousWeek": "Previous week",
     "nextWeek": "Next week",
     "errorUpdateStatus": "Error updating status",
+    "statusUpdated": "Status updated successfully",
     "allDays": "Every day",
     "monSat": "Mon-Sat",
     "monFri": "Mon-Fri",
@@ -271,6 +275,7 @@
     "informDate": "Enter the date",
     "informTime": "Enter the time",
     "saveError": "Error saving appointment",
+    "statusUpdated": "Status updated successfully",
     "savedSuccess": "Appointment updated successfully!",
     "saving": "Saving...",
     "selectBarber": "Select a barber",

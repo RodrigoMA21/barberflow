@@ -260,11 +260,13 @@ function Agenda() {
       return;
     }
     recarregarAgenda();
+    notify(t("agenda.statusUpdated"), "success");
   }
 
   async function deletarAgendamento(id) {
     if (!window.confirm(t("agenda.confirmDelete"))) return;
     await api(`/agendamentos/${id}`, { method: "DELETE" });
+    notify(t("common.deleteSuccess"), "success");
     recarregarAgenda();
   }
 
@@ -321,7 +323,7 @@ function Agenda() {
       body: JSON.stringify(settings),
     });
     if (response.ok) {
-      notify(t("agenda.settingsSaved"));
+      notify(t("agenda.settingsSaved"), "success");
       setSettingsOpen(false);
     } else {
       notify(t("agenda.settingsError"));

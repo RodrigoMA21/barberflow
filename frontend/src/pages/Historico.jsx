@@ -90,6 +90,7 @@ function Historico() {
       return;
     }
     carregarHistorico(page);
+    notify(t("common.deleteSuccess"), "success");
   }
 
   function editarAgendamento(id) {

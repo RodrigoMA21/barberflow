@@ -40,6 +40,7 @@ function Servicos() {
     setPreco("");
     setDescricao("");
     setFormAberto(false);
+    notify(t("common.saveSuccess"), "success");
     carregarServicos();
   }
 
@@ -52,6 +53,7 @@ function Servicos() {
       notify(errorData.error || "Erro ao deletar serviço");
       return;
     }
+    notify(t("common.deleteSuccess"), "success");
     carregarServicos();
   }
 
@@ -80,6 +82,7 @@ function Servicos() {
     setPreco("");
     setDescricao("");
     setFormAberto(false);
+    notify(t("common.updateSuccess"), "success");
     carregarServicos();
   }
 

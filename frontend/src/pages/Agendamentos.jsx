@@ -178,7 +178,7 @@ function Agendamentos() {
       notify(errorData.error || t("agendamentos.saveError"));
       return;
     }
-    notify(isEditing ? t("agendamentos.savedSuccess") : t("agendamentos.createdSuccess"));
+    notify(isEditing ? t("agendamentos.savedSuccess") : t("agendamentos.createdSuccess"), "success");
     setClienteId(""); setBarbeiroId(""); setServicoIds([]);
     setData(""); setHorario(""); setStatus("agendado");
     setDescontoValor(""); setValorFinal(""); setEditingId(null);
@@ -189,6 +189,7 @@ function Agendamentos() {
     const confirmar = window.confirm(t("common.confirmDeleteMessage"));
     if (!confirmar) return;
     await api(`/agendamentos/${id}`, { method: "DELETE" });
+    notify(t("common.deleteSuccess"), "success");
     carregarAgendamentos();
   }
 
@@ -203,6 +204,7 @@ function Agendamentos() {
       return;
     }
     carregarAgendamentos();
+    notify(t("agendamentos.statusUpdated"), "success");
   }
 
   async function registrarNoCartaoFidelidade(agendamento, observacao) {

@@ -77,11 +77,13 @@ function Barbeiros() {
     setHorarioInicio(""); setHorarioFim("");
     setHorarioIntervaloInicio(""); setHorarioIntervaloFim("");
     setFormAberto(false);
+    notify(barbeiroEditando ? t("common.updateSuccess") : t("common.saveSuccess"), "success");
     recarregarBarbeiros();
   }
 
   async function deletarBarbeiro(id) {
     await api(`/barbeiros/${id}`, { method: "DELETE" });
+    notify(t("common.deleteSuccess"), "success");
     recarregarBarbeiros();
   }
 
