@@ -93,11 +93,9 @@ function Servicos() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex justify-end">
-        <button onClick={() => { setEditandoId(null); setNome(""); setPreco(""); setDescricao(""); setFormAberto(true); }} className="btn-primary">
-          {t("common.create")}
-        </button>
-      </div>
+      <button onClick={() => { setEditandoId(null); setNome(""); setPreco(""); setDescricao(""); setFormAberto(true); }} className="bg-primary text-white px-4 py-2 rounded mb-6">
+        {t("common.create")}
+      </button>
 
       <div className="space-y-4">
         {servicos.map((servico) => (
