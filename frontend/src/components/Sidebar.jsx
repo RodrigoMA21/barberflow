@@ -77,8 +77,7 @@ function Sidebar({ isOpen, onClose }) {
       )}
       <aside
         className={`
-          max-sm:fixed max-sm:inset-y-0 max-sm:left-0 max-sm:z-40
-          sm:sticky sm:top-0
+          fixed sm:sticky top-0 left-0 z-40
           w-64 min-h-screen bg-sidebar border-r border-border
           flex flex-col shrink-0
           transition-transform duration-200 ease-in-out
@@ -89,7 +88,7 @@ function Sidebar({ isOpen, onClose }) {
         <div className="p-5 border-b border-border">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold tracking-tight text-text">{t("sidebar.title")}</h2>
-            <button onClick={onClose} className="sm:hidden btn-ghost btn-icon text-lg">&times;</button>
+            <button onClick={onClose} className="!sm:hidden btn-ghost btn-icon text-lg">&times;</button>
           </div>
         </div>
 

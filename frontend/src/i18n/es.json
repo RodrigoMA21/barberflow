@@ -244,7 +244,8 @@
     "workingDays": "Días de Atención",
     "settingsSaved": "¡Configuración guardada!",
     "settingsError": "Error al guardar la configuración",
-    "break": "Descanso"
+    "break": "Descanso",
+    "breakConfirm": "Esta hora está dentro del descanso. ¿Agendar de todas formas?"
   },
   "agendamentos": {
     "title": "Citas",

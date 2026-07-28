@@ -4,7 +4,7 @@ import { api } from "../api";
 import { useNotify } from "../components/Notification";
 import AgendamentoModal from "../components/AgendamentoModal";
 
-const SLOT_HEIGHT = 44;
+const SLOT_HEIGHT = 56;
 
 function formatTime(value) {
   if (!value) return "";
@@ -132,6 +132,15 @@ function BarberColumn({ barbeiro, items, onEdit, onStatusChange, onDelete, onFre
   const breakFim = barbeiro?.horario_intervalo_fim;
   const breakTop = breakInicio ? timeToTop(breakInicio, startHour) : null;
   const breakHeight = breakInicio && breakFim ? timeToTop(breakFim, startHour) - breakTop : null;
+  const breakSlotMinutes = useMemo(() => {
+    if (!breakInicio || !breakFim) return [];
+    const start = timeStringToMinutes(breakInicio);
+    const end = timeStringToMinutes(breakFim);
+    if (start === null || end === null || end <= start) return [];
+    const mins = [];
+    for (let m = start; m < end; m += 30) mins.push(m);
+    return mins;
+  }, [breakInicio, breakFim]);
   const freeSlots = useMemo(() => {
     const occupied = new Set();
     for (const item of items) {
@@ -147,6 +156,27 @@ function BarberColumn({ barbeiro, items, onEdit, onStatusChange, onDelete, onFre
     }
     return slots.filter((m) => !occupied.has(m));
   }, [items, slots, colData]);
+  const freeBreakSlots = useMemo(() => {
+    const occupied = new Set();
+    for (const item of items) {
+      if (item.status === "cancelado") continue;
+      const inicio = item.inicio_em ? new Date(item.inicio_em) : null;
+      const termino = item.termino_em ? new Date(item.termino_em) : null;
+      if (!inicio || !termino) continue;
+      for (const m of breakSlotMinutes) {
+        const slotStart = new Date(`${colData}T${minutesToLabel(m)}:00`);
+        const slotEnd = new Date(slotStart.getTime() + 30 * 60000);
+        if (inicio < slotEnd && termino > slotStart) occupied.add(m);
+      }
+    }
+    return breakSlotMinutes.filter((m) => !occupied.has(m));
+  }, [items, breakSlotMinutes, colData]);
+
+  function handleBreakSlot(m) {
+    if (window.confirm(t("agenda.breakConfirm"))) {
+      onFreeSlot(barbeiro, m);
+    }
+  }
   const columnHeight = (endHour - startHour) * 60 / 30 * SLOT_HEIGHT;
   return (
     <div className={`min-w-[180px] flex-1 border-r border-border ${isLast ? "border-r-0" : ""}`}>
@@ -159,10 +189,17 @@ function BarberColumn({ barbeiro, items, onEdit, onStatusChange, onDelete, onFre
       </div>
       <div className="relative" style={{ height: columnHeight }}>
         {breakTop !== null && breakHeight > 0 && (
-          <div className="absolute left-0 right-0 z-5 bg-blue-500/40 border-y-2 border-blue-400/50 flex items-center justify-center text-lg text-white font-bold tracking-wide select-none pointer-events-none" style={{ top: breakTop, height: breakHeight }}>
-            {t("agenda.break")}
+          <div className="absolute left-0 right-0 z-5 bg-blue-500/40 border-y-2 border-blue-400/50 pointer-events-none" style={{ top: breakTop, height: breakHeight }}>
+            <span className="absolute top-0.5 left-1/2 -translate-x-1/2 text-[11px] text-white font-bold tracking-wide select-none whitespace-nowrap">
+              {t("agenda.break")}
+            </span>
           </div>
         )}
+        {freeBreakSlots.map((m) => (
+          <div key={"brk-" + m} onClick={() => handleBreakSlot(m)} className="absolute left-0 right-0 z-10 cursor-pointer bg-blue-500/20 hover:bg-blue-500/30 border-b border-dashed border-blue-400/30 flex items-center justify-center group transition-colors" style={{ top: ((m - startHour * 60) / 30) * SLOT_HEIGHT, height: SLOT_HEIGHT }}>
+            <span className="w-5 h-5 rounded-full border-2 border-blue-300/60 group-hover:border-blue-200 text-blue-200 group-hover:text-white flex items-center justify-center text-xs font-bold transition-colors">+</span>
+          </div>
+        ))}
         {items.filter((i) => i.status !== "cancelado").map((item) => (
           <AppointmentBlock key={item.id} item={item} onEdit={onEdit} onStatusChange={onStatusChange} onDelete={onDelete} t={t} startHour={startHour} />
         ))}
@@ -219,8 +256,10 @@ function Agenda() {
       if (response.ok) {
         const s = await response.json();
         setSettings(s);
-        const sh = Number(String(s.start_hour).split(":")[0]) || 8;
-        const eh = Number(String(s.end_hour).split(":")[0]) || 19;
+        const rawSh = s.start_hour;
+        const rawEh = s.end_hour;
+        const sh = rawSh ? Number(String(rawSh).split(":")[0]) : 8;
+        const eh = rawEh ? Number(String(rawEh).split(":")[0]) : 19;
         setStartHour(sh);
         setEndHour(eh);
       }
