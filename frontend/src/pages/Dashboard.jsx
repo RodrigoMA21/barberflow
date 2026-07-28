@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { api } from "../api";
 import ComparisonChart from "../components/charts/ComparisonChart";
 import RevenueChart from "../components/charts/RevenueChart";
-import ServicesPieChart from "../components/charts/ServicesPieChart";
 
 function formatCurrency(value) {
   return Number(value || 0).toFixed(2);
@@ -20,9 +19,9 @@ function TrendBadge({ value, suffix = "%" }) {
   );
 }
 
-function KpiCard({ label, value, prefix = "R$", trend, icon, accent }) {
+function KpiCard({ label, value, prefix = "R$", trend, icon, accent, cardAccent = "" }) {
   return (
-    <div className="card p-5 animate-fade-in-up">
+    <div className={`card p-5 animate-fade-in-up ${cardAccent}`}>
       <div className="flex items-start justify-between mb-3">
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${accent || "bg-primary-light text-primary"}`}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -42,8 +41,9 @@ function KpiCard({ label, value, prefix = "R$", trend, icon, accent }) {
 const kpiIcons = {
   revenue: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z",
   appointments: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4",
-  clients: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z",
-  barbers: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
+  clients: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
+  barbers: "M12 5a7 7 0 1 1 0 14a7 7 0 1 1 0-14M3 7q9 3 18 0M8 6V1h8v5",
+  star: "M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z",
   service: "M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4",
   ticket: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
 };
@@ -98,7 +98,7 @@ function Dashboard() {
       ["Resumo", "Faturamento", formatCurrency(resumo.faturamento)],
       ["Resumo", t("dashboard.todayRevenue"), formatCurrency(resumo.faturamento_dia)],
       ["Resumo", t("dashboard.yearRevenue"), formatCurrency(resumo.faturamento_ano)],
-      ["Resumo", t("dashboard.totalAppointments"), String(resumo.total_agendamentos || 0)],
+      ["Resumo", t("dashboard.monthAppointments"), String(resumo.total_agendamentos || 0)],
       ["", "", ""],
       ["Tipo", "Nome", "Quantidade"],
       ...servicos.map((s) => ["Serviço", s.nome, String(s.quantidade)]),
@@ -134,42 +134,54 @@ function Dashboard() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <KpiCard
           label={t("dashboard.monthRevenue")}
           value={resumo.faturamento}
           trend={trendData.monthTrend}
           icon={kpiIcons.revenue}
           accent="bg-primary-light text-primary"
+          cardAccent="card-accent-primary"
         />
         <KpiCard
           label={t("dashboard.todayRevenue")}
           value={resumo.faturamento_dia}
           icon={kpiIcons.revenue}
           accent="bg-success-light text-success"
+          cardAccent="card-accent-success"
         />
         <KpiCard
           label={t("dashboard.yearRevenue")}
           value={resumo.faturamento_ano}
           icon={kpiIcons.revenue}
           accent="bg-info-light text-info"
+          cardAccent="card-accent-info"
         />
         <KpiCard
-          label={t("dashboard.totalAppointments")}
+          label={t("dashboard.monthAppointments")}
           value={resumo.total_agendamentos || 0}
           prefix=""
           icon={kpiIcons.appointments}
           accent="bg-accent-light text-accent"
+          cardAccent="card-accent-accent"
+        />
+        <KpiCard
+          label={t("dashboard.yearAppointments")}
+          value={resumo.total_agendamentos_ano || 0}
+          prefix=""
+          icon={kpiIcons.appointments}
+          accent="bg-warning-light text-warning"
+          cardAccent="card-accent-warning"
         />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <KpiCard label={t("dashboard.topService")} value={indicadores.servico_mais_vendido || "—"} prefix="" icon={kpiIcons.service} />
-        <KpiCard label={t("dashboard.topClient")} value={indicadores.cliente_que_mais_agendou || "—"} prefix="" icon={kpiIcons.clients} />
-        <KpiCard label={t("dashboard.averageTicket")} value={indicadores.ticket_medio} icon={kpiIcons.ticket} />
-        <KpiCard label={t("dashboard.totalClients")} value={indicadores.total_clientes || 0} prefix="" icon={kpiIcons.clients} />
-        <KpiCard label={t("dashboard.activeBarbers")} value={indicadores.total_barbeiros_ativos || 0} prefix="" icon={kpiIcons.barbers} />
-        <KpiCard label={t("dashboard.completedServices")} value={indicadores.total_atendimentos_concluidos || 0} prefix="" icon={kpiIcons.service} />
+        <KpiCard label={t("dashboard.topService")} value={indicadores.servico_mais_vendido || "—"} prefix="" icon={kpiIcons.service} cardAccent="card-accent-primary" />
+        <KpiCard label={t("dashboard.topClient")} value={indicadores.cliente_que_mais_agendou || "—"} prefix="" icon={kpiIcons.star} cardAccent="card-accent-accent" />
+        <KpiCard label={t("dashboard.averageTicket")} value={indicadores.ticket_medio} icon={kpiIcons.ticket} cardAccent="card-accent-warning" />
+        <KpiCard label={t("dashboard.totalClients")} value={indicadores.total_clientes || 0} prefix="" icon={kpiIcons.clients} cardAccent="card-accent-success" />
+        <KpiCard label={t("dashboard.activeBarbers")} value={indicadores.total_barbeiros_ativos || 0} prefix="" icon={kpiIcons.barbers} cardAccent="card-accent-info" />
+        <KpiCard label={t("dashboard.completedServices")} value={indicadores.total_atendimentos_concluidos || 0} prefix="" icon={kpiIcons.service} cardAccent="card-accent-primary" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -224,13 +236,6 @@ function Dashboard() {
               { label: t("dashboard.yearRevenue"), value: Number(resumo.faturamento_ano || 0) },
             ]}
           />
-        </div>
-
-        <div className="card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold text-text">{t("dashboard.topServices")}</h2>
-          </div>
-          <ServicesPieChart data={servicos} />
         </div>
       </div>
     </div>

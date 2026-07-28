@@ -21,7 +21,7 @@ function Sidebar() {
   }
 
   return (
-    <aside className="w-64 min-h-screen bg-surface border-r border-border flex flex-col shrink-0">
+    <aside className="w-64 min-h-screen bg-sidebar border-r border-border flex flex-col shrink-0">
       <div className="p-5 border-b border-border">
         <h2 className="text-lg font-bold tracking-tight text-text">{t("sidebar.title")}</h2>
       </div>

@@ -87,13 +87,13 @@ function formatDaysSummary(diasAtendimento, t) {
 
 function statusColor(status) {
   const map = {
-    agendado: "bg-amber-400",
-    confirmado: "bg-primary",
-    concluido: "bg-success",
-    cancelado: "bg-surface-tertiary",
-    nao_compareceu: "bg-text-tertiary",
+    agendado: "bg-status-scheduled",
+    confirmado: "bg-status-confirmed",
+    concluido: "bg-status-completed",
+    cancelado: "bg-status-cancelled",
+    nao_compareceu: "bg-status-noshow",
   };
-  return map[status] || "bg-surface-tertiary";
+  return map[status] || "bg-status-cancelled";
 }
 
 function AppointmentBlock({ item, onEdit, onStatusChange, onDelete, t }) {

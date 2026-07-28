@@ -150,6 +150,15 @@ router.get("/", async (req, res) => {
       [mes, ano],
     );
 
+    const agendamentosAnoResult = await pool.query(
+      `
+      ${buildBillingCte(`WHERE EXTRACT(YEAR FROM a.data) = $1`)}
+      SELECT COUNT(*) AS total_agendamentos_ano
+      FROM agendamentos_periodo
+      `,
+      [ano],
+    );
+
     const totalClientesResult = await pool.query(
       `SELECT COUNT(*) AS total_clientes FROM clientes`,
     );
@@ -168,6 +177,7 @@ router.get("/", async (req, res) => {
         ...faturamentoResult.rows[0],
         faturamento_dia: faturamentoDiaResult.rows[0].faturamento_dia,
         faturamento_ano: faturamentoAnoResult.rows[0].faturamento_ano,
+        total_agendamentos_ano: agendamentosAnoResult.rows[0].total_agendamentos_ano,
       },
       servicos: servicosResult.rows,
       series_mensal: seriesMensal,
