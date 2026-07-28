@@ -5,9 +5,6 @@ import { useNotify } from "../components/Notification";
 import AgendamentoModal from "../components/AgendamentoModal";
 
 const SLOT_HEIGHT = 44;
-const START_HOUR = 8;
-const END_HOUR = 19;
-const TOTAL_HOURS = END_HOUR - START_HOUR;
 
 function formatTime(value) {
   if (!value) return "";
@@ -31,17 +28,17 @@ function timeStringToMinutes(value) {
   return hours * 60 + minutes;
 }
 
-function timeToTop(timeStr) {
+function timeToTop(timeStr, startHour) {
   if (!timeStr) return 0;
   const [h, m] = String(timeStr).slice(0, 5).split(":").map(Number);
-  return ((h * 60 + m - START_HOUR * 60) / 30) * SLOT_HEIGHT;
+  return ((h * 60 + m - startHour * 60) / 30) * SLOT_HEIGHT;
 }
 
 function durToHeight(minutes) {
   return Math.max((minutes / 30) * SLOT_HEIGHT, SLOT_HEIGHT);
 }
 
-function getBusinessSlots(dateValue, barbeiro) {
+function getBusinessSlots(dateValue, barbeiro, startHour, endHour) {
   const slots = [];
   const dias = Array.isArray(barbeiro?.dias_atendimento) ? barbeiro.dias_atendimento.map(Number) : [];
   const inicio = timeStringToMinutes(barbeiro?.horario_inicio);
@@ -51,7 +48,7 @@ function getBusinessSlots(dateValue, barbeiro) {
   const diaSelecionado = new Date(`${dateValue}T12:00:00`).getDay();
   if (dias.length > 0 && !dias.includes(diaSelecionado)) return [];
   if (inicio === null || fim === null) {
-    for (let m = START_HOUR * 60; m < END_HOUR * 60; m += 30) slots.push(m);
+    for (let m = startHour * 60; m < endHour * 60; m += 30) slots.push(m);
     return slots;
   }
   const ranges = [];
@@ -96,8 +93,8 @@ function statusColor(status) {
   return map[status] || "bg-status-cancelled";
 }
 
-function AppointmentBlock({ item, onEdit, onStatusChange, onDelete, t }) {
-  const startTop = timeToTop(item.horario);
+function AppointmentBlock({ item, onEdit, onStatusChange, onDelete, t, startHour }) {
+  const startTop = timeToTop(item.horario, startHour);
   const height = durToHeight(Number(item.duracao_total_minutos) || 30);
   const minBlock = 60;
   return (
@@ -133,8 +130,8 @@ function AppointmentBlock({ item, onEdit, onStatusChange, onDelete, t }) {
   );
 }
 
-function BarberColumn({ barbeiro, items, onEdit, onStatusChange, onDelete, onFreeSlot, data: colData, isLast, t }) {
-  const slots = getBusinessSlots(colData, barbeiro);
+function BarberColumn({ barbeiro, items, onEdit, onStatusChange, onDelete, onFreeSlot, data: colData, isLast, t, startHour, endHour }) {
+  const slots = getBusinessSlots(colData, barbeiro, startHour, endHour);
   const freeSlots = useMemo(() => {
     const occupied = new Set();
     for (const item of items) {
@@ -150,7 +147,7 @@ function BarberColumn({ barbeiro, items, onEdit, onStatusChange, onDelete, onFre
     }
     return slots.filter((m) => !occupied.has(m));
   }, [items, slots, colData]);
-  const columnHeight = TOTAL_HOURS * 60 / 30 * SLOT_HEIGHT;
+  const columnHeight = (endHour - startHour) * 60 / 30 * SLOT_HEIGHT;
   return (
     <div className={`min-w-[180px] flex-1 border-r border-border ${isLast ? "border-r-0" : ""}`}>
       <div className="text-center py-3 px-2 border-b border-border bg-surface sticky top-0 z-10">
@@ -162,10 +159,10 @@ function BarberColumn({ barbeiro, items, onEdit, onStatusChange, onDelete, onFre
       </div>
       <div className="relative" style={{ height: columnHeight }}>
         {items.filter((i) => i.status !== "cancelado").map((item) => (
-          <AppointmentBlock key={item.id} item={item} onEdit={onEdit} onStatusChange={onStatusChange} onDelete={onDelete} t={t} />
+          <AppointmentBlock key={item.id} item={item} onEdit={onEdit} onStatusChange={onStatusChange} onDelete={onDelete} t={t} startHour={startHour} />
         ))}
         {freeSlots.map((m) => (
-          <div key={m} onClick={() => onFreeSlot(barbeiro, m)} className="absolute left-0 right-0 z-10 cursor-pointer hover:bg-primary-light/50 transition-colors border-b border-dashed border-border flex items-center justify-center group" style={{ top: ((m - START_HOUR * 60) / 30) * SLOT_HEIGHT, height: SLOT_HEIGHT }}>
+          <div key={m} onClick={() => onFreeSlot(barbeiro, m)} className="absolute left-0 right-0 z-10 cursor-pointer hover:bg-primary-light/50 transition-colors border-b border-dashed border-border flex items-center justify-center group" style={{ top: ((m - startHour * 60) / 30) * SLOT_HEIGHT, height: SLOT_HEIGHT }}>
             <span className="w-5 h-5 rounded-full border-2 border-border group-hover:border-primary text-text-tertiary group-hover:text-primary flex items-center justify-center text-xs font-bold transition-colors">+</span>
           </div>
         ))}
@@ -177,8 +174,8 @@ function BarberColumn({ barbeiro, items, onEdit, onStatusChange, onDelete, onFre
   );
 }
 
-function NoBarberColumn({ items, onEdit, onStatusChange, onDelete, t }) {
-  const columnHeight = TOTAL_HOURS * 60 / 30 * SLOT_HEIGHT;
+function NoBarberColumn({ items, onEdit, onStatusChange, onDelete, t, startHour, endHour }) {
+  const columnHeight = (endHour - startHour) * 60 / 30 * SLOT_HEIGHT;
   const filtered = useMemo(() => items.filter((i) => i.status !== "cancelado"), [items]);
   return (
     <div className="min-w-[180px] flex-1">
@@ -206,8 +203,24 @@ function Agenda() {
   const [mobileTab, setMobileTab] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settings, setSettings] = useState(null);
+  const [startHour, setStartHour] = useState(8);
+  const [endHour, setEndHour] = useState(19);
   const { t } = useTranslation();
   const notify = useNotify();
+
+  useEffect(() => {
+    void (async () => {
+      const response = await api("/auth/settings");
+      if (response.ok) {
+        const s = await response.json();
+        setSettings(s);
+        const sh = Number(String(s.start_hour).split(":")[0]) || 8;
+        const eh = Number(String(s.end_hour).split(":")[0]) || 19;
+        setStartHour(sh);
+        setEndHour(eh);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     void (async () => {
@@ -289,9 +302,9 @@ function Agenda() {
 
   const hours = useMemo(() => {
     const arr = [];
-    for (let h = START_HOUR; h < END_HOUR; h++) arr.push(h);
+    for (let h = startHour; h < endHour; h++) arr.push(h);
     return arr;
-  }, []);
+  }, [startHour, endHour]);
 
   const allColumns = useMemo(() => {
     const cols = [];
@@ -311,8 +324,8 @@ function Agenda() {
   async function carregarSettings() {
     const response = await api("/auth/settings");
     if (response.ok) {
-      const data = await response.json();
-      setSettings(data);
+      const s = await response.json();
+      setSettings(s);
       setSettingsOpen(true);
     }
   }
@@ -325,6 +338,10 @@ function Agenda() {
     if (response.ok) {
       notify(t("agenda.settingsSaved"), "success");
       setSettingsOpen(false);
+      const sh = Number(String(settings.start_hour).split(":")[0]) || 8;
+      const eh = Number(String(settings.end_hour).split(":")[0]) || 19;
+      setStartHour(sh);
+      setEndHour(eh);
     } else {
       notify(t("agenda.settingsError"));
     }
@@ -510,9 +527,9 @@ function Agenda() {
             {timeColumn}
             {allColumns.map((col, i) =>
               col.type === "barber" ? (
-                <BarberColumn key={col.barbeiro.id} barbeiro={col.barbeiro} items={col.items} isLast={i === allColumns.length - 1} onEdit={editarAgendamento} onStatusChange={atualizarStatusAgendamento} onDelete={deletarAgendamento} onFreeSlot={agendarHorarioLivre} data={data} t={t} />
+                <BarberColumn key={col.barbeiro.id} barbeiro={col.barbeiro} items={col.items} isLast={i === allColumns.length - 1} onEdit={editarAgendamento} onStatusChange={atualizarStatusAgendamento} onDelete={deletarAgendamento} onFreeSlot={agendarHorarioLivre} data={data} t={t} startHour={startHour} endHour={endHour} />
               ) : (
-                <NoBarberColumn key="nobarber" items={col.items} onEdit={editarAgendamento} onStatusChange={atualizarStatusAgendamento} onDelete={deletarAgendamento} t={t} />
+                <NoBarberColumn key="nobarber" items={col.items} onEdit={editarAgendamento} onStatusChange={atualizarStatusAgendamento} onDelete={deletarAgendamento} t={t} startHour={startHour} endHour={endHour} />
               )
             )}
           </div>
@@ -537,9 +554,9 @@ function Agenda() {
             <div className="flex">
               {timeColumnMobile}
               {currentCol.type === "barber" ? (
-                <BarberColumn barbeiro={currentCol.barbeiro} items={currentCol.items} isLast onEdit={editarAgendamento} onStatusChange={atualizarStatusAgendamento} onDelete={deletarAgendamento} onFreeSlot={agendarHorarioLivre} data={data} t={t} />
+                <BarberColumn barbeiro={currentCol.barbeiro} items={currentCol.items} isLast onEdit={editarAgendamento} onStatusChange={atualizarStatusAgendamento} onDelete={deletarAgendamento} onFreeSlot={agendarHorarioLivre} data={data} t={t} startHour={startHour} endHour={endHour} />
               ) : (
-                <NoBarberColumn items={currentCol.items} onEdit={editarAgendamento} onStatusChange={atualizarStatusAgendamento} onDelete={deletarAgendamento} t={t} />
+                <NoBarberColumn items={currentCol.items} onEdit={editarAgendamento} onStatusChange={atualizarStatusAgendamento} onDelete={deletarAgendamento} t={t} startHour={startHour} endHour={endHour} />
               )}
             </div>
           </div>
