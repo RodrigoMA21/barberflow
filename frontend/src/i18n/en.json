@@ -229,7 +229,8 @@
     "confirmAction": "Confirm",
     "completeAction": "Complete",
     "deleteAction": "Delete",
-    "free": "Free"
+    "free": "Free",
+    "settings": "Hours"
   },
   "agendamentos": {
     "title": "Appointments",

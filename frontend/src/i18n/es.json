@@ -229,7 +229,8 @@
     "confirmAction": "Confirmar",
     "completeAction": "Completar",
     "deleteAction": "Eliminar",
-    "free": "Libre"
+    "free": "Libre",
+    "settings": "Horarios"
   },
   "agendamentos": {
     "title": "Citas",

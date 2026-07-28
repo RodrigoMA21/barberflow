@@ -5,8 +5,8 @@ import { useNotify } from "../components/Notification";
 import AgendamentoModal from "../components/AgendamentoModal";
 
 const SLOT_HEIGHT = 44;
-const START_HOUR = 6;
-const END_HOUR = 20;
+const START_HOUR = 8;
+const END_HOUR = 19;
 const TOTAL_HOURS = END_HOUR - START_HOUR;
 
 function formatTime(value) {
@@ -106,7 +106,7 @@ function AppointmentBlock({ item, onEdit, onStatusChange, onDelete, t }) {
       style={{ top: startTop, height: Math.max(height, 28) }}
     >
       <div className={`h-full ${statusColor(item.status)} text-white p-1.5 flex flex-col justify-between text-[11px]`}>
-        <div>
+        <div className="pr-14">
           <div className="font-semibold leading-tight truncate">{item.cliente}</div>
           <div className="opacity-80 leading-tight truncate">{item.servicos?.map((s) => s.nome).join(", ") || t("agenda.service")}</div>
         </div>
@@ -116,14 +116,14 @@ function AppointmentBlock({ item, onEdit, onStatusChange, onDelete, t }) {
           </svg>
           {formatTime(item.horario)}-{formatTime(item.termino_em)}
         </div>
-        <div className="absolute top-1 right-1 hidden group-hover:flex gap-0.5">
+        <div className="flex flex-wrap gap-1 mt-1">
           {item.status === "agendado" && (
-            <button onClick={(e) => { e.stopPropagation(); onStatusChange(item.id, "confirmado"); }} className="bg-white/20 hover:bg-white/40 text-white text-[9px] px-1.5 py-0.5 rounded" title={t("agenda.confirmAction")}>{t("agenda.confirmAction")[0]}</button>
+            <button onClick={(e) => { e.stopPropagation(); onStatusChange(item.id, "confirmado"); }} className="bg-white/25 hover:bg-white/40 text-white text-[10px] font-semibold px-2 py-1 rounded-md transition-colors">{t("agenda.confirmAction")}</button>
           )}
           {item.status === "confirmado" && (
-            <button onClick={(e) => { e.stopPropagation(); onStatusChange(item.id, "concluido"); }} className="bg-white/20 hover:bg-white/40 text-white text-[9px] px-1.5 py-0.5 rounded" title={t("agenda.completeAction")}>✓</button>
+            <button onClick={(e) => { e.stopPropagation(); onStatusChange(item.id, "concluido"); }} className="bg-white/25 hover:bg-white/40 text-white text-[10px] font-semibold px-2 py-1 rounded-md transition-colors">✓ {t("agenda.completeAction")}</button>
           )}
-          <button onClick={(e) => { e.stopPropagation(); onDelete(item.id); }} className="bg-error/60 hover:bg-error text-white text-[9px] px-1.5 py-0.5 rounded" title={t("agenda.deleteAction")}>×</button>
+          <button onClick={(e) => { e.stopPropagation(); onDelete(item.id); }} className="bg-error/60 hover:bg-error text-white text-[10px] font-semibold px-2 py-1 rounded-md transition-colors">× {t("agenda.deleteAction")}</button>
         </div>
       </div>
     </div>
@@ -330,6 +330,13 @@ function Agenda() {
           </select>
         </div>
         <button onClick={() => setData(hoje)} className="btn-ghost text-xs px-3 py-1.5 rounded-lg">{t("agenda.today")}</button>
+        <a href="/barbeiros" className="btn-ghost text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          {t("agenda.settings")}
+        </a>
       </div>
     </div>
   );

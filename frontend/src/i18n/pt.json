@@ -229,7 +229,8 @@
     "confirmAction": "Confirmar",
     "completeAction": "Concluir",
     "deleteAction": "Excluir",
-    "free": "Livre"
+    "free": "Livre",
+    "settings": "Horários"
   },
   "agendamentos": {
     "title": "Agendamentos",
