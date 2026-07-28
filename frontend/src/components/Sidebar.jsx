@@ -73,7 +73,7 @@ function Sidebar({ isOpen, onClose }) {
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 bg-black/40 z-30 sm:hidden" onClick={onClose} />
+        <div className="fixed inset-0 bg-black/40 z-30 desktop-hidden" onClick={onClose} />
       )}
       <aside
         className={`
@@ -88,7 +88,7 @@ function Sidebar({ isOpen, onClose }) {
         <div className="p-5 border-b border-border">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold tracking-tight text-text">{t("sidebar.title")}</h2>
-            <button onClick={onClose} className="!sm:hidden btn-ghost btn-icon text-lg">&times;</button>
+            <button onClick={onClose} className="desktop-hidden btn-ghost btn-icon text-lg">&times;</button>
           </div>
         </div>
 

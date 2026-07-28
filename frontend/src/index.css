@@ -146,6 +146,12 @@
   .shadow-modal { box-shadow: var(--shadow-modal); }
   .shadow-dropdown { box-shadow: var(--shadow-lg); }
 
+  @media (width >= 40rem) {
+    .desktop-hidden {
+      display: none !important;
+    }
+  }
+
 
   .card {
     background: var(--color-surface);
