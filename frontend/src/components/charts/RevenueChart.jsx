@@ -34,7 +34,7 @@ export default function RevenueChart({ data = [], year, monthLabels }) {
         Faturamento: Number(item?.faturamento || 0),
       };
     });
-  }, [data]);
+  }, [data, monthLabels]);
 
   const maxValue = Math.max(...chartData.map((d) => d.Faturamento), 0);
 
