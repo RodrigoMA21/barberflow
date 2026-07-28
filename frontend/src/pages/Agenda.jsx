@@ -99,31 +99,34 @@ function statusColor(status) {
 function AppointmentBlock({ item, onEdit, onStatusChange, onDelete, t }) {
   const startTop = timeToTop(item.horario);
   const height = durToHeight(Number(item.duracao_total_minutos) || 30);
+  const minBlock = 60;
   return (
     <div
       onClick={() => onEdit(item)}
-      className="absolute left-1 right-1 z-20 rounded-lg overflow-hidden cursor-pointer hover:brightness-110 hover:scale-[1.02] transition-all shadow-md border border-white/20 group"
-      style={{ top: startTop, height: Math.max(height, 28) }}
+      className="absolute left-1 right-1 z-20 rounded-lg overflow-hidden cursor-pointer hover:brightness-110 hover:scale-[1.02] transition-all shadow-md border border-white/20"
+      style={{ top: startTop, height: Math.max(height, minBlock) }}
     >
-      <div className={`h-full ${statusColor(item.status)} text-white p-1.5 flex flex-col justify-between text-[11px]`}>
-        <div className="pr-14">
+      <div className={`h-full ${statusColor(item.status)} text-white p-1.5 flex flex-col text-[11px]`}>
+        <div className="flex-1 min-h-0">
           <div className="font-semibold leading-tight truncate">{item.cliente}</div>
           <div className="opacity-80 leading-tight truncate">{item.servicos?.map((s) => s.nome).join(", ") || t("agenda.service")}</div>
         </div>
-        <div className="opacity-70 flex items-center gap-1">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-          </svg>
-          {formatTime(item.horario)}-{formatTime(item.termino_em)}
-        </div>
-        <div className="flex flex-wrap gap-1 mt-1">
-          {item.status === "agendado" && (
-            <button onClick={(e) => { e.stopPropagation(); onStatusChange(item.id, "confirmado"); }} className="bg-white/25 hover:bg-white/40 text-white text-[10px] font-semibold px-2 py-1 rounded-md transition-colors">{t("agenda.confirmAction")}</button>
-          )}
-          {item.status === "confirmado" && (
-            <button onClick={(e) => { e.stopPropagation(); onStatusChange(item.id, "concluido"); }} className="bg-white/25 hover:bg-white/40 text-white text-[10px] font-semibold px-2 py-1 rounded-md transition-colors">✓ {t("agenda.completeAction")}</button>
-          )}
-          <button onClick={(e) => { e.stopPropagation(); onDelete(item.id); }} className="bg-error/60 hover:bg-error text-white text-[10px] font-semibold px-2 py-1 rounded-md transition-colors">× {t("agenda.deleteAction")}</button>
+        <div className="flex items-center justify-between gap-1 pt-1 mt-auto bg-gradient-to-t from-black/30 to-transparent -mx-1.5 -mb-1.5 px-1.5 pb-1.5 rounded-b-lg">
+          <div className="opacity-90 flex items-center gap-1 text-[10px]">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+            </svg>
+            {formatTime(item.horario)}-{formatTime(item.termino_em)}
+          </div>
+          <div className="flex gap-1 shrink-0">
+            {item.status === "agendado" && (
+              <button onClick={(e) => { e.stopPropagation(); onStatusChange(item.id, "confirmado"); }} className="bg-white/30 hover:bg-white/50 text-white text-[10px] font-semibold px-2 py-0.5 rounded transition-colors">{t("agenda.confirmAction")}</button>
+            )}
+            {item.status === "confirmado" && (
+              <button onClick={(e) => { e.stopPropagation(); onStatusChange(item.id, "concluido"); }} className="bg-white/30 hover:bg-white/50 text-white text-[10px] font-semibold px-2 py-0.5 rounded transition-colors">{t("agenda.completeAction")}</button>
+            )}
+            <button onClick={(e) => { e.stopPropagation(); onDelete(item.id); }} className="bg-error/70 hover:bg-error text-white text-[10px] font-semibold px-2 py-0.5 rounded transition-colors">{t("agenda.deleteAction")}</button>
+          </div>
         </div>
       </div>
     </div>
@@ -201,6 +204,8 @@ function Agenda() {
   const [modalAberto, setModalAberto] = useState(false);
   const [agendamentoInicial, setAgendamentoInicial] = useState(null);
   const [mobileTab, setMobileTab] = useState(0);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settings, setSettings] = useState(null);
   const { t } = useTranslation();
   const notify = useNotify();
 
@@ -301,6 +306,28 @@ function Agenda() {
 
   const currentCol = allColumns.length > 0 ? (allColumns[mobileTab] || allColumns[0]) : null;
 
+  async function carregarSettings() {
+    const response = await api("/auth/settings");
+    if (response.ok) {
+      const data = await response.json();
+      setSettings(data);
+      setSettingsOpen(true);
+    }
+  }
+
+  async function salvarSettings() {
+    const response = await api("/auth/settings", {
+      method: "PUT",
+      body: JSON.stringify(settings),
+    });
+    if (response.ok) {
+      notify(t("agenda.settingsSaved"));
+      setSettingsOpen(false);
+    } else {
+      notify(t("agenda.settingsError"));
+    }
+  }
+
   function navegarDia(delta) {
     const d = new Date(`${data}T12:00:00`);
     d.setDate(d.getDate() + delta);
@@ -330,13 +357,13 @@ function Agenda() {
           </select>
         </div>
         <button onClick={() => setData(hoje)} className="btn-ghost text-xs px-3 py-1.5 rounded-lg">{t("agenda.today")}</button>
-        <a href="/barbeiros" className="btn-ghost text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+        <button onClick={carregarSettings} className="btn-ghost text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
             <circle cx="12" cy="12" r="3" />
           </svg>
           {t("agenda.settings")}
-        </a>
+        </button>
       </div>
     </div>
   );
@@ -349,6 +376,85 @@ function Agenda() {
       onClose={() => { setModalAberto(false); setAgendamentoInicial(null); }}
       onSaved={recarregarAgenda}
     />
+  );
+
+  const hourOptions = [];
+  for (let h = 0; h < 24; h++) {
+    const label = `${String(h).padStart(2, "0")}:00`;
+    hourOptions.push(label);
+  }
+
+  const daysOfWeek = [
+    { value: 0, label: t("common.day_sun") },
+    { value: 1, label: t("common.day_mon") },
+    { value: 2, label: t("common.day_tue") },
+    { value: 3, label: t("common.day_wed") },
+    { value: 4, label: t("common.day_thu") },
+    { value: 5, label: t("common.day_fri") },
+    { value: 6, label: t("common.day_sat") },
+  ];
+
+  const settingsModal = (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setSettingsOpen(false)}>
+      <div className="card-static max-w-md w-full p-5 animate-fade-in" onClick={(e) => e.stopPropagation()}>
+        <div className="text-base font-semibold text-text mb-4">{t("agenda.businessHours")}</div>
+        {settings && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-text-tertiary block mb-1">{t("agenda.start")}</label>
+                <select className="select py-1.5 text-sm w-full" value={settings.start_hour} onChange={(e) => setSettings({ ...settings, start_hour: e.target.value })}>
+                  {hourOptions.map((h) => <option key={h} value={h}>{h}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-text-tertiary block mb-1">{t("agenda.end")}</label>
+                <select className="select py-1.5 text-sm w-full" value={settings.end_hour} onChange={(e) => setSettings({ ...settings, end_hour: e.target.value })}>
+                  {hourOptions.map((h) => <option key={h} value={h}>{h}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-text-tertiary block mb-1">{t("agenda.breakStart")}</label>
+                <select className="select py-1.5 text-sm w-full" value={settings.break_start} onChange={(e) => setSettings({ ...settings, break_start: e.target.value })}>
+                  {hourOptions.map((h) => <option key={h} value={h}>{h}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-text-tertiary block mb-1">{t("agenda.breakEnd")}</label>
+                <select className="select py-1.5 text-sm w-full" value={settings.break_end} onChange={(e) => setSettings({ ...settings, break_end: e.target.value })}>
+                  {hourOptions.map((h) => <option key={h} value={h}>{h}</option>)}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="text-xs text-text-tertiary block mb-2">{t("agenda.workingDays")}</label>
+              <div className="flex flex-wrap gap-2">
+                {daysOfWeek.map((d) => (
+                  <button
+                    key={d.value}
+                    onClick={() => {
+                      const days = settings.days.includes(d.value)
+                        ? settings.days.filter((x) => x !== d.value)
+                        : [...settings.days, d.value].sort((a, b) => a - b);
+                      setSettings({ ...settings, days });
+                    }}
+                    className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${settings.days.includes(d.value) ? "bg-primary text-white border-primary" : "bg-surface text-text-secondary border-border"}`}
+                  >
+                    {d.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <button onClick={() => setSettingsOpen(false)} className="btn-ghost text-xs px-4 py-2 rounded-lg">{t("common.cancel")}</button>
+              <button onClick={salvarSettings} className="btn-primary text-xs px-4 py-2 rounded-lg">{t("common.save")}</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 
   const timeColumn = (
@@ -438,6 +544,7 @@ function Agenda() {
         )}
       </div>
       {modal}
+      {settingsOpen && settingsModal}
     </div>
   );
 }

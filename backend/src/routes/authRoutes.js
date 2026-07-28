@@ -142,4 +142,42 @@ router.put("/profile", authenticateToken, async (req, res) => {
   }
 });
 
+router.get("/settings", authenticateToken, async (req, res) => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS config (
+        key VARCHAR(100) PRIMARY KEY,
+        value JSONB NOT NULL
+      )
+    `);
+    const result = await pool.query(`SELECT value FROM config WHERE key = 'business_hours'`);
+    const defaults = { start_hour: "08:00", end_hour: "19:00", break_start: "12:00", break_end: "13:00", days: [1, 2, 3, 4, 5, 6] };
+    res.json(result.rows.length ? result.rows[0].value : defaults);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erro ao carregar configurações" });
+  }
+});
+
+router.put("/settings", authenticateToken, async (req, res) => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS config (
+        key VARCHAR(100) PRIMARY KEY,
+        value JSONB NOT NULL
+      )
+    `);
+    const { start_hour, end_hour, break_start, break_end, days } = req.body;
+    const value = JSON.stringify({ start_hour, end_hour, break_start, break_end, days });
+    await pool.query(
+      `INSERT INTO config (key, value) VALUES ('business_hours', $1::jsonb) ON CONFLICT (key) DO UPDATE SET value = $1::jsonb`,
+      [value]
+    );
+    res.json({ ok: true });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erro ao salvar configurações" });
+  }
+});
+
 module.exports = router;

@@ -230,7 +230,15 @@
     "completeAction": "Completar",
     "deleteAction": "Eliminar",
     "free": "Libre",
-    "settings": "Horarios"
+    "settings": "Horarios",
+    "businessHours": "Horarios de Atención",
+    "start": "Apertura",
+    "end": "Cierre",
+    "breakStart": "Inicio del Descanso",
+    "breakEnd": "Fin del Descanso",
+    "workingDays": "Días de Atención",
+    "settingsSaved": "¡Configuración guardada!",
+    "settingsError": "Error al guardar la configuración"
   },
   "agendamentos": {
     "title": "Citas",

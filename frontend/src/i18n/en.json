@@ -230,7 +230,15 @@
     "completeAction": "Complete",
     "deleteAction": "Delete",
     "free": "Free",
-    "settings": "Hours"
+    "settings": "Hours",
+    "businessHours": "Business Hours",
+    "start": "Opening",
+    "end": "Closing",
+    "breakStart": "Break Start",
+    "breakEnd": "Break End",
+    "workingDays": "Working Days",
+    "settingsSaved": "Settings saved!",
+    "settingsError": "Error saving settings"
   },
   "agendamentos": {
     "title": "Appointments",

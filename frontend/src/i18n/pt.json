@@ -230,7 +230,15 @@
     "completeAction": "Concluir",
     "deleteAction": "Excluir",
     "free": "Livre",
-    "settings": "Horários"
+    "settings": "Horários",
+    "businessHours": "Horários de Funcionamento",
+    "start": "Abertura",
+    "end": "Fechamento",
+    "breakStart": "Início do Intervalo",
+    "breakEnd": "Fim do Intervalo",
+    "workingDays": "Dias de Atendimento",
+    "settingsSaved": "Configurações salvas!",
+    "settingsError": "Erro ao salvar configurações"
   },
   "agendamentos": {
     "title": "Agendamentos",
