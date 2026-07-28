@@ -244,8 +244,7 @@
     "workingDays": "Dias de Atendimento",
     "settingsSaved": "Configurações salvas!",
     "settingsError": "Erro ao salvar configurações",
-    "break": "Intervalo",
-    "breakConfirm": "Este horário está dentro do intervalo de funcionamento. Deseja agendar mesmo assim?"
+    "break": "Intervalo"
   },
   "agendamentos": {
     "title": "Agendamentos",

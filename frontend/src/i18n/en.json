@@ -244,8 +244,7 @@
     "workingDays": "Working Days",
     "settingsSaved": "Settings saved!",
     "settingsError": "Error saving settings",
-    "break": "Break",
-    "breakConfirm": "This time is within the break period. Schedule anyway?"
+    "break": "Break"
   },
   "agendamentos": {
     "title": "Appointments",
