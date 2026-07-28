@@ -159,6 +159,15 @@ router.get("/", async (req, res) => {
       [ano],
     );
 
+    const aReceberResult = await pool.query(
+      `
+      ${buildBillingCte(`WHERE EXTRACT(MONTH FROM a.data) = $1 AND EXTRACT(YEAR FROM a.data) = $2 AND a.status IN ('agendado', 'confirmado')`)}
+      SELECT COALESCE(SUM(valor_faturado), 0) AS a_receber
+      FROM agendamentos_periodo
+      `,
+      [mes, ano],
+    );
+
     const totalClientesResult = await pool.query(
       `SELECT COUNT(*) AS total_clientes FROM clientes`,
     );
@@ -178,6 +187,7 @@ router.get("/", async (req, res) => {
         faturamento_dia: faturamentoDiaResult.rows[0].faturamento_dia,
         faturamento_ano: faturamentoAnoResult.rows[0].faturamento_ano,
         total_agendamentos_ano: agendamentosAnoResult.rows[0].total_agendamentos_ano,
+        a_receber: aReceberResult.rows[0].a_receber,
       },
       servicos: servicosResult.rows,
       series_mensal: seriesMensal,

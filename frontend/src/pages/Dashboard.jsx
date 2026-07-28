@@ -3,9 +3,44 @@ import { useTranslation } from "react-i18next";
 import { api } from "../api";
 import ComparisonChart from "../components/charts/ComparisonChart";
 import RevenueChart from "../components/charts/RevenueChart";
+import AgendamentoModal from "../components/AgendamentoModal";
 
 function formatCurrency(value) {
   return Number(value || 0).toFixed(2);
+}
+
+function formatDateBR(dateStr) {
+  if (!dateStr) return "";
+  const raw = dateStr.includes("T") ? dateStr.split("T")[0] : dateStr;
+  const [year, month, day] = raw.split("-");
+  return `${day}/${month}/${year}`;
+}
+
+function formatTime(value) {
+  if (!value) return "";
+  return String(value).slice(0, 5);
+}
+
+function statusLabel(status, t) {
+  const map = {
+    agendado: t("agendamentos.scheduled"),
+    confirmado: t("agendamentos.confirmed"),
+    concluido: t("agendamentos.completed"),
+    cancelado: t("agendamentos.cancelled"),
+    nao_compareceu: t("agendamentos.noShow"),
+  };
+  return map[status] || status || t("agendamentos.scheduled");
+}
+
+function statusClass(status) {
+  const map = {
+    agendado: "badge-info",
+    confirmado: "badge-warning",
+    concluido: "badge-success",
+    cancelado: "badge-error",
+    nao_compareceu: "badge-neutral",
+  };
+  return map[status] || "badge-neutral";
 }
 
 function TrendBadge({ value, suffix = "%" }) {
@@ -46,12 +81,15 @@ const kpiIcons = {
   star: "M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z",
   service: "M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4",
   ticket: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+  pending: "M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z",
 };
 
 function Dashboard() {
   const [data, setData] = useState(null);
   const [mes, setMes] = useState(new Date().getMonth() + 1);
   const [ano, setAno] = useState(new Date().getFullYear());
+  const [agendamentoModalOpen, setAgendamentoModalOpen] = useState(false);
+  const [proximos, setProximos] = useState([]);
   const { t } = useTranslation();
 
   async function carregarDashboard() {
@@ -64,9 +102,26 @@ function Dashboard() {
     setData(d);
   }
 
+  async function carregarProximos() {
+    const hoje = new Date().toISOString().split("T")[0];
+    const response = await api(`/agendamentos?data=${hoje}`);
+    if (!response.ok) return;
+    const todos = await response.json();
+    const agora = new Date();
+    const filtrados = todos.filter((ag) => {
+      const inicio = ag.inicio_em ? new Date(ag.inicio_em) : new Date(`${ag.data}T${ag.horario || "00:00"}`);
+      return inicio >= agora && ["agendado", "confirmado"].includes(ag.status);
+    });
+    setProximos(filtrados);
+  }
+
   useEffect(() => {
     carregarDashboard();
   }, [mes, ano]);
+
+  useEffect(() => {
+    carregarProximos();
+  }, []);
 
   const resumo = data?.resumo || {};
   const servicos = data?.servicos || [];
@@ -119,8 +174,17 @@ function Dashboard() {
     URL.revokeObjectURL(url);
   }
 
+  const kpiRowCount = 6;
+  const showAReceber = Number(resumo.a_receber) > 0;
+
   return (
     <div className="space-y-6 animate-fade-in">
+      <AgendamentoModal
+        open={agendamentoModalOpen}
+        onClose={() => setAgendamentoModalOpen(false)}
+        onSaved={() => { setAgendamentoModalOpen(false); carregarProximos(); }}
+      />
+
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -132,15 +196,27 @@ function Dashboard() {
           </div>
           <input type="number" value={ano} onChange={(e) => setAno(Number(e.target.value))} className="input w-24 text-sm" />
         </div>
-        <button type="button" onClick={exportarCsv} className="btn-ghost text-sm px-3 py-2 rounded-lg flex items-center gap-2">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          {t("dashboard.exportCsv")}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setAgendamentoModalOpen(true)}
+            className="btn-primary flex items-center gap-2"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            {t("dashboard.newAppointment")}
+          </button>
+          <button type="button" onClick={exportarCsv} className="btn-ghost text-sm px-3 py-2 rounded-lg flex items-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            {t("dashboard.exportCsv")}
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <KpiCard
           label={t("dashboard.monthRevenue")}
           value={resumo.faturamento}
@@ -178,6 +254,13 @@ function Dashboard() {
           icon={kpiIcons.appointments}
           accent="bg-warning-light text-warning"
           cardAccent="card-accent-warning"
+        />
+        <KpiCard
+          label={t("dashboard.aReceber")}
+          value={resumo.a_receber}
+          icon={kpiIcons.pending}
+          accent="bg-info-light text-info"
+          cardAccent="card-accent-info"
         />
       </div>
 
@@ -242,6 +325,33 @@ function Dashboard() {
               { label: t("dashboard.yearRevenue"), value: Number(resumo.faturamento_ano || 0) },
             ]}
           />
+        </div>
+
+        <div className="card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-text">{t("agendamentos.nextAppointments")}</h2>
+          </div>
+          {proximos.length > 0 ? (
+            <div className="space-y-2 max-h-[320px] overflow-y-auto">
+              {proximos.slice(0, 10).map((ag) => (
+                <div key={ag.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-surface-tertiary transition-colors">
+                  <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${ag.status === "confirmado" ? "bg-warning" : "bg-primary"}`} />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-text truncate">{ag.cliente}</p>
+                    <p className="text-xs text-text-tertiary">
+                      {formatDateBR(ag.data)} às {formatTime(ag.horario)}
+                    </p>
+                    <p className="text-xs text-text-tertiary">{ag.barbeiro}</p>
+                  </div>
+                  <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${statusClass(ag.status)}`}>
+                    {statusLabel(ag.status, t)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-text-tertiary py-8 text-center">{t("charts.noData")}</p>
+          )}
         </div>
       </div>
     </div>
