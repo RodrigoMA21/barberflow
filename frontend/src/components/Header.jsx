@@ -19,11 +19,11 @@ function Header({ onMenuClick }) {
 
   return (
     <header className="sticky top-0 z-20 bg-surface border-b border-border">
-      <div className="flex items-center justify-between px-4 lg:px-6 py-3 gap-2">
+      <div className="flex items-center justify-between px-4 md:px-6 py-3 gap-2">
           <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={onMenuClick}
-            className="lg:hidden btn-ghost btn-icon shrink-0"
+            className="md:hidden btn-ghost btn-icon shrink-0"
             aria-label="Toggle menu"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">

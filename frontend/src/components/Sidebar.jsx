@@ -75,19 +75,19 @@ function Sidebar({ isOpen, onClose }) {
       {/* Backdrop - visible only on mobile when sidebar is open */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+          className="fixed inset-0 bg-black/40 z-30 md:hidden"
           onClick={onClose}
         />
       )}
 
       <aside
         className={`
-          fixed lg:sticky top-0 left-0 z-40
+          fixed md:sticky top-0 left-0 z-40
           w-64 min-h-screen bg-sidebar border-r border-border
           flex flex-col shrink-0
           transition-transform duration-200 ease-in-out
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
-          lg:translate-x-0
+          md:translate-x-0
         `}
       >
         <div className="p-5 border-b border-border">
@@ -95,7 +95,7 @@ function Sidebar({ isOpen, onClose }) {
             <h2 className="text-lg font-bold tracking-tight text-text">{t("sidebar.title")}</h2>
             <button
               onClick={onClose}
-              className="lg:hidden btn-ghost btn-icon text-lg"
+              className="md:hidden btn-ghost btn-icon text-lg"
             >
               ×
             </button>

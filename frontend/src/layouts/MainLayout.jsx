@@ -14,7 +14,7 @@ function MainLayout({ children }) {
       <div className="flex-1 flex flex-col min-w-0">
         <Header onMenuClick={() => setSidebarOpen((v) => !v)} />
 
-        <main className="p-4 lg:p-6 overflow-x-auto">
+        <main className="p-4 md:p-6 overflow-x-auto">
           {children || <Outlet />}
         </main>
       </div>
