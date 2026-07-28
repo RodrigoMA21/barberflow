@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const pool = require("../database/db");
+const { authenticateToken } = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 
@@ -117,6 +118,27 @@ router.post("/register", async (req, res) => {
     res.status(500).json({
       error: "Erro ao criar conta",
     });
+  }
+});
+
+router.put("/profile", authenticateToken, async (req, res) => {
+  try {
+    const { nome } = req.body;
+    const userId = req.user.id;
+
+    if (!nome || !nome.trim()) {
+      return res.status(400).json({ error: "Nome é obrigatório" });
+    }
+
+    const result = await pool.query(
+      `UPDATE usuarios SET nome = $1 WHERE id = $2 RETURNING id, nome, email`,
+      [nome.trim(), userId]
+    );
+
+    res.json({ usuario: result.rows[0] });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erro ao atualizar perfil" });
   }
 });
 

@@ -1,5 +1,7 @@
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { api } from "../api";
 
 const navItems = [
   { to: "/", labelKey: "nav.dashboard", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
@@ -14,11 +16,56 @@ const navItems = [
 function Sidebar() {
   const location = useLocation();
   const { t } = useTranslation();
+  const [user, setUser] = useState(null);
+  const [editing, setEditing] = useState(false);
+  const [editName, setEditName] = useState("");
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("usuario");
+    if (stored) {
+      try { setUser(JSON.parse(stored)); } catch { }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (editing) inputRef.current?.focus();
+  }, [editing]);
 
   function isActive(path) {
     if (path === "/") return location.pathname === "/";
     return location.pathname.startsWith(path);
   }
+
+  async function handleSaveName() {
+    const trimmed = editName.trim();
+    if (!trimmed || !user) return;
+    try {
+      const response = await api("/auth/profile", {
+        method: "PUT",
+        body: JSON.stringify({ nome: trimmed }),
+      });
+      if (!response.ok) return;
+      const data = await response.json();
+      const updated = { ...user, nome: data.usuario.nome };
+      setUser(updated);
+      localStorage.setItem("usuario", JSON.stringify(updated));
+    } catch { }
+    setEditing(false);
+  }
+
+  function handleCancelEdit() {
+    setEditName(user?.nome || "");
+    setEditing(false);
+  }
+
+  function handleLogout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    window.location.href = "/login";
+  }
+
+  const displayName = user?.nome || user?.email || t("header.admin");
 
   return (
     <aside className="w-64 min-h-screen bg-sidebar border-r border-border flex flex-col shrink-0">
@@ -61,14 +108,51 @@ function Sidebar() {
         })}
       </nav>
 
-      <div className="p-3 border-t border-border">
-        <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs text-text-tertiary">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <div className="p-3 border-t border-border space-y-1">
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-text-tertiary">
             <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
             <circle cx="12" cy="7" r="4" />
           </svg>
-          <span className="font-medium text-text-secondary">{t("header.admin")}</span>
+          <div className="flex-1 min-w-0">
+            {editing ? (
+              <input
+                ref={inputRef}
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSaveName();
+                  if (e.key === "Escape") handleCancelEdit();
+                }}
+                onBlur={handleSaveName}
+                className="w-full text-xs bg-surface-tertiary text-text rounded px-1.5 py-0.5 outline-none border border-border"
+              />
+            ) : (
+              <p className="text-xs font-medium text-text-secondary truncate">{displayName}</p>
+            )}
+          </div>
+          {!editing && (
+            <button
+              onClick={() => { setEditName(user?.nome || ""); setEditing(true); }}
+              className="shrink-0 text-text-tertiary hover:text-text transition-colors"
+              title={t("common.edit")}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+              </svg>
+            </button>
+          )}
         </div>
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-xs font-medium text-text-tertiary hover:text-error hover:bg-error-light transition-all duration-150"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+          </svg>
+          {t("auth.logout")}
+        </button>
       </div>
     </aside>
   );
