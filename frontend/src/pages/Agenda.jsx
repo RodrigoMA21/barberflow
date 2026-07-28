@@ -41,16 +41,12 @@ function durToHeight(minutes) {
 function getBusinessSlots(dateValue, barbeiro, startHour, endHour) {
   const slots = [];
   const dias = Array.isArray(barbeiro?.dias_atendimento) ? barbeiro.dias_atendimento.map(Number) : [];
-  const inicio = timeStringToMinutes(barbeiro?.horario_inicio);
-  const fim = timeStringToMinutes(barbeiro?.horario_fim);
+  const inicio = timeStringToMinutes(barbeiro?.horario_inicio) ?? startHour * 60;
+  const fim = timeStringToMinutes(barbeiro?.horario_fim) ?? endHour * 60;
   const intervaloInicio = timeStringToMinutes(barbeiro?.horario_intervalo_inicio);
   const intervaloFim = timeStringToMinutes(barbeiro?.horario_intervalo_fim);
   const diaSelecionado = new Date(`${dateValue}T12:00:00`).getDay();
   if (dias.length > 0 && !dias.includes(diaSelecionado)) return [];
-  if (inicio === null || fim === null) {
-    for (let m = startHour * 60; m < endHour * 60; m += 30) slots.push(m);
-    return slots;
-  }
   const ranges = [];
   if (intervaloInicio !== null && intervaloFim !== null && intervaloFim > intervaloInicio) {
     ranges.push([inicio, intervaloInicio], [intervaloFim, fim]);
@@ -347,8 +343,10 @@ function Agenda() {
     if (response.ok) {
       notify(t("agenda.settingsSaved"), "success");
       setSettingsOpen(false);
-      const sh = Number(String(settings.start_hour).split(":")[0]) || 8;
-      const eh = Number(String(settings.end_hour).split(":")[0]) || 19;
+      const rawSh = settings.start_hour;
+      const rawEh = settings.end_hour;
+      const sh = rawSh ? Number(String(rawSh).split(":")[0]) : 8;
+      const eh = rawEh ? Number(String(rawEh).split(":")[0]) : 19;
       setStartHour(sh);
       setEndHour(eh);
     } else {

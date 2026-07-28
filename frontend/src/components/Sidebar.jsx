@@ -77,7 +77,8 @@ function Sidebar({ isOpen, onClose }) {
       )}
       <aside
         className={`
-          fixed sm:sticky top-0 left-0 z-40
+          max-sm:fixed max-sm:inset-y-0 max-sm:left-0 max-sm:z-40
+          sm:sticky sm:top-0
           w-64 min-h-screen bg-sidebar border-r border-border
           flex flex-col shrink-0
           transition-transform duration-200 ease-in-out
