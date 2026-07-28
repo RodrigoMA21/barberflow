@@ -235,6 +235,8 @@
     "title": "Agendamentos",
     "new": "Novo agendamento",
     "edit": "Editar agendamento",
+    "client": "Cliente",
+    "barber": "Barbeiro",
     "date": "Data",
     "time": "Horário de início",
     "status": "Status",
