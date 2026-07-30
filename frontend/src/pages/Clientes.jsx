@@ -323,10 +323,10 @@ function Clientes() {
           <div key={cliente.id} className="card-static p-4">
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-xl font-semibold text-text">{cliente.nome}</h2>
-              <button onClick={() => abrirEdicao(cliente)} className="bg-primary text-white px-2 py-0.5 rounded text-[11px] font-medium leading-tight">
+              <button onClick={() => abrirEdicao(cliente)} className="bg-primary text-white px-3 py-1.5 rounded text-sm font-medium">
                 {t("common.edit")}
               </button>
-              <button onClick={() => pedirConfirmacaoDeletar(cliente)} className="bg-error text-white px-2 py-0.5 rounded text-[11px] font-medium leading-tight">
+              <button onClick={() => pedirConfirmacaoDeletar(cliente)} className="bg-error text-white px-3 py-1.5 rounded text-sm font-medium">
                 {t("common.delete")}
               </button>
             </div>
@@ -341,13 +341,13 @@ function Clientes() {
               )}
             </div>
             <div className="mt-3 flex gap-2 flex-wrap">
-              <button onClick={() => abrirHistoricoModal(cliente)} className="btn-ghost px-4 py-2 rounded text-sm border border-border hover:border-primary">
+              <button onClick={() => abrirHistoricoModal(cliente)} className="bg-info text-white px-3 py-1.5 rounded text-sm font-medium">
                 Histórico
               </button>
-              <button onClick={() => abrirEditarFidelidade(cliente)} className="btn-ghost px-4 py-2 rounded text-sm border border-border hover:border-primary">
+              <button onClick={() => abrirEditarFidelidade(cliente)} className="bg-warning text-white px-3 py-1.5 rounded text-sm font-medium">
                 Editar Cartão Fidelidade
               </button>
-              <button onClick={() => abrirFidelidadeModal(cliente)} className="bg-primary-light text-primary font-semibold px-4 py-2 rounded text-sm hover:brightness-95 transition-all">
+              <button onClick={() => abrirFidelidadeModal(cliente)} className="bg-primary text-white px-3 py-1.5 rounded text-sm font-medium">
                 {t("clientes.viewCard")}
               </button>
             </div>

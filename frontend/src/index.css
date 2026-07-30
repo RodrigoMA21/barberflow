@@ -197,6 +197,7 @@
   .bg-success { background: var(--color-success); }
   .bg-warning { background: var(--color-warning); }
   .bg-scheduled { background: var(--color-scheduled); }
+  .bg-info { background: var(--color-info); }
 
   /* Text */
   .text-text { color: var(--color-text); }
