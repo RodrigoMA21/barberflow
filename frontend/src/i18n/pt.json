@@ -72,6 +72,7 @@
     "specialty": "Especialidade",
     "phone": "Telefone",
     "name": "Nome",
+    "optional": "opcional",
     "price": "Preço",
     "total": "Total",
     "quantity": "Quantidade",
@@ -150,6 +151,7 @@
     "phone": "Telefone",
     "email": "Email",
     "cpf": "CPF",
+    "address": "Endereço",
     "loyaltyCard": "Cartão fidelidade",
     "loyaltyDescription": "Controle de carimbos e meta de recompensa",
     "active": "Ativo",
@@ -169,6 +171,8 @@
     "registrationDate": "Data de cadastro",
     "recentHistory": "Histórico recente de agendamentos deste cliente.",
     "loyaltyHelp": "Use este cartão para conceder descontos ou bonificações manuais quando o cliente atingir a meta.",
+    "loyaltyAuto": "Automático",
+    "loyaltyAutoDesc": "Apenas com esta opção ativa, o cartão adiciona automaticamente um carimbo ao concluir um atendimento.",
     "cleanConfirm": "Tem certeza que deseja limpar o cartão fidelidade deste cliente?",
     "viewCard": "Ver cartão fidelidade",
     "loyaltyAdded": "Atendimento registrado no cartão fidelidade",
@@ -221,6 +225,7 @@
     "today": "Hoje",
     "all": "Todos",
     "confirmDelete": "Tem certeza que deseja excluir este agendamento?",
+    "confirmDeleteWithLoyalty": "Este agendamento está concluído. Ao excluí-lo, o carimbo do cartão fidelidade também será removido. Deseja continuar?",
     "previousDay": "Dia anterior",
     "nextDay": "Próximo dia",
     "previousWeek": "Semana anterior",
@@ -290,7 +295,8 @@
     "selectClient": "Selecione um cliente",
     "selectService": "Selecione ao menos um serviço",
     "selected_one": "selecionado",
-    "selected_other": "selecionados"
+    "selected_other": "selecionados",
+    "confirmDeleteWithLoyalty": "Este agendamento está concluído. Ao excluí-lo, o carimbo do cartão fidelidade também será removido. Deseja continuar?"
   },
   "historico": {
     "title": "Histórico",
@@ -318,6 +324,8 @@
     "timeLabel": "Horário:",
     "edit": "Editar",
     "delete": "Excluir",
+    "confirmDelete": "Tem certeza que deseja excluir este agendamento?",
+    "confirmDeleteWithLoyalty": "Este agendamento está concluído. Ao excluí-lo, o carimbo do cartão fidelidade também será removido. Deseja continuar?",
     "noHistoryMessage": "Nenhum histórico encontrado.",
     "pageInfo": "Página {{page}} de {{total}}"
   },

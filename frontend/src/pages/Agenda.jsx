@@ -127,7 +127,7 @@ function AppointmentBlock({ item, onEdit, onStatusChange, onDelete, t, startHour
             {item.status === "confirmado" && (
               <button onClick={(e) => { e.stopPropagation(); onStatusChange(item.id, "concluido"); }} className="bg-white/30 hover:bg-white/50 text-white text-[10px] font-semibold px-2 py-0.5 rounded transition-colors">{t("agenda.completeAction")}</button>
             )}
-            <button onClick={(e) => { e.stopPropagation(); onDelete(item.id); }} className="bg-error/70 hover:bg-error text-white text-[10px] font-semibold px-2 py-0.5 rounded transition-colors">{t("agenda.deleteAction")}</button>
+            <button onClick={(e) => { e.stopPropagation(); onDelete(item); }} className="bg-error/70 hover:bg-error text-white text-[10px] font-semibold px-2 py-0.5 rounded transition-colors">{t("agenda.deleteAction")}</button>
           </div>
         </div>
       </div>
@@ -325,12 +325,36 @@ function Agenda() {
       notify(errorData.error || t("agenda.errorUpdateStatus"));
       return;
     }
+
+    if (novoStatus === "concluido") {
+      const item = agenda.find((a) => String(a.id) === String(id));
+      if (item?.cliente_id) {
+        const dataAtendimento = item.data ? item.data.split("T")[0] : new Date().toISOString().split("T")[0];
+        const regResponse = await api(`/clientes/${item.cliente_id}/cartao-fidelidade`, {
+          method: "POST",
+          body: JSON.stringify({
+            data_atendimento: dataAtendimento,
+            observacao: "Atendimento concluído",
+            auto: true,
+          }),
+        });
+        if (!regResponse.ok) {
+          const errorData = await regResponse.json();
+          notify(errorData.error || "Erro ao registrar no cartão fidelidade");
+        }
+      }
+    }
+
     recarregarAgenda();
     notify(t("agenda.statusUpdated"), "success");
   }
 
-  async function deletarAgendamento(id) {
-    if (!window.confirm(t("agenda.confirmDelete"))) return;
+  async function deletarAgendamento(agendamento) {
+    const id = agendamento.id;
+    const msg = agendamento.status === "concluido"
+      ? t("agenda.confirmDeleteWithLoyalty")
+      : t("agenda.confirmDelete");
+    if (!window.confirm(msg)) return;
     await api(`/agendamentos/${id}`, { method: "DELETE" });
     notify(t("common.deleteSuccess"), "success");
     recarregarAgenda();

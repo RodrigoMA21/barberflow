@@ -10,7 +10,9 @@ function mapCliente(row) {
     ...row,
     email: row.email || "",
     cpf: row.cpf || "",
-    cartao_fidelidade_ativo: Boolean(row.cartao_fidelidade_ativo) || cartaoFidelidadeCarimbos > 0,
+    endereco: row.endereco || "",
+    cartao_fidelidade_ativo: Boolean(row.cartao_fidelidade_ativo),
+    cartao_fidelidade_auto: Boolean(row.cartao_fidelidade_auto),
     cartao_fidelidade_carimbos: cartaoFidelidadeCarimbos,
     cartao_fidelidade_meta: Number(row.cartao_fidelidade_meta) || 10,
     cartao_fidelidade_usados: Number(row.cartao_fidelidade_usados) || 0,
@@ -27,8 +29,10 @@ router.get("/", async (req, res) => {
         c.telefone,
         c.email,
         c.cpf,
+        c.endereco,
         c.created_at,
         c.cartao_fidelidade_ativo,
+        c.cartao_fidelidade_auto,
         c.cartao_fidelidade_carimbos,
         c.cartao_fidelidade_meta,
         COALESCE(c.cartao_fidelidade_usados, 0) AS cartao_fidelidade_usados
@@ -65,7 +69,9 @@ router.post("/", async (req, res) => {
       telefone,
       email,
       cpf,
+      endereco,
       cartao_fidelidade_ativo = false,
+      cartao_fidelidade_auto = true,
       cartao_fidelidade_carimbos = 0,
       cartao_fidelidade_meta = 10,
     } = req.body;
@@ -77,24 +83,28 @@ router.post("/", async (req, res) => {
         telefone,
         email,
         cpf,
+        endereco,
         cartao_fidelidade_ativo,
+        cartao_fidelidade_auto,
         cartao_fidelidade_carimbos,
         cartao_fidelidade_meta
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING
         id,
         nome,
         telefone,
         email,
         cpf,
+        endereco,
         created_at,
         cartao_fidelidade_ativo,
+        cartao_fidelidade_auto,
         cartao_fidelidade_carimbos,
         cartao_fidelidade_meta,
         cartao_fidelidade_usados
       `,
-      [nome, telefone, email || null, cpf || null, cartao_fidelidade_ativo, cartao_fidelidade_carimbos, cartao_fidelidade_meta],
+      [nome, telefone || null, email || null, cpf || null, endereco || null, cartao_fidelidade_ativo, cartao_fidelidade_auto, cartao_fidelidade_carimbos, cartao_fidelidade_meta],
     );
 
     res.status(201).json(mapCliente(result.rows[0]));
@@ -132,7 +142,9 @@ router.put("/:id", async (req, res) => {
       telefone,
       email,
       cpf,
+      endereco,
       cartao_fidelidade_ativo = false,
+      cartao_fidelidade_auto = true,
       cartao_fidelidade_carimbos = 0,
       cartao_fidelidade_meta = 10,
     } = req.body;
@@ -143,22 +155,26 @@ router.put("/:id", async (req, res) => {
            telefone = $2,
            email = $3,
            cpf = $4,
-           cartao_fidelidade_ativo = $5,
-           cartao_fidelidade_carimbos = $6,
-           cartao_fidelidade_meta = $7
-       WHERE id = $8
+           endereco = $5,
+           cartao_fidelidade_ativo = $6,
+           cartao_fidelidade_auto = $7,
+           cartao_fidelidade_carimbos = $8,
+           cartao_fidelidade_meta = $9
+       WHERE id = $10
        RETURNING
          id,
          nome,
          telefone,
          email,
          cpf,
+         endereco,
          created_at,
          cartao_fidelidade_ativo,
+         cartao_fidelidade_auto,
          cartao_fidelidade_carimbos,
          cartao_fidelidade_meta,
          cartao_fidelidade_usados`,
-      [nome, telefone, email || null, cpf || null, cartao_fidelidade_ativo, cartao_fidelidade_carimbos, cartao_fidelidade_meta, id],
+      [nome, telefone || null, email || null, cpf || null, endereco || null, cartao_fidelidade_ativo, cartao_fidelidade_auto, cartao_fidelidade_carimbos, cartao_fidelidade_meta, id],
     );
 
     res.json(mapCliente(result.rows[0]));
@@ -200,10 +216,20 @@ router.get("/:id/cartao-fidelidade", async (req, res) => {
 router.post("/:id/cartao-fidelidade", async (req, res) => {
   try {
     const id = req.params.id;
-    const { data_atendimento, observacao } = req.body;
+    const { data_atendimento, observacao, auto } = req.body;
 
     if (!data_atendimento) {
       return res.status(400).json({ error: "Informe a data do atendimento" });
+    }
+
+    if (auto) {
+      const cliente = await pool.query(
+        `SELECT cartao_fidelidade_auto FROM clientes WHERE id = $1`,
+        [id],
+      );
+      if (!cliente.rows[0]?.cartao_fidelidade_auto) {
+        return res.json({ skipped: true });
+      }
     }
 
     const existing = await pool.query(
@@ -277,6 +303,31 @@ router.post("/:id/cartao-fidelidade/usar", async (req, res) => {
   } catch (error) {
     console.error("POST /clientes/:id/cartao-fidelidade/usar failed:", error.message);
     res.status(500).json({ error: "Erro ao usar cartão fidelidade" });
+  }
+});
+
+router.delete("/:id/cartao-fidelidade/registro/:registroId", async (req, res) => {
+  try {
+    const { id, registroId } = req.params;
+
+    const result = await pool.query(
+      `DELETE FROM cartao_fidelidade_registros WHERE id = $1 AND cliente_id = $2 RETURNING id`,
+      [registroId, id],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Registro não encontrado" });
+    }
+
+    await pool.query(
+      `UPDATE clientes SET cartao_fidelidade_carimbos = GREATEST(cartao_fidelidade_carimbos - 1, 0) WHERE id = $1`,
+      [id],
+    );
+
+    res.status(204).send();
+  } catch (error) {
+    console.error("DELETE /clientes/:id/cartao-fidelidade/registro/:registroId failed:", error.message);
+    res.status(500).json({ error: "Erro ao remover registro" });
   }
 });
 

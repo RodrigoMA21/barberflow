@@ -57,7 +57,11 @@ async function main() {
     `ALTER TABLE public.clientes
       ADD COLUMN IF NOT EXISTS cartao_fidelidade_meta INTEGER NOT NULL DEFAULT 10`,
     `CREATE INDEX IF NOT EXISTS idx_agendamentos_barbeiro_data_horario
-      ON public.agendamentos (barbeiro_id, data, horario)`
+      ON public.agendamentos (barbeiro_id, data, horario)`,
+    `ALTER TABLE public.clientes
+      ADD COLUMN IF NOT EXISTS endereco VARCHAR(255)`,
+    `ALTER TABLE public.clientes
+      ADD COLUMN IF NOT EXISTS cartao_fidelidade_auto BOOLEAN NOT NULL DEFAULT true`
   ];
 
   for (const statement of statements) {

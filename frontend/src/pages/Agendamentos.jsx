@@ -185,8 +185,12 @@ function Agendamentos() {
     carregarAgendamentos();
   }
 
-  async function deletarAgendamento(id) {
-    const confirmar = window.confirm(t("common.confirmDeleteMessage"));
+  async function deletarAgendamento(agendamento) {
+    const id = agendamento.id;
+    const msg = agendamento.status === "concluido"
+      ? t("agendamentos.confirmDeleteWithLoyalty")
+      : t("common.confirmDeleteMessage");
+    const confirmar = window.confirm(msg);
     if (!confirmar) return;
     await api(`/agendamentos/${id}`, { method: "DELETE" });
     notify(t("common.deleteSuccess"), "success");
@@ -214,6 +218,7 @@ function Agendamentos() {
       body: JSON.stringify({
         data_atendimento: agendamento.data ? agendamento.data.split("T")[0] : new Date().toISOString().split("T")[0],
         observacao: observacao || "Atendimento concluído",
+        auto: true,
       }),
     });
     if (!response.ok) {
@@ -404,7 +409,7 @@ function Agendamentos() {
                     </button>
                   )}
                   <button onClick={() => iniciarEdicao(agendamento)} className="bg-primary text-white px-4 py-2 rounded">{t("common.edit")}</button>
-                  <button onClick={() => deletarAgendamento(agendamento.id)} className="bg-error text-white px-4 py-2 rounded">{t("common.delete")}</button>
+                  <button onClick={() => deletarAgendamento(agendamento)} className="bg-error text-white px-4 py-2 rounded">{t("common.delete")}</button>
                 </div>
               </div>
             )) : (

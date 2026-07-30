@@ -72,6 +72,7 @@
     "specialty": "Especialidad",
     "phone": "Teléfono",
     "name": "Nombre",
+    "optional": "opcional",
     "price": "Precio",
     "total": "Total",
     "quantity": "Cantidad",
@@ -150,6 +151,7 @@
     "phone": "Teléfono",
     "email": "Correo electrónico",
     "cpf": "CPF",
+    "address": "Dirección",
     "loyaltyCard": "Tarjeta de fidelidad",
     "loyaltyDescription": "Control de sellos y meta de recompensa",
     "active": "Activo",
@@ -169,6 +171,8 @@
     "registrationDate": "Fecha de registro",
     "recentHistory": "Historial reciente de citas de este cliente.",
     "loyaltyHelp": "Use esta tarjeta para otorgar descuentos o bonificaciones manuales cuando el cliente alcance la meta.",
+    "loyaltyAuto": "Automático",
+    "loyaltyAutoDesc": "Solo con esta opción activa, la tarjeta agrega automáticamente un sello al completar una cita.",
     "cleanConfirm": "¿Estás seguro de que deseas limpiar la tarjeta de fidelidad de este cliente?",
     "viewCard": "Ver tarjeta de fidelidad",
     "loyaltyAdded": "Asistencia registrada en la tarjeta de fidelidad",
@@ -221,6 +225,7 @@
     "today": "Hoy",
     "all": "Todos",
     "confirmDelete": "¿Estás seguro de que deseas eliminar esta cita?",
+    "confirmDeleteWithLoyalty": "Esta cita está completada. Al eliminarla, también se eliminará el sello de la tarjeta de fidelidad. ¿Deseas continuar?",
     "previousDay": "Día anterior",
     "nextDay": "Siguiente día",
     "previousWeek": "Semana anterior",
@@ -290,7 +295,8 @@
     "grossValue": "Valor bruto",
     "refresh": "Actualizar",
     "endTime": "Fin",
-    "duration": "Duración"
+    "duration": "Duración",
+    "confirmDeleteWithLoyalty": "Esta cita está completada. Al eliminarla, también se eliminará el sello de la tarjeta de fidelidad. ¿Deseas continuar?"
   },
   "historico": {
     "title": "Historial",
@@ -318,6 +324,8 @@
     "timeLabel": "Hora:",
     "edit": "Editar",
     "delete": "Eliminar",
+    "confirmDelete": "¿Estás seguro de que deseas eliminar esta cita?",
+    "confirmDeleteWithLoyalty": "Esta cita está completada. Al eliminarla, también se eliminará el sello de la tarjeta de fidelidad. ¿Deseas continuar?",
     "noHistoryMessage": "No se encontró historial.",
     "pageInfo": "Página {{page}} de {{total}}"
   },

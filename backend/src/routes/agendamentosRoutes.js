@@ -568,6 +568,30 @@ router.delete("/:id", async (req, res) => {
   try {
     const id = req.params.id;
 
+    const appt = await pool.query(
+      "SELECT cliente_id, data, status FROM agendamentos WHERE id = $1",
+      [id],
+    );
+    if (appt.rows.length === 0) {
+      return res.status(404).json({ error: "Agendamento não encontrado" });
+    }
+
+    const { cliente_id, data, status } = appt.rows[0];
+
+    if (status === "concluido" && cliente_id) {
+      const dataStr = data instanceof Date
+        ? `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, "0")}-${String(data.getDate()).padStart(2, "0")}`
+        : String(data).slice(0, 10);
+      await pool.query(
+        `DELETE FROM cartao_fidelidade_registros WHERE cliente_id = $1 AND data_atendimento = $2`,
+        [cliente_id, dataStr],
+      );
+      await pool.query(
+        `UPDATE clientes SET cartao_fidelidade_carimbos = GREATEST(cartao_fidelidade_carimbos - 1, 0) WHERE id = $1`,
+        [cliente_id],
+      );
+    }
+
     await pool.query("DELETE FROM agendamentos WHERE id = $1", [id]);
 
     res.status(204).send();

@@ -80,8 +80,12 @@ function Historico() {
     carregarHistorico(1);
   }, [carregarHistorico]);
 
-  async function excluirAgendamento(id) {
-    const confirmar = window.confirm(t("common.confirmDeleteMessage"));
+  async function excluirAgendamento(agendamento) {
+    const id = agendamento.id;
+    const msg = agendamento.status === "concluido"
+      ? t("historico.confirmDeleteWithLoyalty")
+      : t("historico.confirmDelete");
+    const confirmar = window.confirm(msg);
     if (!confirmar) return;
     const response = await api(`/agendamentos/${id}`, { method: "DELETE" });
     if (!response.ok) {
@@ -186,7 +190,7 @@ function Historico() {
                 </svg>
                 {t("historico.edit")}
               </button>
-              <button type="button" onClick={() => excluirAgendamento(h.id)} className="bg-error text-white px-4 py-2 rounded-lg text-sm">
+              <button type="button" onClick={() => excluirAgendamento(h)} className="bg-error text-white px-4 py-2 rounded-lg text-sm">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="inline mr-1">
                   <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>

@@ -1,0 +1,6 @@
+BEGIN;
+
+ALTER TABLE public.clientes
+  ADD COLUMN IF NOT EXISTS endereco VARCHAR(255);
+
+COMMIT;

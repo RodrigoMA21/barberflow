@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { api } from "../api";
 import { useNotify } from "../components/Notification";
+import ThemeToggle from "../components/ui/ThemeToggle";
+import LanguageSwitcher from "../components/ui/LanguageSwitcher";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -33,8 +35,12 @@ function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface-secondary p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-surface-secondary p-4">
       <div className="card-static p-8 w-full max-w-md animate-fade-in-up">
+        <div className="flex items-center justify-end gap-2 mb-4">
+          <ThemeToggle />
+          <LanguageSwitcher />
+        </div>
         <div className="text-center mb-8">
           <div className="w-12 h-12 rounded-xl bg-primary-light flex items-center justify-center mx-auto mb-4">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
@@ -43,6 +49,7 @@ function Login() {
           </div>
           <h1 className="text-2xl font-bold text-text">{t("app.name")}</h1>
           <p className="text-sm text-text-secondary mt-1">{t("auth.loginTitle")}</p>
+          <p className="text-xs text-text-tertiary mt-2 max-w-xs mx-auto">{t("app.tagline")}</p>
         </div>
 
         <form onSubmit={fazerLogin} className="space-y-4">
@@ -64,6 +71,23 @@ function Login() {
         <button type="button" onClick={() => navigate("/cadastro")} className="w-full mt-4 text-sm text-text-secondary hover:text-text transition-colors">
           {t("auth.noAccount")}
         </button>
+
+        <div className="mt-8 pt-4 border-t border-border text-center">
+          <p className="text-xs text-text-tertiary">{t("footer.copyright")}</p>
+          <a
+            href="https://rodrigomayer.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 mt-1 text-xs text-primary hover:text-primary-hover font-medium transition-colors"
+          >
+            {t("footer.portfolio")}
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
   );
