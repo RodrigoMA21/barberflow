@@ -14,7 +14,11 @@ const { authenticateToken } = require("./middlewares/authMiddleware");
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+
+const corsOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",").map((s) => s.trim())
+  : undefined;
+app.use(cors(corsOrigins ? { origin: corsOrigins } : {}));
 
 app.use("/auth", authRoutes);
 
