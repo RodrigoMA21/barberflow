@@ -163,7 +163,14 @@
     "weatherShowers": "Rain showers",
     "weatherSnowShowers": "Snow showers",
     "weatherThunder": "Thunderstorm",
-    "weatherThunderHail": "Thunderstorm with hail"
+    "weatherThunderHail": "Thunderstorm with hail",
+    "periodDay": "Day",
+    "periodWeek": "Week",
+    "periodMonth": "Month",
+    "dayRevenue": "Day revenue",
+    "weekRevenue": "Weekly revenue",
+    "dayAppointments": "Day appointments",
+    "weekAppointments": "Week appointments"
   },
   "clientes": {
     "title": "Clients",

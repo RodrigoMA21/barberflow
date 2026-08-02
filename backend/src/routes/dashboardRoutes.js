@@ -30,25 +30,62 @@ function buildBillingCte(whereClause = "") {
   `;
 }
 
+function formatDate(date) {
+  const d = date instanceof Date ? date : new Date(`${date}T12:00:00`);
+  return d.toISOString().split("T")[0];
+}
+
+function addDays(date, days) {
+  const d = new Date(`${formatDate(date)}T12:00:00`);
+  d.setDate(d.getDate() + days);
+  return formatDate(d);
+}
+
+function getMonday(date) {
+  const d = new Date(`${formatDate(date)}T12:00:00`);
+  const diff = d.getDay() === 0 ? -6 : 1 - d.getDay();
+  d.setDate(d.getDate() + diff);
+  return formatDate(d);
+}
+
+function periodWhere(periodo, { mes, ano, data }) {
+  if (periodo === "dia") {
+    return { where: "a.data::date = $1", values: [data] };
+  }
+  if (periodo === "semana") {
+    const inicio = getMonday(data);
+    const fim = addDays(inicio, 6);
+    return { where: "a.data::date >= $1 AND a.data::date <= $2", values: [inicio, fim] };
+  }
+  return {
+    where: "EXTRACT(MONTH FROM a.data) = $1 AND EXTRACT(YEAR FROM a.data) = $2",
+    values: [mes, ano],
+  };
+}
+
 router.get("/", async (req, res) => {
   try {
-    const mes = req.query.mes;
-    const ano = req.query.ano;
+    const now = new Date();
+    const periodo = req.query.periodo || "mes";
+    const mes = Number(req.query.mes) || now.getMonth() + 1;
+    const ano = Number(req.query.ano) || now.getFullYear();
+    const data = req.query.data || formatDate(now);
+    const p = periodWhere(periodo, { mes, ano, data });
 
     const faturamentoResult = await pool.query(
       `
-      ${buildBillingCte(`WHERE EXTRACT(MONTH FROM a.data) = $1 AND EXTRACT(YEAR FROM a.data) = $2`)}
+      ${buildBillingCte(`WHERE ${p.where}`)}
       SELECT
         COALESCE(SUM(valor_faturado), 0) AS faturamento,
         COUNT(*) AS total_agendamentos
       FROM agendamentos_periodo
       `,
-      [mes, ano],
+      p.values,
     );
 
     const servicosResult = await pool.query(
       `
-      ${buildBillingCte(`WHERE EXTRACT(MONTH FROM a.data) = $1 AND EXTRACT(YEAR FROM a.data) = $2`)}
+      ${buildBillingCte(`WHERE ${p.where}`)}
       SELECT
         s.nome,
         COUNT(*) AS quantidade
@@ -61,13 +98,24 @@ router.get("/", async (req, res) => {
       GROUP BY s.nome
       ORDER BY quantidade DESC
       `,
-      [mes, ano],
+      p.values,
     );
 
     const faturamentoDiaResult = await pool.query(
       `
       ${buildBillingCte(`WHERE a.data::date = CURRENT_DATE`)}
       SELECT COALESCE(SUM(valor_faturado), 0) AS faturamento_dia
+      FROM agendamentos_periodo
+      `,
+    );
+
+    const faturamentoSemanaResult = await pool.query(
+      `
+      ${buildBillingCte(`
+        WHERE a.data::date >= date_trunc('week', CURRENT_DATE)::date
+          AND a.data::date <= (date_trunc('week', CURRENT_DATE)::date + interval '6 days')
+      `)}
+      SELECT COALESCE(SUM(valor_faturado), 0) AS faturamento_semana
       FROM agendamentos_periodo
       `,
     );
@@ -122,7 +170,7 @@ router.get("/", async (req, res) => {
 
     const indicadoresResult = await pool.query(
       `
-      ${buildBillingCte(`WHERE EXTRACT(MONTH FROM a.data) = $1 AND EXTRACT(YEAR FROM a.data) = $2`)}
+      ${buildBillingCte(`WHERE ${p.where}`)}
       SELECT
         COALESCE((
           SELECT s.nome
@@ -147,7 +195,7 @@ router.get("/", async (req, res) => {
         COUNT(*) FILTER (WHERE status = 'concluido') AS total_atendimentos_concluidos
       FROM agendamentos_periodo
       `,
-      [mes, ano],
+      p.values,
     );
 
     const agendamentosAnoResult = await pool.query(
@@ -161,11 +209,11 @@ router.get("/", async (req, res) => {
 
     const aReceberResult = await pool.query(
       `
-      ${buildBillingCte(`WHERE EXTRACT(MONTH FROM a.data) = $1 AND EXTRACT(YEAR FROM a.data) = $2 AND a.status IN ('agendado', 'confirmado')`)}
+      ${buildBillingCte(`WHERE ${p.where} AND a.status IN ('agendado', 'confirmado')`)}
       SELECT COALESCE(SUM(valor_faturado), 0) AS a_receber
       FROM agendamentos_periodo
       `,
-      [mes, ano],
+      p.values,
     );
 
     const totalClientesResult = await pool.query(
@@ -185,6 +233,7 @@ router.get("/", async (req, res) => {
       resumo: {
         ...faturamentoResult.rows[0],
         faturamento_dia: faturamentoDiaResult.rows[0].faturamento_dia,
+        faturamento_semana: faturamentoSemanaResult.rows[0].faturamento_semana,
         faturamento_ano: faturamentoAnoResult.rows[0].faturamento_ano,
         total_agendamentos_ano: agendamentosAnoResult.rows[0].total_agendamentos_ano,
         a_receber: aReceberResult.rows[0].a_receber,

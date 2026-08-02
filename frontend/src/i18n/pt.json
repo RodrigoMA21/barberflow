@@ -163,7 +163,14 @@
     "weatherShowers": "Pancadas de chuva",
     "weatherSnowShowers": "Rajadas de neve",
     "weatherThunder": "Tempestade",
-    "weatherThunderHail": "Tempestade com granizo"
+    "weatherThunderHail": "Tempestade com granizo",
+    "periodDay": "Dia",
+    "periodWeek": "Semana",
+    "periodMonth": "Mês",
+    "dayRevenue": "Faturamento do dia",
+    "weekRevenue": "Faturamento da semana",
+    "dayAppointments": "Agendamentos do dia",
+    "weekAppointments": "Agendamentos da semana"
   },
   "clientes": {
     "title": "Clientes",

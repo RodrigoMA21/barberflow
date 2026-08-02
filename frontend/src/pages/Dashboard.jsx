@@ -23,6 +23,26 @@ function formatTime(value) {
   return String(value).slice(0, 5);
 }
 
+function fmtDate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function addDays(dateStr, days) {
+  const d = new Date(`${dateStr}T12:00:00`);
+  d.setDate(d.getDate() + days);
+  return fmtDate(d);
+}
+
+function mondayOf(dateStr) {
+  const d = new Date(`${dateStr}T12:00:00`);
+  const diff = d.getDay() === 0 ? -6 : 1 - d.getDay();
+  d.setDate(d.getDate() + diff);
+  return fmtDate(d);
+}
+
 function statusLabel(status, t) {
   const map = {
     agendado: t("agendamentos.scheduled"),
@@ -88,6 +108,8 @@ const kpiIcons = {
 
 function Dashboard() {
   const [data, setData] = useState(null);
+  const [periodo, setPeriodo] = useState("mes");
+  const [dataRef, setDataRef] = useState(() => fmtDate(new Date()));
   const [mes, setMes] = useState(new Date().getMonth() + 1);
   const [ano, setAno] = useState(new Date().getFullYear());
   const [agendamentoModalOpen, setAgendamentoModalOpen] = useState(false);
@@ -95,14 +117,26 @@ function Dashboard() {
   const { t } = useTranslation();
 
   const carregarDashboard = useCallback(async () => {
-    const response = await api(`/dashboard?mes=${mes}&ano=${ano}`);
+    const params = new URLSearchParams();
+    if (periodo === "dia") {
+      params.set("periodo", "dia");
+      params.set("data", dataRef);
+    } else if (periodo === "semana") {
+      params.set("periodo", "semana");
+      params.set("data", dataRef);
+    } else {
+      params.set("periodo", "mes");
+      params.set("mes", String(mes));
+      params.set("ano", String(ano));
+    }
+    const response = await api(`/dashboard?${params.toString()}`);
     if (!response.ok) {
       setData(null);
       return;
     }
     const d = await response.json();
     setData(d);
-  }, [mes, ano]);
+  }, [periodo, mes, ano, dataRef]);
 
   const carregarProximos = useCallback(async () => {
     const hoje = new Date().toISOString().split("T")[0];
@@ -143,6 +177,12 @@ function Dashboard() {
     const monthTrend = prevValue > 0 ? ((currentValue - prevValue) / prevValue) * 100 : null;
     return { monthTrend, currentValue, prevValue };
   }, [seriesMensal, mes]);
+
+  const periodoLabel = {
+    dia: { revenue: t("dashboard.dayRevenue"), appointments: t("dashboard.dayAppointments") },
+    semana: { revenue: t("dashboard.weekRevenue"), appointments: t("dashboard.weekAppointments") },
+    mes: { revenue: t("dashboard.monthRevenue"), appointments: t("dashboard.monthAppointments") },
+  }[periodo];
 
   const mesesLabels = [
     t("common.month_jan"), t("common.month_feb"), t("common.month_mar"),
@@ -189,15 +229,63 @@ function Dashboard() {
       />
 
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <select value={mes} onChange={(e) => setMes(Number(e.target.value))} className="select pr-8 py-2 text-sm min-w-[140px]">
-              {mesesLabels.map((label, i) => (
-                <option key={i + 1} value={i + 1}>{label}</option>
-              ))}
-            </select>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center rounded-lg border border-border overflow-hidden bg-surface-secondary">
+            {[
+              { key: "dia", label: t("dashboard.periodDay") },
+              { key: "semana", label: t("dashboard.periodWeek") },
+              { key: "mes", label: t("dashboard.periodMonth") },
+            ].map((p) => (
+              <button
+                key={p.key}
+                type="button"
+                onClick={() => setPeriodo(p.key)}
+                className={`px-3 py-2 text-xs font-medium transition-all ${periodo === p.key ? "bg-primary text-white" : "text-text-secondary hover:text-text"}`}
+              >
+                {p.label}
+              </button>
+            ))}
           </div>
-          <input type="number" value={ano} onChange={(e) => setAno(Number(e.target.value))} className="input w-24 text-sm" />
+
+          {periodo === "dia" && (
+            <div className="flex items-center gap-2">
+              <button onClick={() => setDataRef(addDays(dataRef, -1))} className="btn-ghost btn-icon text-base leading-none">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+              </button>
+              <input type="date" value={dataRef} onChange={(e) => setDataRef(e.target.value)} className="input text-sm py-2" />
+              <button onClick={() => setDataRef(addDays(dataRef, 1))} className="btn-ghost btn-icon text-base leading-none">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+              </button>
+            </div>
+          )}
+
+          {periodo === "semana" && (
+            <div className="flex items-center gap-2">
+              <button onClick={() => setDataRef(addDays(dataRef, -7))} className="btn-ghost btn-icon text-base leading-none">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+              </button>
+              <input type="date" value={dataRef} onChange={(e) => setDataRef(e.target.value)} className="input text-sm py-2" />
+              <button onClick={() => setDataRef(addDays(dataRef, 7))} className="btn-ghost btn-icon text-base leading-none">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+              </button>
+              <span className="text-xs text-text-tertiary whitespace-nowrap">
+                {formatDateBR(mondayOf(dataRef))} – {formatDateBR(addDays(mondayOf(dataRef), 6))}
+              </span>
+            </div>
+          )}
+
+          {periodo === "mes" && (
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <select value={mes} onChange={(e) => setMes(Number(e.target.value))} className="select pr-8 py-2 text-sm min-w-[140px]">
+                  {mesesLabels.map((label, i) => (
+                    <option key={i + 1} value={i + 1}>{label}</option>
+                  ))}
+                </select>
+              </div>
+              <input type="number" value={ano} onChange={(e) => setAno(Number(e.target.value))} className="input w-24 text-sm" />
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -221,12 +309,19 @@ function Dashboard() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <KpiCard
-          label={t("dashboard.monthRevenue")}
+          label={periodoLabel.revenue}
           value={resumo.faturamento}
-          trend={trendData.monthTrend}
+          trend={periodo === "mes" ? trendData.monthTrend : undefined}
           icon={kpiIcons.revenue}
           accent="bg-primary-light text-primary"
           cardAccent="card-accent-primary"
+        />
+        <KpiCard
+          label={t("dashboard.weekRevenue")}
+          value={resumo.faturamento_semana}
+          icon={kpiIcons.revenue}
+          accent="bg-warning-light text-warning"
+          cardAccent="card-accent-warning"
         />
         <KpiCard
           label={t("dashboard.todayRevenue")}
@@ -243,20 +338,12 @@ function Dashboard() {
           cardAccent="card-accent-info"
         />
         <KpiCard
-          label={t("dashboard.monthAppointments")}
+          label={periodoLabel.appointments}
           value={resumo.total_agendamentos || 0}
           prefix=""
           icon={kpiIcons.appointments}
           accent="bg-accent-light text-accent"
           cardAccent="card-accent-accent"
-        />
-        <KpiCard
-          label={t("dashboard.yearAppointments")}
-          value={resumo.total_agendamentos_ano || 0}
-          prefix=""
-          icon={kpiIcons.appointments}
-          accent="bg-warning-light text-warning"
-          cardAccent="card-accent-warning"
         />
         <KpiCard
           label={t("dashboard.aReceber")}

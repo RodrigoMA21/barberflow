@@ -163,7 +163,14 @@
     "weatherShowers": "Chubascos",
     "weatherSnowShowers": "Chubascos de nieve",
     "weatherThunder": "Tormenta",
-    "weatherThunderHail": "Tormenta con granizo"
+    "weatherThunderHail": "Tormenta con granizo",
+    "periodDay": "Día",
+    "periodWeek": "Semana",
+    "periodMonth": "Mes",
+    "dayRevenue": "Ingresos del día",
+    "weekRevenue": "Ingresos de la semana",
+    "dayAppointments": "Citas del día",
+    "weekAppointments": "Citas de la semana"
   },
   "clientes": {
     "title": "Clientes",
