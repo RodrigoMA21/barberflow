@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useEffectEvent, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { api } from "../api";
@@ -12,27 +12,30 @@ const navItems = [
   { to: "/historico", labelKey: "nav.historico", icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" },
 ];
 
+function readStoredUser() {
+  try {
+    const stored = localStorage.getItem("usuario");
+    return stored ? JSON.parse(stored) : null;
+  } catch {
+    return null;
+  }
+}
+
 function Sidebar({ isOpen, onClose }) {
   const location = useLocation();
   const { t } = useTranslation();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(readStoredUser);
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
   const inputRef = useRef(null);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("usuario");
-    if (stored) {
-      try { setUser(JSON.parse(stored)); } catch { }
-    }
-  }, []);
+  const closeSidebar = useEffectEvent(onClose);
 
   useEffect(() => {
     if (editing) inputRef.current?.focus();
   }, [editing]);
 
   useEffect(() => {
-    onClose();
+    closeSidebar();
   }, [location.pathname]);
 
   function isActive(path) {
@@ -53,7 +56,9 @@ function Sidebar({ isOpen, onClose }) {
       const updated = { ...user, nome: data.usuario.nome };
       setUser(updated);
       localStorage.setItem("usuario", JSON.stringify(updated));
-    } catch { }
+    } catch (err) {
+      console.error("Erro ao salvar nome:", err);
+    }
     setEditing(false);
   }
 

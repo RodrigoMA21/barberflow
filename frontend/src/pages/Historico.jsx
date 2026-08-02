@@ -76,8 +76,10 @@ function Historico() {
   }, [clienteId, limit, month, year]);
 
   useEffect(() => {
-    carregarClientesLista();
-    carregarHistorico(1);
+    void (async () => {
+      await carregarClientesLista();
+      await carregarHistorico(1);
+    })();
   }, [carregarHistorico]);
 
   async function excluirAgendamento(agendamento) {
@@ -190,7 +192,7 @@ function Historico() {
                 </svg>
                 {t("historico.edit")}
               </button>
-              <button type="button" onClick={() => excluirAgendamento(h)} className="btn-danger text-xs px-3 py-1.5 inline-flex items-center gap-1">
+              <button type="button" onClick={() => excluirAgendamento(h)} className="btn-danger text-xs">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>

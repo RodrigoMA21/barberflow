@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../api";
 import ComparisonChart from "../components/charts/ComparisonChart";
@@ -92,7 +92,7 @@ function Dashboard() {
   const [proximos, setProximos] = useState([]);
   const { t } = useTranslation();
 
-  async function carregarDashboard() {
+  const carregarDashboard = useCallback(async () => {
     const response = await api(`/dashboard?mes=${mes}&ano=${ano}`);
     if (!response.ok) {
       setData(null);
@@ -100,9 +100,9 @@ function Dashboard() {
     }
     const d = await response.json();
     setData(d);
-  }
+  }, [mes, ano]);
 
-  async function carregarProximos() {
+  const carregarProximos = useCallback(async () => {
     const hoje = new Date().toISOString().split("T")[0];
     const response = await api(`/agendamentos?data=${hoje}`);
     if (!response.ok) return;
@@ -113,19 +113,23 @@ function Dashboard() {
       return inicio >= agora && ["agendado", "confirmado"].includes(ag.status);
     });
     setProximos(filtrados);
-  }
-
-  useEffect(() => {
-    carregarDashboard();
-  }, [mes, ano]);
-
-  useEffect(() => {
-    carregarProximos();
   }, []);
+
+  useEffect(() => {
+    void (async () => {
+      await carregarDashboard();
+    })();
+  }, [carregarDashboard]);
+
+  useEffect(() => {
+    void (async () => {
+      await carregarProximos();
+    })();
+  }, [carregarProximos]);
 
   const resumo = data?.resumo || {};
   const servicos = data?.servicos || [];
-  const seriesMensal = data?.series_mensal || [];
+  const seriesMensal = useMemo(() => data?.series_mensal || [], [data]);
   const indicadores = data?.indicadores || {};
 
   const trendData = useMemo(() => {
@@ -173,9 +177,6 @@ function Dashboard() {
     a.click();
     URL.revokeObjectURL(url);
   }
-
-  const kpiRowCount = 6;
-  const showAReceber = Number(resumo.a_receber) > 0;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -288,7 +289,7 @@ function Dashboard() {
           </div>
           {servicos.length > 0 ? (
             <div className="space-y-2">
-              {servicos.slice(0, 5).map((servico, i) => {
+              {servicos.slice(0, 5).map((servico) => {
                 const maxQty = Math.max(...servicos.map((s) => s.quantidade), 1);
                 const pct = (servico.quantidade / maxQty) * 100;
                 return (

@@ -72,62 +72,62 @@
   [data-theme="dark"] {
     --color-primary: #7c9bc0;
     --color-primary-hover: #93b0d4;
-    --color-primary-light: #2a3340;
+    --color-primary-light: #39455a;
     --color-primary-ring: rgba(124, 155, 192, 0.25);
 
-    --color-surface: #252830;
-    --color-surface-hover: #2d3039;
-    --color-surface-secondary: #1e2028;
-    --color-surface-tertiary: #2f323c;
-    --color-surface-raised: #2d3039;
-    --color-surface-alt: #21232c;
-    --color-sidebar: #16181e;
+    --color-surface: #333842;
+    --color-surface-hover: #3c414d;
+    --color-surface-secondary: #2b2f38;
+    --color-surface-tertiary: #414652;
+    --color-surface-raised: #3c414d;
+    --color-surface-alt: #2e323b;
+    --color-sidebar: #22262e;
 
-    --color-text: #e8e6e1;
-    --color-text-secondary: #a09e99;
-    --color-text-tertiary: #6b6a70;
+    --color-text: #ecebe8;
+    --color-text-secondary: #b3b1ac;
+    --color-text-tertiary: #8a8b92;
 
-    --color-border: #383b44;
-    --color-border-hover: #484b55;
+    --color-border: #4a4f5b;
+    --color-border-hover: #5a6070;
 
     --color-error: #d45a5a;
     --color-error-hover: #e06e6e;
-    --color-error-light: #2e1a1a;
+    --color-error-light: #3a2426;
 
     --color-success: #4e9d74;
     --color-success-hover: #5db384;
-    --color-success-light: #1a2e22;
+    --color-success-light: #22382f;
 
     --color-warning: #d4a53a;
     --color-warning-hover: #e0b84a;
-    --color-warning-light: #2e2a1a;
+    --color-warning-light: #3a3323;
 
     --color-info: #5a9fd4;
     --color-info-hover: #6eb0e0;
-    --color-info-light: #1a2a38;
+    --color-info-light: #273a4c;
 
     --color-accent: #d4833c;
     --color-accent-hover: #e09950;
-    --color-accent-light: #2e2218;
+    --color-accent-light: #3a2c1e;
 
     --color-scheduled: #d4a53a;
-    --color-scheduled-light: #2e2a1a;
+    --color-scheduled-light: #3a3323;
 
-    --color-brand-800: #16181e;
+    --color-brand-800: #22262e;
     --color-brand-700: #7c9bc0;
     --color-brand-600: #d4833c;
     --color-brand-500: #5a9fd4;
     --color-brand-400: #4e9d74;
     --color-brand-300: #d4a53a;
 
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
-    --shadow-md: 0 4px 8px -2px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.2);
-    --shadow-lg: 0 10px 20px -4px rgb(0 0 0 / 0.35), 0 4px 8px -4px rgb(0 0 0 / 0.25);
-    --shadow-xl: 0 20px 30px -6px rgb(0 0 0 / 0.40), 0 8px 12px -6px rgb(0 0 0 / 0.30);
-    --shadow-modal: 0 25px 50px -8px rgb(0 0 0 / 0.5);
-    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.25), 0 1px 2px -1px rgb(0 0 0 / 0.2);
-    --shadow-card-hover: 0 8px 16px -4px rgb(0 0 0 / 0.35), 0 2px 4px -2px rgb(0 0 0 / 0.25);
-    --shadow-button: 0 1px 2px 0 rgb(0 0 0 / 0.25);
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.16);
+    --shadow-md: 0 4px 8px -2px rgb(0 0 0 / 0.24), 0 2px 4px -2px rgb(0 0 0 / 0.16);
+    --shadow-lg: 0 10px 20px -4px rgb(0 0 0 / 0.28), 0 4px 8px -4px rgb(0 0 0 / 0.2);
+    --shadow-xl: 0 20px 30px -6px rgb(0 0 0 / 0.32), 0 8px 12px -6px rgb(0 0 0 / 0.24);
+    --shadow-modal: 0 25px 50px -8px rgb(0 0 0 / 0.4);
+    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.2), 0 1px 2px -1px rgb(0 0 0 / 0.16);
+    --shadow-card-hover: 0 8px 16px -4px rgb(0 0 0 / 0.28), 0 2px 4px -2px rgb(0 0 0 / 0.2);
+    --shadow-button: 0 1px 2px 0 rgb(0 0 0 / 0.2);
   }
 
   body {
