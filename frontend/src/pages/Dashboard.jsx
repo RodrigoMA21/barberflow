@@ -288,6 +288,7 @@ function Dashboard() {
           )}
         </div>
         <div className="flex items-center gap-2">
+          <ClockCard />
           <button
             type="button"
             onClick={() => setAgendamentoModalOpen(true)}
@@ -354,13 +355,8 @@ function Dashboard() {
         />
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 items-stretch">
-        <div className="sm:w-60 shrink-0">
-          <ClockCard />
-        </div>
-        <div className="flex-1 min-w-0">
-          <WeatherCard />
-        </div>
+      <div className="grid grid-cols-1 gap-4">
+        <WeatherCard />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
