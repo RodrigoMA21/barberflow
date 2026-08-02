@@ -22,18 +22,18 @@ export default function ClockCard() {
   const date = now.toLocaleDateString(locale, { weekday: "long", day: "2-digit", month: "long" });
 
   return (
-    <div className="card p-4 flex flex-col justify-center card-accent-primary animate-fade-in-up">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-8 h-8 rounded-lg bg-primary-light text-primary flex items-center justify-center shrink-0">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <div className="card p-3 flex flex-col justify-center card-accent-primary animate-fade-in-up h-full">
+      <div className="flex items-center gap-2 mb-2">
+        <div className="w-7 h-7 rounded-lg bg-primary-light text-primary flex items-center justify-center shrink-0">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="9" />
             <polyline points="12 7 12 12 15 14" />
           </svg>
         </div>
-        <span className="text-xs font-medium text-text-secondary">{t("dashboard.clock")}</span>
+        <span className="text-[11px] font-medium text-text-secondary">{t("dashboard.clock")}</span>
       </div>
-      <p className="text-2xl font-bold text-text tracking-tight tabular-nums leading-none">{time}</p>
-      <p className="text-xs text-text-secondary mt-1.5 capitalize">{date}</p>
+      <p className="text-xl font-bold text-text tracking-tight tabular-nums leading-none">{time}</p>
+      <p className="text-[11px] text-text-secondary mt-1 capitalize">{date}</p>
     </div>
   );
 }
