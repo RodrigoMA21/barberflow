@@ -193,18 +193,18 @@ export default function WeatherCard() {
   const info = current ? weatherInfo(current.code, t) : null;
 
   return (
-    <div className="card p-6 flex flex-col card-accent-info animate-fade-in-up">
-      <div className="flex items-center justify-between gap-3 mb-4">
+    <div className="card p-4 flex flex-col card-accent-info animate-fade-in-up">
+      <div className="flex items-center justify-between gap-3 mb-3">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-9 h-9 rounded-xl bg-info-light text-info flex items-center justify-center shrink-0">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <div className="w-8 h-8 rounded-lg bg-info-light text-info flex items-center justify-center shrink-0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z" />
               <circle cx="12" cy="10" r="2.5" />
             </svg>
           </div>
           <div className="min-w-0">
-            <span className="text-sm font-medium text-text-secondary">{t("dashboard.weather")}</span>
-            {city && <p className="text-xs text-text-tertiary truncate">{city}</p>}
+            <span className="text-xs font-medium text-text-secondary">{t("dashboard.weather")}</span>
+            {city && <p className="text-[11px] text-text-tertiary truncate">{city}</p>}
           </div>
         </div>
         <button
@@ -245,35 +245,39 @@ export default function WeatherCard() {
       )}
 
       {status === "ready" && current && (
-        <>
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-info-light/60 text-info flex items-center justify-center shrink-0">
-              <WeatherIcon name={info.icon} size={30} />
+        <div className="flex flex-col md:flex-row gap-5">
+          <div className="flex items-center gap-4 shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-info-light/60 text-info flex items-center justify-center shrink-0">
+              <WeatherIcon name={info.icon} size={26} />
             </div>
             <div>
-              <p className="text-4xl font-bold text-text tracking-tight leading-none">
-                {current.temp}°<span className="text-lg font-semibold text-text-secondary">C</span>
+              <p className="text-3xl font-bold text-text tracking-tight leading-none">
+                {current.temp}°<span className="text-base font-semibold text-text-secondary">C</span>
               </p>
-              <p className="text-sm text-text-secondary mt-1">{info.label}</p>
+              <p className="text-xs text-text-secondary mt-1">{info.label}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 mt-5">
-            <div className="bg-surface-secondary rounded-xl px-3 py-2 text-center border border-border/50">
-              <p className="text-[11px] text-text-tertiary">{t("dashboard.feelsLike")}</p>
+          <div className="hidden md:block w-px bg-border self-stretch" />
+
+          <div className="grid grid-cols-3 gap-2 md:min-w-[260px]">
+            <div className="bg-surface-secondary rounded-xl px-2.5 py-2 text-center border border-border/50">
+              <p className="text-[10px] text-text-tertiary">{t("dashboard.feelsLike")}</p>
               <p className="text-sm font-semibold text-text mt-0.5">{current.feels}°</p>
             </div>
-            <div className="bg-surface-secondary rounded-xl px-3 py-2 text-center border border-border/50">
-              <p className="text-[11px] text-text-tertiary">{t("dashboard.humidity")}</p>
+            <div className="bg-surface-secondary rounded-xl px-2.5 py-2 text-center border border-border/50">
+              <p className="text-[10px] text-text-tertiary">{t("dashboard.humidity")}</p>
               <p className="text-sm font-semibold text-text mt-0.5">{current.humidity}%</p>
             </div>
-            <div className="bg-surface-secondary rounded-xl px-3 py-2 text-center border border-border/50">
-              <p className="text-[11px] text-text-tertiary">{t("dashboard.wind")}</p>
+            <div className="bg-surface-secondary rounded-xl px-2.5 py-2 text-center border border-border/50">
+              <p className="text-[10px] text-text-tertiary">{t("dashboard.wind")}</p>
               <p className="text-sm font-semibold text-text mt-0.5">{current.wind}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-4 gap-1 mt-5 pt-4 border-t border-border">
+          <div className="hidden md:block w-px bg-border self-stretch" />
+
+          <div className="grid grid-cols-4 gap-1 md:flex-1">
             {daily.map((day, i) => {
               const d = weatherInfo(day.code, t);
               const dateLabel = i === 0
@@ -289,7 +293,7 @@ export default function WeatherCard() {
               );
             })}
           </div>
-        </>
+        </div>
       )}
     </div>
   );
