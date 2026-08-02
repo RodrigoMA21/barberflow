@@ -115,7 +115,8 @@
     "description": "Description",
     "saveSuccess": "Saved successfully!",
     "updateSuccess": "Updated successfully!",
-    "deleteSuccess": "Deleted successfully!"
+    "deleteSuccess": "Deleted successfully!",
+    "refresh": "Refresh"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -141,7 +142,28 @@
     "highestMonth": "Highest month",
     "relativeComparison": "Relative comparison",
     "monthYear": "month, today and year",
-    "completedLabel": "completed"
+    "completedLabel": "completed",
+    "clock": "Clock",
+    "weather": "Weather forecast",
+    "weatherLoading": "Getting forecast...",
+    "weatherDenied": "Location permission denied. Enable location to see the weather forecast.",
+    "weatherError": "Could not get the weather forecast.",
+    "retry": "Try again",
+    "feelsLike": "Feels like",
+    "humidity": "Humidity",
+    "wind": "Wind (km/h)",
+    "weatherClear": "Clear sky",
+    "weatherPartly": "Partly cloudy",
+    "weatherCloudy": "Cloudy",
+    "weatherFog": "Fog",
+    "weatherDrizzle": "Drizzle",
+    "weatherRain": "Rain",
+    "weatherFreezing": "Freezing rain",
+    "weatherSnow": "Snow",
+    "weatherShowers": "Rain showers",
+    "weatherSnowShowers": "Snow showers",
+    "weatherThunder": "Thunderstorm",
+    "weatherThunderHail": "Thunderstorm with hail"
   },
   "clientes": {
     "title": "Clients",

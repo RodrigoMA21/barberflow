@@ -115,7 +115,8 @@
     "description": "Descrição",
     "saveSuccess": "Salvo com sucesso!",
     "updateSuccess": "Atualizado com sucesso!",
-    "deleteSuccess": "Excluído com sucesso!"
+    "deleteSuccess": "Excluído com sucesso!",
+    "refresh": "Atualizar"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -141,7 +142,28 @@
     "highestMonth": "Mês com maior valor",
     "relativeComparison": "Comparação relativa",
     "monthYear": "mês, hoje e ano",
-    "completedLabel": "concluídos"
+    "completedLabel": "concluídos",
+    "clock": "Relógio",
+    "weather": "Previsão do tempo",
+    "weatherLoading": "Obtendo previsão...",
+    "weatherDenied": "Permissão de localização negada. Ative a localização para ver a previsão do tempo.",
+    "weatherError": "Não foi possível obter a previsão do tempo.",
+    "retry": "Tentar novamente",
+    "feelsLike": "Sensação",
+    "humidity": "Umidade",
+    "wind": "Vento (km/h)",
+    "weatherClear": "Céu limpo",
+    "weatherPartly": "Parcialmente nublado",
+    "weatherCloudy": "Nublado",
+    "weatherFog": "Nevoeiro",
+    "weatherDrizzle": "Garoa",
+    "weatherRain": "Chuva",
+    "weatherFreezing": "Chuva congelante",
+    "weatherSnow": "Neve",
+    "weatherShowers": "Pancadas de chuva",
+    "weatherSnowShowers": "Rajadas de neve",
+    "weatherThunder": "Tempestade",
+    "weatherThunderHail": "Tempestade com granizo"
   },
   "clientes": {
     "title": "Clientes",

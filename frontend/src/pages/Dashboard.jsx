@@ -4,6 +4,8 @@ import { api } from "../api";
 import ComparisonChart from "../components/charts/ComparisonChart";
 import RevenueChart from "../components/charts/RevenueChart";
 import AgendamentoModal from "../components/AgendamentoModal";
+import ClockCard from "../components/dashboard/ClockCard";
+import WeatherCard from "../components/dashboard/WeatherCard";
 
 function formatCurrency(value) {
   return Number(value || 0).toFixed(2);
@@ -263,6 +265,11 @@ function Dashboard() {
           accent="bg-info-light text-info"
           cardAccent="card-accent-info"
         />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <ClockCard />
+        <WeatherCard />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

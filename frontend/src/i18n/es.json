@@ -115,7 +115,8 @@
     "description": "Descripción",
     "saveSuccess": "¡Guardado con éxito!",
     "updateSuccess": "¡Actualizado con éxito!",
-    "deleteSuccess": "¡Eliminado con éxito!"
+    "deleteSuccess": "¡Eliminado con éxito!",
+    "refresh": "Actualizar"
   },
   "dashboard": {
     "title": "Panel",
@@ -141,7 +142,28 @@
     "highestMonth": "Mes con mayor valor",
     "relativeComparison": "Comparación relativa",
     "monthYear": "mes, hoy y año",
-    "completedLabel": "completados"
+    "completedLabel": "completados",
+    "clock": "Reloj",
+    "weather": "Pronóstico del tiempo",
+    "weatherLoading": "Obteniendo pronóstico...",
+    "weatherDenied": "Permiso de ubicación denegado. Activa la ubicación para ver el pronóstico del tiempo.",
+    "weatherError": "No se pudo obtener el pronóstico del tiempo.",
+    "retry": "Reintentar",
+    "feelsLike": "Sensación",
+    "humidity": "Humedad",
+    "wind": "Viento (km/h)",
+    "weatherClear": "Cielo despejado",
+    "weatherPartly": "Parcialmente nublado",
+    "weatherCloudy": "Nublado",
+    "weatherFog": "Niebla",
+    "weatherDrizzle": "Llovizna",
+    "weatherRain": "Lluvia",
+    "weatherFreezing": "Lluvia helada",
+    "weatherSnow": "Nieve",
+    "weatherShowers": "Chubascos",
+    "weatherSnowShowers": "Chubascos de nieve",
+    "weatherThunder": "Tormenta",
+    "weatherThunderHail": "Tormenta con granizo"
   },
   "clientes": {
     "title": "Clientes",
