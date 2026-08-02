@@ -352,7 +352,7 @@ function Clientes() {
             </div>
             <div className="mt-3 flex gap-2 flex-wrap">
               <button onClick={() => abrirHistoricoModal(cliente)} className="btn-info text-xs px-3 py-1.5">
-                Histórico
+                {t("clientes.history")}
               </button>
               <button onClick={() => abrirEditarFidelidade(cliente)} className="btn-warning text-xs px-3 py-1.5">
                 Editar Cartão Fidelidade
