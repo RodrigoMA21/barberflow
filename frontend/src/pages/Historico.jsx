@@ -125,8 +125,8 @@ function Historico() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="card-static p-5">
-        <h2 className="text-base font-semibold mb-4 text-text">{t("historico.filters")}</h2>
+      <div className="card-static p-6">
+        <h2 className="text-base font-semibold mb-4 text-text tracking-tight">{t("historico.filters")}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="input-label">{t("historico.month")}</label>
@@ -168,30 +168,30 @@ function Historico() {
 
       <div className="space-y-4">
         {historico.map((h) => (
-          <div key={h.id} className="card-static p-4 animate-fade-in-up">
+          <div key={h.id} className="card-static p-5 animate-fade-in-up hover:shadow-card-hover hover:border-border-hover transition-all duration-200">
             <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-semibold text-text">{h.cliente}</h2>
-                <p className="text-sm text-text-tertiary">{h.barbeiro || "—"}</p>
+              <div className="min-w-0 flex-1">
+                <h2 className="text-xl font-semibold text-text tracking-tight">{h.cliente}</h2>
+                <p className="text-sm text-text-tertiary mt-0.5">{h.barbeiro || "—"}</p>
               </div>
-              <span className={`text-xs px-2 py-1 rounded-full font-medium ${statusClass(h.status)}`}>{statusLabel(h.status, t)}</span>
+              <span className={`text-xs px-2.5 py-1 rounded-full font-semibold shrink-0 ${statusClass(h.status)}`}>{statusLabel(h.status, t)}</span>
             </div>
-            <div className="mt-2 space-y-1 text-sm text-text-secondary">
+            <div className="mt-3 space-y-1.5 text-sm text-text-secondary">
               <p><span className="text-text-tertiary">{t("historico.dateTimeLabel")}</span> {formatDateTime(h.data, h.horario)}</p>
               <p><span className="text-text-tertiary">{t("historico.servicesLabel")}</span> {h.servicos && h.servicos.length > 0 ? h.servicos.map((s) => s.nome).join(", ") : "—"}</p>
               <p><span className="text-text-tertiary">{t("historico.grossValueLabel")}</span> R$ {Number(h.total_bruto || 0).toFixed(2)}</p>
               <p><span className="text-text-tertiary">{t("historico.discountLabel")}</span> R$ {Number(h.desconto_valor || 0).toFixed(2)}</p>
-              <p><span className="text-text-tertiary">{t("historico.finalValueLabel")}</span> R$ {Number(h.total || 0).toFixed(2)}</p>
+              <p><span className="text-text-tertiary">{t("historico.finalValueLabel")}</span> <span className="font-medium text-text">R$ {Number(h.total || 0).toFixed(2)}</span></p>
             </div>
-            <div className="mt-3 flex gap-2 flex-wrap">
-              <button type="button" onClick={() => editarAgendamento(h.id)} className="bg-primary text-white px-4 py-2 rounded text-sm">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="inline mr-1">
+            <div className="mt-4 flex gap-2 flex-wrap">
+              <button type="button" onClick={() => editarAgendamento(h.id)} className="btn-primary text-xs">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
                 {t("historico.edit")}
               </button>
-              <button type="button" onClick={() => excluirAgendamento(h)} className="bg-error text-white px-4 py-2 rounded-lg text-sm">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="inline mr-1">
+              <button type="button" onClick={() => excluirAgendamento(h)} className="btn-danger text-xs px-3 py-1.5 inline-flex items-center gap-1">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
                 {t("historico.delete")}
@@ -200,18 +200,18 @@ function Historico() {
           </div>
         ))}
         {historico.length === 0 && (
-          <div className="card-static p-8 text-center">
+          <div className="card-static p-10 text-center">
             <p className="text-text-tertiary">{t("historico.noHistoryMessage")}</p>
           </div>
         )}
       </div>
 
-      <div className="flex items-center justify-between card-static px-4 py-3">
-        <button onClick={() => irParaPagina(page - 1)} disabled={page <= 1} className="btn-ghost px-3 py-2 rounded-lg text-sm disabled:opacity-40">
+      <div className="flex items-center justify-between card-static px-5 py-3.5">
+        <button onClick={() => irParaPagina(page - 1)} disabled={page <= 1} className="btn-secondary text-sm disabled:opacity-40">
           {t("common.previous")}
         </button>
         <span className="text-sm text-text-secondary">{t("historico.pageInfo", { page: meta.page || page, total: totalPages })}</span>
-        <button onClick={() => irParaPagina(page + 1)} disabled={page >= totalPages} className="btn-primary disabled:opacity-40">
+        <button onClick={() => irParaPagina(page + 1)} disabled={page >= totalPages} className="btn-primary text-sm disabled:opacity-40">
           {t("common.next")}
         </button>
       </div>

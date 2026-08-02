@@ -10,6 +10,18 @@ const TYPE_STYLES = {
   info: { bg: "bg-primary", icon: "i" },
 };
 
+const TYPE_ICONS = {
+  error: (
+    <path d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+  ),
+  success: (
+    <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+  ),
+  info: (
+    <path d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+  ),
+};
+
 export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState([]);
 
@@ -50,21 +62,23 @@ export function NotificationProvider({ children }) {
             <div
               key={n.id}
               role="alert"
-              className={`pointer-events-auto flex items-start gap-3 rounded-xl px-4 py-3 text-sm font-medium text-white shadow-dropdown ${
+              className={`pointer-events-auto flex items-start gap-3 rounded-xl px-4 py-3.5 text-sm font-medium text-white shadow-dropdown border border-white/10 ${
                 style.bg
               } ${n.leaving ? "animate-toast-out" : "animate-toast-in"}`}
             >
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/20 text-[11px] font-bold leading-none">
-                {style.icon}
-              </span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="shrink-0 mt-0.5">
+                {TYPE_ICONS[n.type] || TYPE_ICONS.info}
+              </svg>
               <span className="flex-1 pt-0.5">{n.message}</span>
               <button
                 type="button"
                 onClick={() => remove(n.id)}
-                className="shrink-0 text-white/60 hover:text-white leading-none text-lg pt-0.5 transition-colors"
+                className="btn-icon shrink-0 text-white/60 hover:text-white"
                 aria-label="Fechar notificação"
               >
-                &times;
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                  <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
               </button>
             </div>
           );

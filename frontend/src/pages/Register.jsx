@@ -37,13 +37,13 @@ function Register() {
     <div className="min-h-screen flex items-center justify-center bg-surface-secondary p-4">
       <div className="card-static p-8 w-full max-w-md animate-fade-in-up">
         <div className="text-center mb-8">
-          <div className="w-12 h-12 rounded-xl bg-primary-light flex items-center justify-center mx-auto mb-4">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+          <div className="w-14 h-14 rounded-2xl bg-primary-light flex items-center justify-center mx-auto mb-5">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
               <path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-text">{t("app.name")}</h1>
-          <p className="text-sm text-text-secondary mt-1">{t("auth.registerTitle")}</p>
+          <h1 className="text-2xl font-bold text-text tracking-tight">{t("app.name")}</h1>
+          <p className="text-sm text-text-secondary mt-1.5">{t("auth.registerTitle")}</p>
         </div>
 
         <form onSubmit={fazerCadastro} className="space-y-4">
@@ -62,12 +62,12 @@ function Register() {
             <input type="password" value={senha} onChange={(e) => setSenha(e.target.value)} className="input" placeholder="••••••••" />
           </div>
 
-          <button type="submit" className="btn-primary w-full py-2.5">
+          <button type="submit" className="btn-primary w-full justify-center py-2.5">
             {t("auth.register")}
           </button>
         </form>
 
-        <button type="button" onClick={() => navigate("/login")} className="w-full mt-4 text-sm text-text-secondary hover:text-text transition-colors">
+        <button type="button" onClick={() => navigate("/login")} className="btn-ghost w-full mt-4 text-sm py-1">
           {t("auth.hasAccount")}
         </button>
       </div>

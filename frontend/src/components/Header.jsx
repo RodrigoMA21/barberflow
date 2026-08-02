@@ -18,7 +18,7 @@ function Header({ onMenuClick }) {
   };
 
   return (
-    <header className="sticky top-0 z-20 bg-surface border-b border-border">
+    <header className="sticky top-0 z-20 bg-surface/95 backdrop-blur-sm border-b border-border">
       <div className="flex items-center justify-between px-4 md:px-6 py-3 gap-2">
         <div className="flex items-center gap-3 min-w-0">
           <button
@@ -30,7 +30,7 @@ function Header({ onMenuClick }) {
               <path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
             </svg>
           </button>
-          <h1 className="text-lg font-semibold text-text truncate">
+          <h1 className="text-lg font-semibold text-text truncate tracking-tight">
             {titles[location.pathname] || t("nav.dashboard")}
           </h1>
         </div>

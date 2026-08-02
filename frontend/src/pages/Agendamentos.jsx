@@ -267,8 +267,8 @@ function Agendamentos() {
   });
 
   return (
-    <div>
-      <form onSubmit={criarAgendamento} className="card-static p-6 mb-6">
+    <div className="space-y-6">
+      <form onSubmit={criarAgendamento} className="card-static p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="input-label">{t("agendamentos.client")}</label>
@@ -325,7 +325,7 @@ function Agendamentos() {
                 <button type="button" key={servico.id} onClick={() => {
                   const id = String(servico.id);
                   setServicoIds(selected ? servicoIds.filter((s) => s !== id) : [...servicoIds, id]);
-                }} className={`text-left rounded-lg border-2 p-4 transition-all cursor-pointer ${selected ? "border-primary bg-surface-secondary" : "border-border bg-surface hover:border-text-tertiary"}`}>
+                }} className={`text-left rounded-lg border-2 p-4 transition-all cursor-pointer backdrop-blur-sm ${selected ? "border-primary bg-primary/20" : "border-border bg-surface/40 hover:border-border-hover"}`}>
                   <div className="flex items-start justify-between gap-2">
                     <span className="font-semibold text-sm">{servico.nome}</span>
                     {selected && <span className="text-primary text-lg leading-none shrink-0">✓</span>}
@@ -359,12 +359,12 @@ function Agendamentos() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button type="submit" className="bg-primary text-white px-4 py-2 rounded">
+        <div className="flex items-center gap-3">
+          <button type="submit" className="btn-primary">
             {editingId ? t("common.save") : t("agendamentos.create")}
           </button>
           {editingId && (
-            <button type="button" onClick={limparFormulario} className="bg-surface-tertiary text-text px-4 py-2 rounded">
+            <button type="button" onClick={limparFormulario} className="btn-secondary">
               {t("common.cancel")}
             </button>
           )}
@@ -397,19 +397,19 @@ function Agendamentos() {
                 <p>{t("agendamentos.discount")}: R$ {Number(agendamento.desconto_valor || 0).toFixed(2)}</p>
                 <p>{t("agendamentos.amount")}: R$ {Number(agendamento.total || 0).toFixed(2)}</p>
 
-                <div className="mt-3 flex gap-2 flex-wrap">
+                <div className="mt-4 flex gap-2 flex-wrap">
                   {agendamento.status === "agendado" && (
-                    <button onClick={() => atualizarStatusAgendamento(agendamento.id, "confirmado")} className="badge-success px-4 py-2 rounded">
+                    <button onClick={() => atualizarStatusAgendamento(agendamento.id, "confirmado")} className="btn-success px-4 py-2">
                       {t("agendamentos.confirmAction")}
                     </button>
                   )}
                   {agendamento.status === "confirmado" && (
-                    <button onClick={() => concluirAgendamento(agendamento)} className="badge-success px-4 py-2 rounded">
+                    <button onClick={() => concluirAgendamento(agendamento)} className="btn-success px-4 py-2">
                       {t("agendamentos.completeAction")}
                     </button>
                   )}
-                  <button onClick={() => iniciarEdicao(agendamento)} className="bg-primary text-white px-4 py-2 rounded">{t("common.edit")}</button>
-                  <button onClick={() => deletarAgendamento(agendamento)} className="bg-error text-white px-4 py-2 rounded">{t("common.delete")}</button>
+                  <button onClick={() => iniciarEdicao(agendamento)} className="btn-primary">{t("common.edit")}</button>
+                  <button onClick={() => deletarAgendamento(agendamento)} className="btn-danger">{t("common.delete")}</button>
                 </div>
               </div>
             )) : (

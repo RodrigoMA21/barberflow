@@ -237,16 +237,16 @@ function Clientes() {
 
   return (
     <div>
-      <button onClick={() => setShowCriarModal(true)} className="bg-primary text-white px-4 py-2 rounded mb-6">
+      <button onClick={() => setShowCriarModal(true)} className="btn-primary mb-6">
         {t("clientes.new")}
       </button>
 
       {showCriarModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowCriarModal(false)}>
-          <div className="bg-surface border border-border rounded-2xl shadow-dropdown p-6 max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">{t("clientes.new")}</h3>
-              <button onClick={() => setShowCriarModal(false)} className="btn-ghost btn-icon text-lg">×</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowCriarModal(false)}>
+          <div className="bg-surface border border-border/50 rounded-2xl shadow-modal p-6 max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto animate-scale-in" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-semibold tracking-tight">{t("clientes.new")}</h3>
+              <button onClick={() => setShowCriarModal(false)} className="btn-ghost btn-icon">×</button>
             </div>
             <form onSubmit={(e) => { cadastrarCliente(e); setShowCriarModal(false); }}>
               <div className="mb-4">
@@ -272,14 +272,14 @@ function Clientes() {
                 <input type="text" value={endereco} onChange={(e) => setEndereco(e.target.value)} className="input" />
               </div>
 
-              <div className="mb-4 card-static p-4">
-                <div className="flex items-center justify-between gap-4 mb-3">
+              <div className="mb-4 card-static p-5">
+                <div className="flex items-center justify-between gap-4 mb-4">
                   <div>
                     <h3 className="font-semibold">{t("clientes.loyaltyCard")}</h3>
-                    <p className="text-text-secondary text-sm">{t("clientes.loyaltyDescription")}</p>
+                    <p className="text-text-secondary text-sm mt-0.5">{t("clientes.loyaltyDescription")}</p>
                   </div>
-                  <label className="flex items-center gap-2 text-sm">
-                    <input type="checkbox" checked={cartaoFidelidadeAtivo} onChange={(e) => setCartaoFidelidadeAtivo(e.target.checked)} />
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input type="checkbox" className="accent-primary w-4 h-4" checked={cartaoFidelidadeAtivo} onChange={(e) => setCartaoFidelidadeAtivo(e.target.checked)} />
                     {t("clientes.active")}
                   </label>
                 </div>
@@ -296,20 +296,20 @@ function Clientes() {
                 <div className="mt-4 card-static p-4">
                   <div className="flex items-center justify-between text-sm mb-2">
                     <span className="font-medium">{t("clientes.progress")}</span>
-                    <span>{cartaoFidelidadeCarimbos}/{cartaoFidelidadeMeta}</span>
+                    <span className="text-text-secondary">{cartaoFidelidadeCarimbos}/{cartaoFidelidadeMeta}</span>
                   </div>
                   <div className="h-3 rounded-full bg-surface-tertiary overflow-hidden">
-                    <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, (Number(cartaoFidelidadeCarimbos) / Math.max(Number(cartaoFidelidadeMeta), 1)) * 100)}%` }} />
+                    <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${Math.min(100, (Number(cartaoFidelidadeCarimbos) / Math.max(Number(cartaoFidelidadeMeta), 1)) * 100)}%` }} />
                   </div>
                   <p className="mt-3 text-sm text-text-secondary">{t("clientes.loyaltyHelp")}</p>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => setShowCriarModal(false)} className="btn-ghost px-4 py-2 rounded">
+              <div className="flex justify-end gap-3 pt-2">
+                <button type="button" onClick={() => setShowCriarModal(false)} className="btn-secondary">
                   {t("common.cancel")}
                 </button>
-                <button type="submit" className="bg-primary text-white px-4 py-2 rounded">
+                <button type="submit" className="btn-primary">
                   {t("common.create")}
                 </button>
               </div>
@@ -318,36 +318,38 @@ function Clientes() {
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {clientes.map((cliente) => (
-          <div key={cliente.id} className="card-static p-4">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-xl font-semibold text-text">{cliente.nome}</h2>
-              <button onClick={() => abrirEdicao(cliente)} className="bg-primary text-white px-3 py-1.5 rounded text-sm font-medium">
-                {t("common.edit")}
-              </button>
-              <button onClick={() => pedirConfirmacaoDeletar(cliente)} className="bg-error text-white px-3 py-1.5 rounded text-sm font-medium">
-                {t("common.delete")}
-              </button>
+          <div key={cliente.id} className="card-static p-5 hover:shadow-card-hover hover:border-border-hover transition-all duration-200">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-xl font-semibold text-text tracking-tight">{cliente.nome}</h2>
+                <button onClick={() => abrirEdicao(cliente)} className="btn-primary text-xs px-3 py-1.5">
+                  {t("common.edit")}
+                </button>
+                <button onClick={() => pedirConfirmacaoDeletar(cliente)} className="btn-danger text-xs px-3 py-1.5">
+                  {t("common.delete")}
+                </button>
+              </div>
             </div>
-            <p className="text-sm text-text-secondary">{cliente.telefone}</p>
+            {cliente.telefone && <p className="text-sm text-text-secondary mt-1">{cliente.telefone}</p>}
             <div className="mt-2 flex items-center gap-2 text-sm flex-wrap">
-              <span className={`px-2 py-1 rounded-full font-medium ${cliente.cartao_fidelidade_ativo ? "badge-success" : "badge-neutral"}`}>
+              <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${cliente.cartao_fidelidade_ativo ? "badge-success" : "badge-neutral"}`}>
                 {cliente.cartao_fidelidade_ativo ? t("clientes.active") : t("clientes.inactive")}
               </span>
-              <span className="text-text-secondary">{Number(cliente.cartao_fidelidade_carimbos) || 0}/{Number(cliente.cartao_fidelidade_meta) || 10}</span>
+              <span className="text-text-secondary text-sm">{Number(cliente.cartao_fidelidade_carimbos) || 0}/{Number(cliente.cartao_fidelidade_meta) || 10}</span>
               {Number(cliente.cartao_fidelidade_usados) > 0 && (
                 <span className="badge-info px-2 py-1 rounded-full text-xs">{Number(cliente.cartao_fidelidade_usados)} usados</span>
               )}
             </div>
             <div className="mt-3 flex gap-2 flex-wrap">
-              <button onClick={() => abrirHistoricoModal(cliente)} className="bg-info text-white px-3 py-1.5 rounded text-sm font-medium">
+              <button onClick={() => abrirHistoricoModal(cliente)} className="btn-info text-xs px-3 py-1.5">
                 Histórico
               </button>
-              <button onClick={() => abrirEditarFidelidade(cliente)} className="bg-warning text-white px-3 py-1.5 rounded text-sm font-medium">
+              <button onClick={() => abrirEditarFidelidade(cliente)} className="btn-warning text-xs px-3 py-1.5">
                 Editar Cartão Fidelidade
               </button>
-              <button onClick={() => abrirFidelidadeModal(cliente)} className="bg-primary text-white px-3 py-1.5 rounded text-sm font-medium">
+              <button onClick={() => abrirFidelidadeModal(cliente)} className="btn-accent text-xs px-3 py-1.5">
                 {t("clientes.viewCard")}
               </button>
             </div>
@@ -356,22 +358,22 @@ function Clientes() {
       </div>
 
       {clienteFidelidadeEditModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setClienteFidelidadeEditModal(null)}>
-          <div className="bg-surface border border-border rounded-2xl shadow-dropdown p-6 max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setClienteFidelidadeEditModal(null)}>
+          <div className="bg-surface border border-border/50 rounded-2xl shadow-modal p-6 max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between gap-3 mb-4">
-              <h3 className="text-lg font-semibold">{t("clientes.loyaltyCard")} — {clienteFidelidadeEditModal.nome}</h3>
-              <button onClick={() => setClienteFidelidadeEditModal(null)} className="btn-ghost btn-icon text-lg">×</button>
+              <h3 className="text-lg font-semibold tracking-tight">{t("clientes.loyaltyCard")} — {clienteFidelidadeEditModal.nome}</h3>
+              <button onClick={() => setClienteFidelidadeEditModal(null)} className="btn-ghost btn-icon">×</button>
             </div>
             <div className="card-static p-4">
-              <div className="flex items-center justify-between gap-3 mb-3">
+              <div className="flex items-center justify-between gap-3 mb-4">
                 <h3 className="font-semibold">{t("clientes.loyaltyCard")}</h3>
                 <div className="flex gap-2">
                   {Number(clienteFidelidadeEditModal.cartao_fidelidade_carimbos) >= Number(clienteFidelidadeEditModal.cartao_fidelidade_meta) && Number(clienteFidelidadeEditModal.cartao_fidelidade_meta) > 0 && (
-                    <button type="button" onClick={() => usarCartaoFidelidade(clienteFidelidadeEditModal.id)} className="badge-warning px-3 py-2 rounded text-sm font-medium">
+                    <button type="button" onClick={() => usarCartaoFidelidade(clienteFidelidadeEditModal.id)} className="btn-warning text-sm px-3 py-2">
                       Usar cartão
                     </button>
                   )}
-                  <button type="button" onClick={() => limparCartaoFidelidade(clienteFidelidadeEditModal.id)} className="bg-error text-white px-3 py-2 rounded text-sm">
+                  <button type="button" onClick={() => limparCartaoFidelidade(clienteFidelidadeEditModal.id)} className="btn-danger text-sm px-3 py-2">
                     {t("clientes.clearCard")}
                   </button>
                 </div>
@@ -382,7 +384,7 @@ function Clientes() {
                     <label className="input-label">{t("clientes.active")}</label>
                     <div className="flex items-center h-10">
                       <label className="flex items-center gap-2 text-sm cursor-pointer">
-                        <input type="checkbox" className="w-5 h-5" checked={editFidelidadeAtivo} onChange={(e) => {
+                        <input type="checkbox" className="accent-primary w-4 h-4" checked={editFidelidadeAtivo} onChange={(e) => {
                           const isChecked = e.target.checked;
                           setEditFidelidadeAtivo(isChecked);
                           if (!isChecked) setEditFidelidadeAuto(false);
@@ -393,7 +395,7 @@ function Clientes() {
                   </div>
                   <div className="mt-3">
                     <label className={`flex items-start gap-2 text-sm ${!editFidelidadeAtivo ? "opacity-40 pointer-events-none" : "cursor-pointer"}`}>
-                      <input type="checkbox" className="mt-0.5 w-5 h-5" checked={editFidelidadeAuto} disabled={!editFidelidadeAtivo} onChange={(e) => {
+                      <input type="checkbox" className="mt-0.5 accent-primary w-4 h-4" checked={editFidelidadeAuto} disabled={!editFidelidadeAtivo} onChange={(e) => {
                         const isChecked = e.target.checked;
                         setEditFidelidadeAuto(isChecked);
                         if (isChecked) setEditFidelidadeAtivo(true);
@@ -419,7 +421,7 @@ function Clientes() {
               )}
               <div className="flex items-center justify-between text-sm mb-1">
                 <span className="font-medium">{t("clientes.progress")}</span>
-                <span>{editFidelidadeCarimbos}/{editFidelidadeMeta}</span>
+                <span className="text-text-secondary">{editFidelidadeCarimbos}/{editFidelidadeMeta}</span>
               </div>
               <div className="h-3 rounded-full bg-surface-tertiary overflow-hidden mb-4">
                 <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${Math.min(100, (editFidelidadeCarimbos / Math.max(editFidelidadeMeta, 1)) * 100)}%` }} />
@@ -427,32 +429,32 @@ function Clientes() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
                 <input type="date" value={cartaoDrafts[clienteFidelidadeEditModal.id]?.dataAtendimento || ""} onChange={(e) => setCartaoDrafts((prev) => ({ ...prev, [clienteFidelidadeEditModal.id]: { ...(prev[clienteFidelidadeEditModal.id] || {}), dataAtendimento: e.target.value } }))} className="input" required />
                 <input type="text" value={cartaoDrafts[clienteFidelidadeEditModal.id]?.observacao || ""} onChange={(e) => setCartaoDrafts((prev) => ({ ...prev, [clienteFidelidadeEditModal.id]: { ...(prev[clienteFidelidadeEditModal.id] || {}), observacao: e.target.value } }))} placeholder={t("clientes.notes")} className="input md:col-span-1" />
-                <button type="button" onClick={() => adicionarAtendimentoNoCartao(clienteFidelidadeEditModal.id)} className="bg-primary text-white px-4 py-2 rounded">
+                <button type="button" onClick={() => adicionarAtendimentoNoCartao(clienteFidelidadeEditModal.id)} className="btn-primary">
                   {t("clientes.addDate")}
                 </button>
               </div>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {(cartoesPorCliente[clienteFidelidadeEditModal.id] || []).length > 0 ? (
                   cartoesPorCliente[clienteFidelidadeEditModal.id].map((registro) => (
-                    <div key={registro.id} className="flex items-center justify-between card-static px-3 py-2 text-sm">
-                      <span>{formatDateBR(registro.data_atendimento)}</span>
-                      <div className="flex items-center gap-2">
+                    <div key={registro.id} className="flex items-center justify-between bg-surface-secondary rounded-lg px-4 py-2.5 text-sm border border-border/50">
+                      <span className="font-medium">{formatDateBR(registro.data_atendimento)}</span>
+                      <div className="flex items-center gap-3">
                         <span className="text-text-tertiary text-xs">{registro.observacao || t("clientes.noObservation")}</span>
                         <button type="button" onClick={async () => {
                           await api(`/clientes/${clienteFidelidadeEditModal.id}/cartao-fidelidade/registro/${registro.id}`, { method: "DELETE" });
                           carregarCartaoFidelidade(clienteFidelidadeEditModal.id);
                           carregarClientes();
-                        }} className="text-text-tertiary hover:text-error text-lg leading-none px-1">×</button>
+                        }} className="btn-icon text-sm">×</button>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-text-tertiary">{t("clientes.noRecords")}</p>
+                  <p className="text-sm text-text-tertiary text-center py-4">{t("clientes.noRecords")}</p>
                 )}
               </div>
             </div>
-            <div className="flex gap-2 mt-4">
-              <button onClick={() => setClienteFidelidadeEditModal(null)} className="btn-ghost flex-1 py-2 rounded-lg text-sm">
+            <div className="flex gap-3 mt-4">
+              <button onClick={() => setClienteFidelidadeEditModal(null)} className="btn-secondary flex-1 justify-center">
                 {t("common.cancel")}
               </button>
               <button onClick={async () => {
@@ -475,7 +477,7 @@ function Clientes() {
                   carregarClientes();
                   notify(t("common.saveSuccess"), "success");
                 }
-              }} className="bg-primary text-white flex-1 py-2 rounded-lg text-sm font-medium">
+              }} className="btn-primary flex-1 justify-center">
                 {t("common.save")}
               </button>
             </div>
@@ -484,11 +486,11 @@ function Clientes() {
       )}
 
       {clienteEditandoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setClienteEditandoModal(null)}>
-          <div className="bg-surface border border-border rounded-2xl shadow-dropdown p-6 max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">{t("clientes.edit")}</h3>
-              <button onClick={() => setClienteEditandoModal(null)} className="btn-ghost btn-icon text-lg">×</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setClienteEditandoModal(null)}>
+          <div className="bg-surface border border-border/50 rounded-2xl shadow-modal p-6 max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto animate-scale-in" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-semibold tracking-tight">{t("clientes.edit")}</h3>
+              <button onClick={() => setClienteEditandoModal(null)} className="btn-ghost btn-icon">×</button>
             </div>
             <form onSubmit={salvarEdicao}>
               <div className="mb-4">
@@ -513,11 +515,11 @@ function Clientes() {
                 <label className="input-label">{t("clientes.address")} <span className="text-text-tertiary text-xs">({t("common.optional")})</span></label>
                 <input type="text" value={editEndereco} onChange={(e) => setEditEndereco(e.target.value)} className="input" />
               </div>
-              <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => setClienteEditandoModal(null)} className="btn-ghost px-4 py-2 rounded">
+              <div className="flex justify-end gap-3 pt-2">
+                <button type="button" onClick={() => setClienteEditandoModal(null)} className="btn-secondary">
                   {t("common.cancel")}
                 </button>
-                <button type="submit" className="bg-primary text-white px-4 py-2 rounded">
+                <button type="submit" className="btn-primary">
                   {t("common.save")}
                 </button>
               </div>
@@ -527,48 +529,48 @@ function Clientes() {
       )}
 
       {showConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50">
-          <div className="card-static p-6 max-w-sm w-full">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-surface border border-border/50 rounded-2xl shadow-modal p-6 max-w-sm w-full mx-4 animate-scale-in">
             <h3 className="text-lg font-semibold mb-4">{t("confirmDialog.title")}</h3>
-            <p className="mb-4">{t("confirmDialog.message")}</p>
-            <div className="flex justify-end space-x-3">
-              <button onClick={cancelarDeletar} className="px-4 py-2 rounded border-border btn-ghost">{t("common.cancel")}</button>
-              <button onClick={confirmarDeletar} className="px-4 py-2 rounded bg-error text-white">{t("common.delete")}</button>
+            <p className="mb-6 text-text-secondary">{t("confirmDialog.message")}</p>
+            <div className="flex justify-end gap-3">
+              <button onClick={cancelarDeletar} className="btn-secondary">{t("common.cancel")}</button>
+              <button onClick={confirmarDeletar} className="btn-danger">{t("common.delete")}</button>
             </div>
           </div>
         </div>
       )}
 
       {clienteFidelidadeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setClienteFidelidadeModal(null)}>
-          <div className="bg-surface border border-border rounded-2xl shadow-dropdown p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setClienteFidelidadeModal(null)}>
+          <div className="bg-surface border border-border/50 rounded-2xl shadow-modal p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">{t("clientes.loyaltyCard")} — {clienteFidelidadeModal.nome}</h3>
-              <button onClick={() => setClienteFidelidadeModal(null)} className="btn-ghost btn-icon text-lg">×</button>
+              <h3 className="text-lg font-semibold tracking-tight">{t("clientes.loyaltyCard")} — {clienteFidelidadeModal.nome}</h3>
+              <button onClick={() => setClienteFidelidadeModal(null)} className="btn-ghost btn-icon">×</button>
             </div>
             <div className="flex items-center gap-2 text-sm mb-4 flex-wrap">
-              <span className={`px-2 py-1 rounded-full font-medium ${clienteFidelidadeModal.cartao_fidelidade_ativo ? "badge-success" : "badge-neutral"}`}>
+              <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${clienteFidelidadeModal.cartao_fidelidade_ativo ? "badge-success" : "badge-neutral"}`}>
                 {clienteFidelidadeModal.cartao_fidelidade_ativo ? t("clientes.active") : t("clientes.inactive")}
               </span>
-              <span className="text-text-secondary">{Number(clienteFidelidadeModal.cartao_fidelidade_carimbos) || 0}/{Number(clienteFidelidadeModal.cartao_fidelidade_meta) || 10}</span>
+              <span className="text-text-secondary text-sm">{Number(clienteFidelidadeModal.cartao_fidelidade_carimbos) || 0}/{Number(clienteFidelidadeModal.cartao_fidelidade_meta) || 10}</span>
               {Number(clienteFidelidadeModal.cartao_fidelidade_usados) > 0 && (
                 <span className="text-xs text-text-tertiary">{Number(clienteFidelidadeModal.cartao_fidelidade_usados)} usado(s)</span>
               )}
             </div>
             <div className="h-4 rounded-full bg-surface-tertiary overflow-hidden mb-4">
-              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${Math.min(100, (Number(clienteFidelidadeModal.cartao_fidelidade_carimbos) / Math.max(Number(clienteFidelidadeModal.cartao_fidelidade_meta), 1)) * 100)}%` }} />
+              <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${Math.min(100, (Number(clienteFidelidadeModal.cartao_fidelidade_carimbos) / Math.max(Number(clienteFidelidadeModal.cartao_fidelidade_meta), 1)) * 100)}%` }} />
             </div>
             {Number(clienteFidelidadeModal.cartao_fidelidade_carimbos) >= Number(clienteFidelidadeModal.cartao_fidelidade_meta) && Number(clienteFidelidadeModal.cartao_fidelidade_meta) > 0 && (
-              <button onClick={() => { usarCartaoFidelidade(clienteFidelidadeModal.id); setClienteFidelidadeModal(null); }} className="w-full mb-4 badge-warning px-4 py-3 rounded-lg text-sm font-semibold">
+              <button onClick={() => { usarCartaoFidelidade(clienteFidelidadeModal.id); setClienteFidelidadeModal(null); }} className="btn-warning w-full mb-4 text-sm px-4 py-3">
                 Usar cartão fidelidade
               </button>
             )}
             <div className="space-y-2">
               {(cartoesPorCliente[clienteFidelidadeModal.id] || []).length > 0 ? (
                 cartoesPorCliente[clienteFidelidadeModal.id].map((registro) => (
-                  <div key={registro.id} className="flex items-center justify-between bg-surface-secondary rounded-lg px-4 py-3 text-sm">
+                  <div key={registro.id} className="flex items-center justify-between bg-surface-secondary rounded-lg px-4 py-3 text-sm border border-border/50">
                     <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">✓</span>
+                      <span className="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center text-xs font-bold">✓</span>
                       <span className="font-medium">{formatDateBR(registro.data_atendimento)}</span>
                     </div>
                     <span className="text-text-tertiary text-xs">{registro.observacao || t("clientes.noObservation")}</span>
@@ -578,7 +580,7 @@ function Clientes() {
                 <p className="text-sm text-text-tertiary text-center py-8">{t("clientes.noRecords")}</p>
               )}
             </div>
-            <button onClick={() => setClienteFidelidadeModal(null)} className="btn-ghost w-full mt-4 py-2 rounded-lg text-sm">
+            <button onClick={() => setClienteFidelidadeModal(null)} className="btn-ghost w-full mt-4 py-2.5 rounded-lg text-sm text-center">
               {t("common.close")}
             </button>
           </div>
@@ -586,25 +588,25 @@ function Clientes() {
       )}
 
       {clienteHistoricoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setClienteHistoricoModal(null)}>
-          <div className="bg-surface border border-border rounded-2xl shadow-dropdown p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setClienteHistoricoModal(null)}>
+          <div className="bg-surface border border-border/50 rounded-2xl shadow-modal p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">{t("clientes.history")} — {clienteHistoricoModal.nome}</h3>
-              <button onClick={() => setClienteHistoricoModal(null)} className="btn-ghost btn-icon text-lg">×</button>
+              <h3 className="text-lg font-semibold tracking-tight">{t("clientes.history")} — {clienteHistoricoModal.nome}</h3>
+              <button onClick={() => setClienteHistoricoModal(null)} className="btn-ghost btn-icon">×</button>
             </div>
             <div className="space-y-2">
               {(historicoPorCliente[clienteHistoricoModal.id] || []).length > 0 ? (
                 historicoPorCliente[clienteHistoricoModal.id].map((agendamento) => (
-                  <div key={agendamento.id} className="card-static p-3 text-sm">
+                  <div key={agendamento.id} className="bg-surface-secondary rounded-lg border border-border/50 p-4 text-sm">
                     <div className="flex items-center justify-between gap-3">
-                      <strong>{agendamento.data ? formatDateBR(agendamento.data.split("T")[0]) + " " + String(agendamento.horario || "").slice(0, 5) : "—"}</strong>
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${agendamento.status === "concluido" ? "badge-success" : agendamento.status === "cancelado" ? "badge-error" : "badge-info"}`}>{agendamento.status}</span>
+                      <strong className="text-text">{agendamento.data ? formatDateBR(agendamento.data.split("T")[0]) + " " + String(agendamento.horario || "").slice(0, 5) : "—"}</strong>
+                      <span className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${agendamento.status === "concluido" ? "badge-success" : agendamento.status === "cancelado" ? "badge-error" : "badge-info"}`}>{agendamento.status}</span>
                     </div>
-                    <div className="mt-1 text-text-secondary">
+                    <div className="mt-1.5 text-text-secondary text-sm">
                       {agendamento.servicos?.map((s) => s.nome).join(", ") || "—"}
                     </div>
-                    <div className="mt-1 text-text-secondary">
-                      {t("common.value")}: R$ {Number(agendamento.valor_final ?? agendamento.total ?? 0).toFixed(2)}
+                    <div className="mt-1 text-text-secondary text-sm">
+                      {t("common.value")}: <span className="font-medium text-text">R$ {Number(agendamento.valor_final ?? agendamento.total ?? 0).toFixed(2)}</span>
                     </div>
                   </div>
                 ))
@@ -612,7 +614,7 @@ function Clientes() {
                 <p className="text-sm text-text-tertiary text-center py-8">{t("clientes.noAppointments")}</p>
               )}
             </div>
-            <button onClick={() => setClienteHistoricoModal(null)} className="btn-ghost w-full mt-4 py-2 rounded-lg text-sm">
+            <button onClick={() => setClienteHistoricoModal(null)} className="btn-ghost w-full mt-4 py-2.5 rounded-lg text-sm text-center">
               {t("common.close")}
             </button>
           </div>

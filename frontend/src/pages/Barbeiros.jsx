@@ -148,13 +148,13 @@ function Barbeiros() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <button onClick={() => { limparFormulario(); setFormAberto(true); }} className="bg-primary text-white px-4 py-2 rounded mb-6">
+      <button onClick={() => { limparFormulario(); setFormAberto(true); }} className="btn-primary mb-6">
         {t("common.create")}
       </button>
 
       <div className="space-y-4">
         {barbeiros.map((barbeiro) => (
-          <div key={barbeiro.id} className="card-static p-4 flex gap-4 items-start animate-fade-in-up">
+          <div key={barbeiro.id} className="card-static p-5 flex gap-4 items-start animate-fade-in-up hover:shadow-card-hover hover:border-border-hover transition-all duration-200">
             {barbeiro.foto ? (
               <img src={barbeiro.foto} alt={barbeiro.nome} className="w-16 h-16 rounded-xl object-cover bg-surface-tertiary" />
             ) : (
@@ -175,13 +175,13 @@ function Barbeiros() {
                   <p className="text-text-secondary">{barbeiro.especialidade || t("common.noSpecialty")}</p>
                 </div>
                 <div className="flex gap-2 flex-wrap justify-end">
-                  <button onClick={() => toggleStats(barbeiro)} className="btn-ghost px-3 py-2 rounded-lg text-sm">
+                  <button onClick={() => toggleStats(barbeiro)} className="btn-ghost px-3 py-1.5 rounded-lg text-sm">
                     {statsAberto === barbeiro.id ? t("barbeiroStats.close") : t("barbeiroStats.view")}
                   </button>
-                  <button onClick={() => editarBarbeiro(barbeiro)} className="bg-primary text-white px-3 py-2 rounded text-sm">
+                  <button onClick={() => editarBarbeiro(barbeiro)} className="btn-primary text-xs px-3 py-1.5">
                     {t("common.edit")}
                   </button>
-                  <button onClick={() => pedirConfirmacaoDeletar(barbeiro)} className="bg-error text-white px-3 py-2 rounded-lg text-sm">
+                  <button onClick={() => pedirConfirmacaoDeletar(barbeiro)} className="btn-danger text-xs px-3 py-1.5">
                     {t("common.delete")}
                   </button>
                 </div>
@@ -246,11 +246,11 @@ function Barbeiros() {
       </div>
 
       {formAberto && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 p-4 pt-12 overflow-y-auto" onClick={() => setFormAberto(false)}>
-          <div className="card-static max-w-2xl w-full p-6 animate-fade-in" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 backdrop-blur-sm p-4 pt-12 overflow-y-auto" onClick={() => setFormAberto(false)}>
+          <div className="bg-surface border border-border/50 rounded-2xl shadow-modal max-w-2xl w-full p-6 animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <form onSubmit={cadastrarBarbeiro}>
-              <div className="flex items-center justify-between mb-4">
-                <div className="text-base font-semibold text-text">{barbeiroEditando ? t("common.edit") : t("common.create")}</div>
+              <div className="flex items-center justify-between mb-5">
+                <div className="text-base font-semibold text-text tracking-tight">{barbeiroEditando ? t("common.edit") : t("common.create")}</div>
                 <button type="button" onClick={limparFormulario} className="btn-ghost btn-icon">×</button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -273,7 +273,7 @@ function Barbeiros() {
               </div>
 
               <div className="mb-4 flex items-center gap-2">
-                <input type="checkbox" checked={ativo} onChange={(e) => setAtivo(e.target.checked)} className="w-4 h-4 accent-primary" />
+                <input type="checkbox" checked={ativo} onChange={(e) => setAtivo(e.target.checked)} className="accent-primary w-4 h-4" />
                 <label className="text-sm text-text">{t("barbeiros.active")}</label>
               </div>
 
@@ -292,7 +292,7 @@ function Barbeiros() {
                           );
                         }}
                         className={`text-left rounded-lg border-2 p-3 transition-all cursor-pointer ${
-                          selected ? "border-primary bg-primary-light" : "border-border bg-surface hover:border-border-hover"
+                          selected ? "border-primary bg-primary/20 backdrop-blur-sm" : "border-border bg-surface/40 backdrop-blur-sm hover:border-border-hover"
                         }`}
                       >
                         <div className="flex items-start justify-between gap-2">
@@ -338,13 +338,13 @@ function Barbeiros() {
       )}
 
       {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="card-static p-6 max-w-sm w-full animate-scale-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-surface border border-border/50 rounded-2xl shadow-modal p-6 max-w-sm w-full mx-4 animate-scale-in">
             <h3 className="text-lg font-semibold mb-4 text-text">{t("common.confirm")}</h3>
-            <p className="mb-4 text-text-secondary">{t("common.confirmDeleteMessage")}</p>
+            <p className="mb-6 text-text-secondary">{t("common.confirmDeleteMessage")}</p>
             <div className="flex justify-end gap-3">
-              <button onClick={cancelarDeletar} className="btn-ghost px-4 py-2 rounded-lg text-sm">{t("common.cancel")}</button>
-              <button onClick={confirmarDeletar} className="bg-error text-white px-4 py-2 rounded-lg text-sm">{t("common.delete")}</button>
+              <button onClick={cancelarDeletar} className="btn-secondary">{t("common.cancel")}</button>
+              <button onClick={confirmarDeletar} className="btn-danger">{t("common.delete")}</button>
             </div>
           </div>
         </div>

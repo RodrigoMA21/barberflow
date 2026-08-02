@@ -20,8 +20,8 @@ export default function LanguageSwitcher() {
             onClick={() => i18n.changeLanguage(lang.code)}
             className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all duration-150 ${
               isActive
-                ? "bg-primary text-white shadow-button"
-                : "text-text-secondary hover:text-text hover:bg-surface-tertiary"
+                ? "btn-primary text-xs"
+                : "btn-ghost text-xs"
             }`}
             aria-label={lang.name}
             aria-current={isActive ? "true" : undefined}

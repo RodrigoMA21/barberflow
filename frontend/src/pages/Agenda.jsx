@@ -122,12 +122,12 @@ function AppointmentBlock({ item, onEdit, onStatusChange, onDelete, t, startHour
           </div>
           <div className="flex gap-1 shrink-0">
             {item.status === "agendado" && (
-              <button onClick={(e) => { e.stopPropagation(); onStatusChange(item.id, "confirmado"); }} className="bg-white/30 hover:bg-white/50 text-white text-[10px] font-semibold px-2 py-0.5 rounded transition-colors">{t("agenda.confirmAction")}</button>
+              <button onClick={(e) => { e.stopPropagation(); onStatusChange(item.id, "confirmado"); }} className="bg-white/20 hover:bg-white/40 backdrop-blur-sm border border-white/30 hover:border-white/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md transition-all active:scale-[0.95]">{t("agenda.confirmAction")}</button>
             )}
             {item.status === "confirmado" && (
-              <button onClick={(e) => { e.stopPropagation(); onStatusChange(item.id, "concluido"); }} className="bg-white/30 hover:bg-white/50 text-white text-[10px] font-semibold px-2 py-0.5 rounded transition-colors">{t("agenda.completeAction")}</button>
+              <button onClick={(e) => { e.stopPropagation(); onStatusChange(item.id, "concluido"); }} className="bg-white/20 hover:bg-white/40 backdrop-blur-sm border border-white/30 hover:border-white/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md transition-all active:scale-[0.95]">{t("agenda.completeAction")}</button>
             )}
-            <button onClick={(e) => { e.stopPropagation(); onDelete(item); }} className="bg-error/70 hover:bg-error text-white text-[10px] font-semibold px-2 py-0.5 rounded transition-colors">{t("agenda.deleteAction")}</button>
+            <button onClick={(e) => { e.stopPropagation(); onDelete(item); }} className="bg-error/60 hover:bg-error/85 backdrop-blur-sm border border-white/20 hover:border-white/50 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md transition-all active:scale-[0.95]">{t("agenda.deleteAction")}</button>
           </div>
         </div>
       </div>
@@ -538,7 +538,7 @@ function Agenda() {
                         : [...settings.days, d.value].sort((a, b) => a - b);
                       setSettings({ ...settings, days });
                     }}
-                    className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${settings.days.includes(d.value) ? "bg-primary text-white border-primary" : "bg-surface text-text-secondary border-border"}`}
+                    className={`text-xs rounded-lg border transition-all active:scale-[0.97] ${settings.days.includes(d.value) ? "btn-primary" : "btn-secondary"}`}
                   >
                     {d.label}
                   </button>
@@ -621,7 +621,7 @@ function Agenda() {
               <button
                 key={i}
                 onClick={() => setMobileTab(Math.min(i, allColumns.length - 1))}
-                className={`shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${mobileTab === i ? "bg-primary text-white border-primary" : "bg-surface text-text-secondary border-border"}`}
+                className={`shrink-0 text-xs rounded-full border transition-all active:scale-[0.97] ${mobileTab === i ? "btn-primary" : "btn-secondary"}`}
               >
                 {col.type === "barber" ? col.barbeiro.nome : t("agenda.noService")}
               </button>

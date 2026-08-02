@@ -274,17 +274,17 @@ function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="card p-5 lg:col-span-2">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold text-text">{t("dashboard.monthlyRevenue")}</h2>
+        <div className="card p-6 lg:col-span-2">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-base font-semibold text-text tracking-tight">{t("dashboard.monthlyRevenue")}</h2>
             <span className="text-xs text-text-tertiary">{ano}</span>
           </div>
           <RevenueChart data={seriesMensal} year={ano} monthLabels={monthShortLabels} />
         </div>
 
-        <div className="card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold text-text">{t("dashboard.topServices")}</h2>
+        <div className="card p-6">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-base font-semibold text-text tracking-tight">{t("dashboard.topServices")}</h2>
           </div>
           {servicos.length > 0 ? (
             <div className="space-y-2">
@@ -314,9 +314,9 @@ function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="card p-5 lg:col-span-2">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold text-text">{t("dashboard.revenueComparison")}</h2>
+        <div className="card p-6 lg:col-span-2">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-base font-semibold text-text tracking-tight">{t("dashboard.revenueComparison")}</h2>
           </div>
           <ComparisonChart
             data={[
@@ -327,9 +327,9 @@ function Dashboard() {
           />
         </div>
 
-        <div className="card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold text-text">{t("agendamentos.nextAppointments")}</h2>
+        <div className="card p-6">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-base font-semibold text-text tracking-tight">{t("agendamentos.nextAppointments")}</h2>
           </div>
           {proximos.length > 0 ? (
             <div className="space-y-2 max-h-[320px] overflow-y-auto">

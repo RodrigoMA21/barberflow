@@ -96,21 +96,21 @@ function Servicos() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <button onClick={() => { setEditandoId(null); setNome(""); setPreco(""); setDescricao(""); setFormAberto(true); }} className="bg-primary text-white px-4 py-2 rounded mb-6">
+      <button onClick={() => { setEditandoId(null); setNome(""); setPreco(""); setDescricao(""); setFormAberto(true); }} className="btn-primary mb-6">
         {t("common.create")}
       </button>
 
       <div className="space-y-4">
         {servicos.map((servico) => (
-          <div key={servico.id} className="card-static p-4 animate-fade-in-up">
-            <h2 className="text-xl font-semibold text-text">{servico.nome}</h2>
-            <p className="text-text-secondary">R$ {servico.preco}</p>
+          <div key={servico.id} className="card-static p-5 animate-fade-in-up hover:shadow-card-hover hover:border-border-hover transition-all duration-200">
+            <h2 className="text-xl font-semibold text-text tracking-tight">{servico.nome}</h2>
+            <p className="text-text-secondary mt-1">R$ {servico.preco}</p>
             {servico.descricao && <p className="text-text-tertiary text-sm mt-1">{servico.descricao}</p>}
-            <div className="flex gap-2 mt-3">
-              <button onClick={() => iniciarEdicao(servico)} className="bg-primary text-white px-4 py-2 rounded text-sm">
+            <div className="flex gap-2 mt-4">
+              <button onClick={() => iniciarEdicao(servico)} className="btn-primary text-xs px-3 py-1.5">
                 {t("common.edit")}
               </button>
-              <button onClick={() => deletarServico(servico.id)} className="bg-error text-white px-4 py-2 rounded-lg text-sm">
+              <button onClick={() => deletarServico(servico.id)} className="btn-danger text-xs px-3 py-1.5">
                 {t("common.delete")}
               </button>
             </div>
@@ -119,11 +119,11 @@ function Servicos() {
       </div>
 
       {formAberto && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 p-4 pt-12 overflow-y-auto" onClick={() => setFormAberto(false)}>
-          <div className="card-static max-w-lg w-full p-6 animate-fade-in" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 backdrop-blur-sm p-4 pt-12 overflow-y-auto" onClick={() => setFormAberto(false)}>
+          <div className="bg-surface border border-border/50 rounded-2xl shadow-modal max-w-lg w-full p-6 animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <form onSubmit={editandoId ? salvarEdicao : cadastrarServico}>
-              <div className="flex items-center justify-between mb-4">
-                <div className="text-base font-semibold text-text">{editandoId ? t("common.edit") : t("common.create")}</div>
+              <div className="flex items-center justify-between mb-5">
+                <div className="text-base font-semibold text-text tracking-tight">{editandoId ? t("common.edit") : t("common.create")}</div>
                 <button type="button" onClick={limparFormulario} className="btn-ghost btn-icon">&times;</button>
               </div>
               <div className="mb-4">
@@ -138,11 +138,11 @@ function Servicos() {
                 <label className="input-label">{t("common.description")}</label>
                 <textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} className="input" rows={3} />
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3 pt-2">
                 <button type="submit" className="btn-primary">
                   {editandoId ? t("common.update") : t("common.create")}
                 </button>
-                <button type="button" onClick={limparFormulario} className="btn-ghost px-4 py-2 rounded-lg text-sm">
+                <button type="button" onClick={limparFormulario} className="btn-secondary">
                   {t("common.cancel")}
                 </button>
               </div>

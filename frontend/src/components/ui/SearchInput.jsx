@@ -24,7 +24,7 @@ const SearchInput = forwardRef(function SearchInput({ value, onChange }, ref) {
           <button
             type="button"
             onClick={() => onChange?.({ target: { value: "" } })}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text transition-colors"
+            className="btn-icon absolute right-3 top-1/2 -translate-y-1/2"
             aria-label={t("common.searchClear")}
           >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
