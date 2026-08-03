@@ -205,7 +205,9 @@
     "cleanConfirm": "Are you sure you want to clear this client's loyalty card?",
     "viewCard": "View loyalty card",
     "loyaltyAdded": "Attendance recorded on loyalty card",
-    "loyaltyUsed": "Loyalty card successfully used"
+    "loyaltyUsed": "Loyalty card successfully used",
+    "emptyTitle": "No clients registered",
+    "emptyDescription": "Register your first client to start using BarberFlow."
   },
   "servicos": {
     "title": "Services",
@@ -214,7 +216,9 @@
     "name": "Name",
     "price": "Price ($)",
     "duration": "Duration (min)",
-    "noServices": "No services registered."
+    "noServices": "No services registered.",
+    "emptyTitle": "No services registered",
+    "emptyDescription": "Register your first service to start offering appointments."
   },
   "barbeiros": {
     "title": "Barbers",
@@ -233,6 +237,8 @@
     "breakEnd": "Break end",
     "noDays": "None selected = available every day",
     "noBarbers": "No barbers registered.",
+    "emptyTitle": "No barbers registered",
+    "emptyDescription": "Register your first barber to start scheduling appointments.",
     "summary": "Summary",
     "close": "Close",
     "topClients": "Top clients",

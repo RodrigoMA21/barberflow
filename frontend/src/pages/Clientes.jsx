@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../api";
 import { useNotify } from "../components/Notification";
+import EmptyState from "../components/ui/EmptyState";
 
 function formatDateBR(dateStr) {
   if (!dateStr) return "";
@@ -321,7 +322,18 @@ function Clientes() {
       )}
 
       <div className="space-y-3">
-        {clientes.map((cliente) => (
+        {clientes.length === 0 ? (
+          <EmptyState
+            title={t("clientes.emptyTitle")}
+            description={t("clientes.emptyDescription")}
+            action={
+              <button onClick={() => setShowCriarModal(true)} className="btn-primary">
+                {t("clientes.new")}
+              </button>
+            }
+          />
+        ) : (
+        clientes.map((cliente) => (
           <div key={cliente.id} className="card-static p-5 hover:shadow-card-hover hover:border-border-hover transition-all duration-200">
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <div className="flex items-center gap-2 flex-wrap">
@@ -362,7 +374,7 @@ function Clientes() {
               </button>
             </div>
           </div>
-        ))}
+        )))}
       </div>
 
       {clienteFidelidadeEditModal && (

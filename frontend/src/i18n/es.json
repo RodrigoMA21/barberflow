@@ -205,7 +205,9 @@
     "cleanConfirm": "¿Estás seguro de que deseas limpiar la tarjeta de fidelidad de este cliente?",
     "viewCard": "Ver tarjeta de fidelidad",
     "loyaltyAdded": "Asistencia registrada en la tarjeta de fidelidad",
-    "loyaltyUsed": "Tarjeta de fidelidad utilizada con éxito"
+    "loyaltyUsed": "Tarjeta de fidelidad utilizada con éxito",
+    "emptyTitle": "No hay clientes registrados",
+    "emptyDescription": "Registra tu primer cliente para empezar a usar BarberFlow."
   },
   "servicos": {
     "title": "Servicios",
@@ -214,7 +216,9 @@
     "name": "Nombre",
     "price": "Precio ($)",
     "duration": "Duración (min)",
-    "noServices": "No hay servicios registrados."
+    "noServices": "No hay servicios registrados.",
+    "emptyTitle": "No hay servicios registrados",
+    "emptyDescription": "Registra tu primer servicio para empezar a ofrecer citas."
   },
   "barbeiros": {
     "title": "Barberos",
@@ -233,6 +237,8 @@
     "breakEnd": "Fin descanso",
     "noDays": "Ninguno marcado = disponible todos los días",
     "noBarbers": "No hay barberos registrados.",
+    "emptyTitle": "No hay barberos registrados",
+    "emptyDescription": "Registra tu primer barbero para empezar a agendar citas.",
     "summary": "Resumen",
     "close": "Cerrar",
     "topClients": "Clientes más atendidos",

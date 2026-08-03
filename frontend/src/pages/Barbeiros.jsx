@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../api";
 import { useNotify } from "../components/Notification";
+import EmptyState from "../components/ui/EmptyState";
 
 const DIAS = [
   { value: 1, label: "common.monday" },
@@ -153,7 +154,18 @@ function Barbeiros() {
       </button>
 
       <div className="space-y-4">
-        {barbeiros.map((barbeiro) => (
+        {barbeiros.length === 0 ? (
+          <EmptyState
+            title={t("barbeiros.emptyTitle")}
+            description={t("barbeiros.emptyDescription")}
+            action={
+              <button onClick={() => { limparFormulario(); setFormAberto(true); }} className="btn-primary">
+                {t("common.create")}
+              </button>
+            }
+          />
+        ) : (
+        barbeiros.map((barbeiro) => (
           <div key={barbeiro.id} className="card-static p-5 flex gap-4 items-start animate-fade-in-up hover:shadow-card-hover hover:border-border-hover transition-all duration-200">
             {barbeiro.foto ? (
               <img src={barbeiro.foto} alt={barbeiro.nome} className="w-16 h-16 rounded-xl object-cover bg-surface-tertiary" />
@@ -248,7 +260,7 @@ function Barbeiros() {
               )}
             </div>
           </div>
-        ))}
+        )))}
       </div>
 
       {formAberto && (

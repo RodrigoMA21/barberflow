@@ -150,6 +150,22 @@ npm run build
 
 ---
 
+# 🚢 Deploy
+
+A aplicação está publicada e em uso. Infraestrutura gratuita:
+
+| Camada | Serviço | URL |
+| ------ | ------- | --- |
+| Frontend | Vercel | https://barberflow-two-beta.vercel.app |
+| Backend | Oracle Cloud Free VM | https://barberflow.duckdns.org |
+| Banco | Neon (PostgreSQL) | connection string da Neon |
+
+- O Caddy na VM faz o proxy HTTPS (`barberflow.duckdns.org` → porta 3000) com certificado automático.
+- O DuckDNS atualiza o IP da VM automaticamente a cada 5 minutos.
+- Para manter/deployar: veja o guia completo em [DEPLOY.md](./DEPLOY.md).
+
+---
+
 # 📄 Licença
 
 Este projeto possui direitos reservados. Consulte o arquivo [LICENSE.md](./LICENSE.md) para mais informações.

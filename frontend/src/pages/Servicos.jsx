@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../api";
 import { useNotify } from "../components/Notification";
+import EmptyState from "../components/ui/EmptyState";
 
 function Servicos() {
   const [servicos, setServicos] = useState([]);
@@ -103,7 +104,18 @@ function Servicos() {
       </button>
 
       <div className="space-y-4">
-        {servicos.map((servico) => (
+        {servicos.length === 0 ? (
+          <EmptyState
+            title={t("servicos.emptyTitle")}
+            description={t("servicos.emptyDescription")}
+            action={
+              <button onClick={() => { setEditandoId(null); setNome(""); setPreco(""); setDescricao(""); setFormAberto(true); }} className="btn-primary">
+                {t("common.create")}
+              </button>
+            }
+          />
+        ) : (
+        servicos.map((servico) => (
           <div key={servico.id} className="card-static p-5 animate-fade-in-up hover:shadow-card-hover hover:border-border-hover transition-all duration-200">
             <h2 className="text-xl font-semibold text-text tracking-tight">{servico.nome}</h2>
             <p className="text-text-secondary mt-1">R$ {servico.preco}</p>
@@ -123,7 +135,7 @@ function Servicos() {
               </button>
             </div>
           </div>
-        ))}
+        )))}
       </div>
 
       {formAberto && (
