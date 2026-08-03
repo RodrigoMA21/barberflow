@@ -99,9 +99,11 @@ function Servicos() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <button onClick={() => { setEditandoId(null); setNome(""); setPreco(""); setDescricao(""); setFormAberto(true); }} className="btn-primary mb-6">
-        {t("common.create")}
-      </button>
+      {servicos.length > 0 && (
+        <button onClick={() => { setEditandoId(null); setNome(""); setPreco(""); setDescricao(""); setFormAberto(true); }} className="btn-primary mb-6">
+          {t("common.create")}
+        </button>
+      )}
 
       <div className="space-y-4">
         {servicos.length === 0 ? (

@@ -240,9 +240,11 @@ function Clientes() {
 
   return (
     <div>
-      <button onClick={() => setShowCriarModal(true)} className="btn-primary mb-6">
-        {t("clientes.new")}
-      </button>
+      {clientes.length > 0 && (
+        <button onClick={() => setShowCriarModal(true)} className="btn-primary mb-6">
+          {t("clientes.new")}
+        </button>
+      )}
 
       {showCriarModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowCriarModal(false)}>

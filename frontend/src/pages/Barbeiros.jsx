@@ -149,9 +149,11 @@ function Barbeiros() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <button onClick={() => { limparFormulario(); setFormAberto(true); }} className="btn-primary mb-6">
-        {t("common.create")}
-      </button>
+      {barbeiros.length > 0 && (
+        <button onClick={() => { limparFormulario(); setFormAberto(true); }} className="btn-primary mb-6">
+          {t("common.create")}
+        </button>
+      )}
 
       <div className="space-y-4">
         {barbeiros.length === 0 ? (
